@@ -13,12 +13,24 @@ struct VisionCommand: AsyncParsableCommand {
 
             These operations leverage Apple's Neural Engine for \
             optimal performance on Apple Silicon.
+
+            QUICK START:
+              airis vision flow frame1.jpg frame2.jpg
+              airis vision align ref.jpg target.jpg
+              airis vision saliency photo.jpg -o heatmap.png
+              airis vision persons portrait.jpg -o mask.png
+
+            SUBCOMMANDS:
+              flow      - Analyze optical flow between two images
+              align     - Compute image registration transform
+              saliency  - Detect visual attention regions
+              persons   - Generate person segmentation mask
             """,
         subcommands: [
-            // FlowCommand.self,      // Task 5.1 实现
-            // AlignCommand.self,     // Task 5.1 实现
-            // SaliencyCommand.self,  // Task 5.1 实现
-            // PersonsCommand.self,   // Task 5.1 实现
+            FlowCommand.self,
+            AlignCommand.self,
+            SaliencyCommand.self,
+            PersonsCommand.self,
         ]
     )
 }
