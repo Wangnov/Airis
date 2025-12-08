@@ -146,6 +146,24 @@ struct DrawCommand: AsyncParsableCommand {
             try FileUtils.validateImageFile(at: path)
         }
 
+        // 显示即将使用的参数（生成前总览）
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("🎨 图像生成参数")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+        if let output = output {
+            print("💾 输出: \(output)")
+        }
+
+        if open {
+            print("👁️  完成后: 自动打开图片")
+        } else if reveal {
+            print("👁️  完成后: 在 Finder 中显示")
+        }
+
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("")
+
         // 根据 provider 选择
         switch provider {
         case "gemini":
@@ -162,8 +180,12 @@ struct DrawCommand: AsyncParsableCommand {
 
             // 打开图片或在 Finder 中显示
             if reveal {
+                print("")
+                print("📂 正在 Finder 中显示...")
                 openInFinder(outputURL)
             } else if open {
+                print("")
+                print("🖼️  正在打开图片...")
                 openWithDefaultApp(outputURL)
             }
 

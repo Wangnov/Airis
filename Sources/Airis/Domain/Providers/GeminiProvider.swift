@@ -46,10 +46,40 @@ final class GeminiProvider {
             throw AirisError.invalidPath(endpoint)
         }
 
-        // 打印进度
+        // 打印进度和参数信息
         print(Strings.get("gen.connecting"))
-        print(Strings.get("gen.model", actualModel))
-        print(Strings.get("gen.prompt", prompt))
+        print("")
+        print("🔑 模型: \(actualModel)")
+        print("📝 提示词: \(prompt)")
+        print("")
+        print("📐 纵横比: \(aspectRatio)")
+
+        if actualModel.contains("2.5-flash") {
+            // Flash 模型固定 1024px
+            let resolution = getResolutionForFlash(aspectRatio: aspectRatio)
+            print("📏 分辨率: 1024px 级别 (\(resolution))")
+        } else {
+            // Pro 模型可变分辨率
+            let resolution = getResolutionForPro(aspectRatio: aspectRatio, size: imageSize)
+            print("📏 分辨率: \(imageSize) (\(resolution))")
+        }
+
+        if !references.isEmpty {
+            print("🖼️  参考图片: \(references.count) 张")
+            for (index, refURL) in references.enumerated() {
+                print("   [\(index + 1)] \(refURL.lastPathComponent)")
+            }
+        }
+
+        if let outputPath = outputPath {
+            print("💾 输出路径: \(outputPath)")
+        } else {
+            print("💾 输出路径: 自动生成（当前目录）")
+        }
+
+        if enableSearch {
+            print("🔍 Google Search: 已启用（实时信息）")
+        }
 
         // 构建请求体
         var parts: [GeminiGenerateRequest.Part] = [
@@ -106,7 +136,7 @@ final class GeminiProvider {
 
         // 发送请求
         print("")
-        print(Strings.get("info.processing"))
+        print("⏳ \(Strings.get("info.processing"))")
 
         let headers = [
             "x-goog-api-key": apiKey
@@ -159,5 +189,68 @@ final class GeminiProvider {
         print(Strings.get("info.saved_to", finalOutputPath))
 
         return URL(fileURLWithPath: finalOutputPath)
+    }
+
+    // MARK: - Resolution Helpers
+
+    /// 获取 Flash 模型的实际分辨率
+    private func getResolutionForFlash(aspectRatio: String) -> String {
+        switch aspectRatio {
+        case "1:1": return "1024×1024"
+        case "2:3": return "832×1248"
+        case "3:2": return "1248×832"
+        case "3:4": return "864×1184"
+        case "4:3": return "1184×864"
+        case "4:5": return "896×1152"
+        case "5:4": return "1152×896"
+        case "9:16": return "768×1344"
+        case "16:9": return "1344×768"
+        case "21:9": return "1536×672"
+        default: return "1024×1024"
+        }
+    }
+
+    /// 获取 Pro 模型的实际分辨率
+    private func getResolutionForPro(aspectRatio: String, size: String) -> String {
+        let resolutions: [String: [String: String]] = [
+            "1K": [
+                "1:1": "1024×1024",
+                "2:3": "848×1264",
+                "3:2": "1264×848",
+                "3:4": "896×1200",
+                "4:3": "1200×896",
+                "4:5": "928×1152",
+                "5:4": "1152×928",
+                "9:16": "768×1376",
+                "16:9": "1376×768",
+                "21:9": "1584×672"
+            ],
+            "2K": [
+                "1:1": "2048×2048",
+                "2:3": "1696×2528",
+                "3:2": "2528×1696",
+                "3:4": "1792×2400",
+                "4:3": "2400×1792",
+                "4:5": "1856×2304",
+                "5:4": "2304×1856",
+                "9:16": "1536×2752",
+                "16:9": "2752×1536",
+                "21:9": "3168×1344"
+            ],
+            "4K": [
+                "1:1": "4096×4096",
+                "2:3": "3392×5056",
+                "3:2": "5056×3392",
+                "3:4": "3584×4800",
+                "4:3": "4800×3584",
+                "4:5": "3712×4608",
+                "5:4": "4608×3712",
+                "9:16": "3072×5504",
+                "16:9": "5504×3072",
+                "21:9": "6336×2688"
+            ]
+        ]
+
+        return resolutions[size]?[aspectRatio] ?? "Unknown"
     }
 }
