@@ -182,4 +182,226 @@ final class VisionService: Sendable {
         let texts: [VNRecognizedTextObservation]
         let barcodes: [VNBarcodeObservation]
     }
+
+    // MARK: - 光流分析
+
+    /// 光流精度级别
+    enum OpticalFlowAccuracy: String, CaseIterable {
+        case low
+        case medium
+        case high
+        case veryHigh
+
+        var vnAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy {
+            switch self {
+            case .low: return .low
+            case .medium: return .medium
+            case .high: return .high
+            case .veryHigh: return .veryHigh
+            }
+        }
+    }
+
+    /// 光流分析结果
+    struct OpticalFlowResult: @unchecked Sendable {
+        let pixelBuffer: CVPixelBuffer
+        let width: Int
+        let height: Int
+    }
+
+    /// 计算两帧间的光流
+    func computeOpticalFlow(
+        from sourceURL: URL,
+        to targetURL: URL,
+        accuracy: OpticalFlowAccuracy = .medium
+    ) async throws -> OpticalFlowResult {
+        let targetImage = CIImage(contentsOf: targetURL)!
+
+        let request = VNGenerateOpticalFlowRequest(targetedCIImage: targetImage, options: [:])
+        request.computationAccuracy = accuracy.vnAccuracy
+
+        let handler = VNImageRequestHandler(url: sourceURL, options: [:])
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                guard let results = request.results,
+                      let observation = results.first else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                let pixelBuffer = observation.pixelBuffer
+                let width = CVPixelBufferGetWidth(pixelBuffer)
+                let height = CVPixelBufferGetHeight(pixelBuffer)
+
+                continuation.resume(returning: OpticalFlowResult(
+                    pixelBuffer: pixelBuffer,
+                    width: width,
+                    height: height
+                ))
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    // MARK: - 图像配准
+
+    /// 图像配准结果
+    struct ImageAlignmentResult: Sendable {
+        let transform: CGAffineTransform
+        let translationX: CGFloat
+        let translationY: CGFloat
+    }
+
+    /// 计算两张图像的对齐变换（平移配准）
+    func computeImageAlignment(
+        referenceURL: URL,
+        floatingURL: URL
+    ) async throws -> ImageAlignmentResult {
+        let floatingImage = CIImage(contentsOf: floatingURL)!
+
+        let request = VNTranslationalImageRegistrationRequest(targetedCIImage: floatingImage, options: [:])
+        let handler = VNImageRequestHandler(url: referenceURL, options: [:])
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                guard let results = request.results,
+                      let observation = results.first as? VNImageTranslationAlignmentObservation else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                let transform = observation.alignmentTransform
+                continuation.resume(returning: ImageAlignmentResult(
+                    transform: transform,
+                    translationX: transform.tx,
+                    translationY: transform.ty
+                ))
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    // MARK: - 显著性检测
+
+    /// 显著性检测类型
+    enum SaliencyType: String, CaseIterable {
+        case attention  // 基于注意力
+        case objectness // 基于对象性
+    }
+
+    /// 显著性检测结果
+    struct SaliencyResult: @unchecked Sendable {
+        let heatMapBuffer: CVPixelBuffer
+        let salientBounds: [CGRect]
+        let width: Int
+        let height: Int
+    }
+
+    /// 检测图像显著性区域
+    func detectSaliency(
+        at url: URL,
+        type: SaliencyType = .attention
+    ) async throws -> SaliencyResult {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+
+        let request: VNImageBasedRequest
+        switch type {
+        case .attention:
+            request = VNGenerateAttentionBasedSaliencyImageRequest()
+        case .objectness:
+            request = VNGenerateObjectnessBasedSaliencyImageRequest()
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                guard let results = request.results as? [VNSaliencyImageObservation],
+                      let observation = results.first else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                let pixelBuffer = observation.pixelBuffer
+                let width = CVPixelBufferGetWidth(pixelBuffer)
+                let height = CVPixelBufferGetHeight(pixelBuffer)
+
+                // 获取显著区域边界框
+                var bounds: [CGRect] = []
+                if let salientObjects = observation.salientObjects {
+                    bounds = salientObjects.map { $0.boundingBox }
+                }
+
+                continuation.resume(returning: SaliencyResult(
+                    heatMapBuffer: pixelBuffer,
+                    salientBounds: bounds,
+                    width: width,
+                    height: height
+                ))
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    // MARK: - 人物分割
+
+    /// 人物分割质量级别
+    enum PersonSegmentationQuality: String, CaseIterable {
+        case fast
+        case balanced
+        case accurate
+
+        var vnQuality: VNGeneratePersonSegmentationRequest.QualityLevel {
+            switch self {
+            case .fast: return .fast
+            case .balanced: return .balanced
+            case .accurate: return .accurate
+            }
+        }
+    }
+
+    /// 人物分割结果
+    struct PersonSegmentationResult: @unchecked Sendable {
+        let maskBuffer: CVPixelBuffer
+        let width: Int
+        let height: Int
+    }
+
+    /// 生成人物分割遮罩
+    func generatePersonSegmentation(
+        at url: URL,
+        quality: PersonSegmentationQuality = .balanced
+    ) async throws -> PersonSegmentationResult {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNGeneratePersonSegmentationRequest()
+        request.qualityLevel = quality.vnQuality
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                guard let results = request.results,
+                      let observation = results.first else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                let pixelBuffer = observation.pixelBuffer
+                let width = CVPixelBufferGetWidth(pixelBuffer)
+                let height = CVPixelBufferGetHeight(pixelBuffer)
+
+                continuation.resume(returning: PersonSegmentationResult(
+                    maskBuffer: pixelBuffer,
+                    width: width,
+                    height: height
+                ))
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
 }
