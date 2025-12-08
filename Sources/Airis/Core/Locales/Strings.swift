@@ -363,117 +363,144 @@ struct Strings: Sendable {
             .cn: "将应用的滤镜"
         ],
 
-        // ============ Filter 命令 ============
-        // Blur
-        "filter.blur.title": [
-            .en: "Blur Filter",
-            .cn: "模糊滤镜"
+        // Scan 命令（Task 6.3）
+        "edit.scan.title": [
+            .en: "Document Scan",
+            .cn: "文档扫描"
         ],
-        "filter.blur.type": [
-            .en: "Type",
-            .cn: "类型"
+        "edit.scan.detecting": [
+            .en: "Detecting document edges...",
+            .cn: "正在检测文档边界..."
         ],
-        "filter.blur.radius": [
-            .en: "Radius",
-            .cn: "半径"
+        "edit.scan.found": [
+            .en: "Document detected (confidence: %@)",
+            .cn: "检测到文档（置信度：%@）"
         ],
-        "filter.blur.angle": [
-            .en: "Angle",
-            .cn: "角度"
+        "edit.scan.correcting": [
+            .en: "Applying perspective correction...",
+            .cn: "正在应用透视校正..."
+        ],
+        "edit.scan.result_size": [
+            .en: "Result size: %d × %d",
+            .cn: "结果尺寸：%d × %d"
         ],
 
-        // Sharpen
-        "filter.sharpen.title": [
-            .en: "Sharpen Filter",
-            .cn: "锐化滤镜"
+        // Straighten 命令（Task 6.3）
+        "edit.straighten.title": [
+            .en: "Image Straighten",
+            .cn: "图像拉直"
         ],
-        "filter.sharpen.method": [
-            .en: "Method",
-            .cn: "方法"
+        "edit.straighten.detecting": [
+            .en: "Detecting horizon angle...",
+            .cn: "正在检测地平线角度..."
         ],
-        "filter.sharpen.intensity": [
+        "edit.straighten.no_horizon": [
+            .en: "No horizon detected, skipping rotation",
+            .cn: "未检测到地平线，跳过旋转"
+        ],
+        "edit.straighten.detected": [
+            .en: "Detected tilt: %@°",
+            .cn: "检测到倾斜：%@°"
+        ],
+        "edit.straighten.already_level": [
+            .en: "Image is already level",
+            .cn: "图像已水平"
+        ],
+        "edit.straighten.manual": [
+            .en: "Manual angle: %@°",
+            .cn: "手动角度：%@°"
+        ],
+        "edit.straighten.rotating": [
+            .en: "Rotating image...",
+            .cn: "正在旋转图像..."
+        ],
+        "edit.straighten.rotated": [
+            .en: "Rotated by %@°",
+            .cn: "旋转了 %@°"
+        ],
+
+        // Trace 命令（Task 6.3）
+        "edit.trace.title": [
+            .en: "Vector Trace",
+            .cn: "矢量描摹"
+        ],
+        "edit.trace.style": [
+            .en: "Style",
+            .cn: "样式"
+        ],
+        "edit.trace.intensity": [
             .en: "Intensity",
             .cn: "强度"
         ],
-        "filter.sharpen.radius": [
+        "edit.trace.radius": [
             .en: "Radius",
             .cn: "半径"
         ],
 
-        // Pixel
-        "filter.pixel.title": [
-            .en: "Pixelate Filter",
-            .cn: "像素化滤镜"
+        // Defringe 命令（Task 6.3）
+        "edit.defringe.title": [
+            .en: "Defringe",
+            .cn: "去紫边"
         ],
-        "filter.pixel.scale": [
-            .en: "Block size",
-            .cn: "像素块大小"
-        ],
-
-        // Noise
-        "filter.noise.title": [
-            .en: "Noise Reduction",
-            .cn: "降噪"
-        ],
-        "filter.noise.level": [
-            .en: "Noise level",
-            .cn: "噪声级别"
-        ],
-        "filter.noise.sharpness": [
-            .en: "Sharpness",
-            .cn: "锐度保持"
-        ],
-
-        // Comic
-        "filter.comic.title": [
-            .en: "Comic Effect",
-            .cn: "漫画效果"
-        ],
-
-        // Halftone
-        "filter.halftone.title": [
-            .en: "Halftone Effect",
-            .cn: "半色调效果"
-        ],
-        "filter.halftone.width": [
-            .en: "Dot spacing",
-            .cn: "网点间距"
-        ],
-        "filter.halftone.angle": [
-            .en: "Angle",
-            .cn: "角度"
-        ],
-        "filter.halftone.sharpness": [
-            .en: "Sharpness",
-            .cn: "锐度"
-        ],
-
-        // Photo Effects
-        "filter.sepia.title": [
-            .en: "Sepia Tone",
-            .cn: "怀旧褐色"
-        ],
-        "filter.mono.title": [
-            .en: "Black & White",
-            .cn: "黑白"
-        ],
-        "filter.chrome.title": [
-            .en: "Chrome Effect",
-            .cn: "铬黄效果"
-        ],
-        "filter.noir.title": [
-            .en: "Film Noir",
-            .cn: "黑色电影"
-        ],
-        "filter.instant.title": [
-            .en: "Instant Camera",
-            .cn: "即时相机"
-        ],
-
-        // Common filter strings
-        "filter.intensity": [
-            .en: "Intensity",
+        "edit.defringe.amount": [
+            .en: "Amount",
             .cn: "强度"
+        ],
+
+        // Format 命令（Task 6.3）
+        "edit.fmt.title": [
+            .en: "Format Conversion",
+            .cn: "格式转换"
+        ],
+        "edit.fmt.target_format": [
+            .en: "Target format",
+            .cn: "目标格式"
+        ],
+        "edit.fmt.quality": [
+            .en: "Quality",
+            .cn: "质量"
+        ],
+        "edit.fmt.converting": [
+            .en: "Converting format...",
+            .cn: "正在转换格式..."
+        ],
+        "edit.fmt.size_comparison": [
+            .en: "Size: %@ → %@",
+            .cn: "大小：%@ → %@"
+        ],
+        "edit.fmt.compressed": [
+            .en: "Compressed by %@",
+            .cn: "压缩了 %@"
+        ],
+        "edit.fmt.expanded": [
+            .en: "Expanded by %@",
+            .cn: "增大了 %@"
+        ],
+
+        // Thumb 命令（Task 6.3）
+        "edit.thumb.title": [
+            .en: "Thumbnail Generation",
+            .cn: "生成缩略图"
+        ],
+        "edit.thumb.original_size": [
+            .en: "Original size",
+            .cn: "原始尺寸"
+        ],
+        "edit.thumb.target_size": [
+            .en: "Target size",
+            .cn: "目标尺寸"
+        ],
+        "edit.thumb.generating": [
+            .en: "Generating thumbnail...",
+            .cn: "正在生成缩略图..."
+        ],
+        "edit.thumb.result_size": [
+            .en: "Result size",
+            .cn: "结果尺寸"
+        ],
+        "edit.thumb.scale_factor": [
+            .en: "Scale: %@",
+            .cn: "缩放：%@"
         ]
     ]
 
