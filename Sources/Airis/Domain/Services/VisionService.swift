@@ -129,6 +129,24 @@ final class VisionService: Sendable {
         }
     }
 
+    // MARK: - 动物检测
+
+    /// 检测动物（猫和狗）
+    func recognizeAnimals(at url: URL) async throws -> [VNRecognizedObjectObservation] {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNRecognizeAnimalsRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                let results = (request.results as? [VNRecognizedObjectObservation]) ?? []
+                continuation.resume(returning: results)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
     // MARK: - 批量请求
 
     /// 执行多个请求（复用同一个 handler）
