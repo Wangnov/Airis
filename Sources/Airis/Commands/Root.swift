@@ -7,10 +7,78 @@ struct Airis: AsyncParsableCommand {
         commandName: "airis",
         abstract: "The AI-Native Messenger for Image Operations",
         discussion: """
-            Airis combines Vision framework, CoreImage, and AI generation \
-            to provide comprehensive image processing capabilities.
+            Airis combines Vision framework, CoreImage, and AI generation to
+            provide comprehensive image processing capabilities.
 
-            Use --lang to specify output language (en/cn).
+            QUICK START:
+              # 1. Generate an image with AI
+              airis gen draw "cyberpunk cat"
+
+              # 2. Analyze image content
+              airis analyze tag image.jpg
+
+              # 3. Detect faces in image
+              airis detect face photo.jpg
+
+              # 4. Edit and transform
+              airis edit resize image.jpg --width 1920
+
+            COMMAND GROUPS:
+              gen      - AI image generation (Gemini API)
+                         Configure: airis gen config --help
+                         Generate: airis gen draw "prompt"
+
+              analyze  - Image analysis and recognition
+                         • Basic info, tags, OCR, aesthetic scoring
+                         • Color palette, similarity, metadata
+                         • All analysis runs locally (Vision + CoreImage)
+
+              detect   - Object and feature detection
+                         • Barcodes, faces, animals
+                         • Human poses (2D/3D), hand gestures
+                         • Pet body pose detection
+
+              vision   - Advanced vision operations
+                         • Optical flow, image alignment
+                         • Saliency detection, person segmentation
+
+              edit     - Image editing and transformation
+                         • Background removal, resize, crop, enhance
+                         • Artistic filters, color adjustments
+                         • Format conversion, thumbnails
+
+            GLOBAL OPTIONS:
+              --lang en|cn     Output language (default: system language)
+              --verbose        Show detailed processing information
+              --quiet          Only show errors
+
+            COMMON WORKFLOWS:
+              # Generate → Analyze → Edit pipeline
+              airis gen draw "landscape" -o scene.png
+              airis analyze tag scene.png
+              airis edit enhance scene.png -o final.png
+
+              # Batch detection
+              for img in *.jpg; do
+                airis detect face "$img" --json > "$img.json"
+              done
+
+              # Multi-provider generation
+              airis gen draw "cat" --provider gemini
+              airis gen draw "cat" --provider duckcoding
+
+            CONFIGURATION:
+              API Keys: macOS Keychain (secure storage)
+              Settings: ~/.config/airis/config.json
+              Software link: ~/.local/bin/airis
+
+            TROUBLESHOOTING:
+              • First time setup: airis gen config --help
+              • Check version: airis --version
+              • Get detailed help: airis <command> --help
+              • Report issues: github.com/airis/issues
+
+            For more information, visit each command's help page.
             """,
         version: "1.0.0",
         subcommands: [
