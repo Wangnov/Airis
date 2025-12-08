@@ -70,7 +70,22 @@ final class GenCommandTests: XCTestCase {
         XCTAssertNotNil(config.model)
     }
 
-    func testGeminiProviderNameConstant() {
-        XCTAssertEqual(GeminiProvider.providerName, "gemini")
+    func testDefaultModelConstant() {
+        XCTAssertEqual(GeminiProvider.defaultModel, "gemini-3-pro-image-preview")
+    }
+
+    func testMultiProviderSupport() throws {
+        // 测试可以为不同 provider 配置
+        let testKey1 = "test-key-1"
+        let testKey2 = "test-key-2"
+
+        try keychain.saveAPIKey(testKey1, for: "provider1")
+        try keychain.saveAPIKey(testKey2, for: "provider2")
+
+        XCTAssertEqual(try keychain.getAPIKey(for: "provider1"), testKey1)
+        XCTAssertEqual(try keychain.getAPIKey(for: "provider2"), testKey2)
+
+        try keychain.deleteAPIKey(for: "provider1")
+        try keychain.deleteAPIKey(for: "provider2")
     }
 }
