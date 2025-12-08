@@ -6,7 +6,7 @@ final class AnalyzeCommandTests: XCTestCase {
     // MARK: - AnalyzeCommand Configuration Tests
 
     func testAnalyzeCommandHasSubcommands() {
-        XCTAssertEqual(AnalyzeCommand.configuration.subcommands.count, 4)
+        XCTAssertEqual(AnalyzeCommand.configuration.subcommands.count, 8)
         XCTAssertEqual(AnalyzeCommand.configuration.commandName, "analyze")
     }
 

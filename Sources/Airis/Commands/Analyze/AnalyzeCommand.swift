@@ -22,10 +22,10 @@ struct AnalyzeCommand: AsyncParsableCommand {
             TagCommand.self,
             ScoreCommand.self,
             OCRCommand.self,
-            // SafeCommand.self,      // Task 3.3 实现
-            // PaletteCommand.self,   // Task 3.3 实现
-            // SimilarCommand.self,   // Task 3.3 实现
-            // MetaCommand.self,      // Task 3.3 实现
+            SafeCommand.self,
+            PaletteCommand.self,
+            SimilarCommand.self,
+            MetaCommand.self,
         ]
     )
 }

@@ -112,14 +112,22 @@ struct Strings: Sendable {
             .en: """
                 ⚠️ Sensitive Content Analysis is disabled.
 
-                Enable in: System Settings > Privacy & Security > Sensitive Content Warning
-                Or run: open "x-apple.systempreferences:com.apple.preference.security?Privacy_SensitiveContentAnalysis"
+                This feature requires:
+                1. Enable: System Settings > Privacy & Security > Sensitive Content Warning
+                2. App must be signed with Apple Developer Program (paid) entitlement:
+                   com.apple.developer.sensitivecontentanalysis.client
+
+                Note: Free developer accounts cannot use this feature due to Apple's restrictions.
                 """,
             .cn: """
                 ⚠️ 敏感内容分析已禁用。
 
-                启用路径：系统设置 > 隐私与安全性 > 敏感内容警告
-                或运行：open "x-apple.systempreferences:com.apple.preference.security?Privacy_SensitiveContentAnalysis"
+                此功能需要：
+                1. 启用：系统设置 > 隐私与安全性 > 敏感内容警告
+                2. 应用需要使用付费 Apple Developer Program 签名，并包含权限：
+                   com.apple.developer.sensitivecontentanalysis.client
+
+                注意：由于 Apple 的限制，免费开发者账户无法使用此功能。
                 """
         ],
         "safe.is_sensitive": [
