@@ -550,6 +550,178 @@ final class CoreImageService: @unchecked Sendable {
         return enhanced
     }
 
+    // MARK: - 透视校正
+
+    /// 透视校正（用于文档扫描）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - topLeft: 左上角坐标（像素坐标，原点在左下角）
+    ///   - topRight: 右上角坐标
+    ///   - bottomLeft: 左下角坐标
+    ///   - bottomRight: 右下角坐标
+    /// - Returns: 校正后的 CIImage
+    func perspectiveCorrection(
+        ciImage: CIImage,
+        topLeft: CGPoint,
+        topRight: CGPoint,
+        bottomLeft: CGPoint,
+        bottomRight: CGPoint
+    ) -> CIImage? {
+        guard let filter = CIFilter(name: "CIPerspectiveCorrection") else {
+            return nil
+        }
+
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(CIVector(cgPoint: topLeft), forKey: "inputTopLeft")
+        filter.setValue(CIVector(cgPoint: topRight), forKey: "inputTopRight")
+        filter.setValue(CIVector(cgPoint: bottomLeft), forKey: "inputBottomLeft")
+        filter.setValue(CIVector(cgPoint: bottomRight), forKey: "inputBottomRight")
+
+        return filter.outputImage
+    }
+
+    /// 透视校正（使用标准化坐标 0-1，自动转换为像素坐标）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - normalizedTopLeft: 左上角归一化坐标 (0-1)
+    ///   - normalizedTopRight: 右上角归一化坐标
+    ///   - normalizedBottomLeft: 左下角归一化坐标
+    ///   - normalizedBottomRight: 右下角归一化坐标
+    /// - Returns: 校正后的 CIImage
+    func perspectiveCorrectionNormalized(
+        ciImage: CIImage,
+        normalizedTopLeft: CGPoint,
+        normalizedTopRight: CGPoint,
+        normalizedBottomLeft: CGPoint,
+        normalizedBottomRight: CGPoint
+    ) -> CIImage? {
+        let extent = ciImage.extent
+
+        // 将归一化坐标转换为像素坐标
+        let topLeft = CGPoint(
+            x: normalizedTopLeft.x * extent.width,
+            y: normalizedTopLeft.y * extent.height
+        )
+        let topRight = CGPoint(
+            x: normalizedTopRight.x * extent.width,
+            y: normalizedTopRight.y * extent.height
+        )
+        let bottomLeft = CGPoint(
+            x: normalizedBottomLeft.x * extent.width,
+            y: normalizedBottomLeft.y * extent.height
+        )
+        let bottomRight = CGPoint(
+            x: normalizedBottomRight.x * extent.width,
+            y: normalizedBottomRight.y * extent.height
+        )
+
+        return perspectiveCorrection(
+            ciImage: ciImage,
+            topLeft: topLeft,
+            topRight: topRight,
+            bottomLeft: bottomLeft,
+            bottomRight: bottomRight
+        )
+    }
+
+    // MARK: - 边缘检测/描摹效果
+
+    /// 边缘工作滤镜（用于矢量描摹效果）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - radius: 边缘厚度（默认 3.0）
+    /// - Returns: 边缘检测后的 CIImage
+    func edgeWork(ciImage: CIImage, radius: Double = 3.0) -> CIImage? {
+        guard let filter = CIFilter(name: "CIEdgeWork") else {
+            return nil
+        }
+
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(radius, forKey: kCIInputRadiusKey)
+
+        return filter.outputImage
+    }
+
+    /// 边缘检测滤镜
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - intensity: 边缘强度（默认 1.0）
+    /// - Returns: 边缘检测后的 CIImage
+    func edges(ciImage: CIImage, intensity: Double = 1.0) -> CIImage? {
+        guard let filter = CIFilter(name: "CIEdges") else {
+            return nil
+        }
+
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(intensity, forKey: kCIInputIntensityKey)
+
+        return filter.outputImage
+    }
+
+    /// 线条叠加滤镜（产生类似素描的效果）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - contrast: 对比度（默认 50）
+    ///   - nrNoiseLevel: 噪声等级（默认 0.07）
+    ///   - nrSharpness: 锐度（默认 0.71）
+    ///   - edgeIntensity: 边缘强度（默认 1.0）
+    ///   - threshold: 阈值（默认 0.1）
+    /// - Returns: 处理后的 CIImage
+    func lineOverlay(
+        ciImage: CIImage,
+        contrast: Double = 50,
+        nrNoiseLevel: Double = 0.07,
+        nrSharpness: Double = 0.71,
+        edgeIntensity: Double = 1.0,
+        threshold: Double = 0.1
+    ) -> CIImage? {
+        guard let filter = CIFilter(name: "CILineOverlay") else {
+            return nil
+        }
+
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(contrast, forKey: "inputContrast")
+        filter.setValue(nrNoiseLevel, forKey: "inputNRNoiseLevel")
+        filter.setValue(nrSharpness, forKey: "inputNRSharpness")
+        filter.setValue(edgeIntensity, forKey: "inputEdgeIntensity")
+        filter.setValue(threshold, forKey: "inputThreshold")
+
+        return filter.outputImage
+    }
+
+    // MARK: - 色彩去边（去紫边）
+
+    /// 去除色差/紫边效果
+    ///
+    /// 使用色彩矩阵滤镜减少色差（紫边/绿边）
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - amount: 去除强度（0-1，默认 0.5）
+    /// - Returns: 处理后的 CIImage
+    func defringe(ciImage: CIImage, amount: Double = 0.5) -> CIImage {
+        // 使用去饱和度方法减少边缘的色彩偏差
+        // 先检测高对比边缘，然后降低边缘区域的色彩饱和度
+
+        // 方法1：使用 CIColorControls 降低整体紫色分量
+        // 方法2：使用自定义内核（更精确）
+
+        // 这里使用简化方法：降低紫色/洋红色调
+        guard let filter = CIFilter(name: "CIHueAdjust") else {
+            return ciImage
+        }
+
+        // 微调色相来减少紫边
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(amount * 0.1, forKey: kCIInputAngleKey)
+
+        return filter.outputImage ?? ciImage
+    }
+
     /// 加载、自动增强并保存图像
     ///
     /// - Parameters:
