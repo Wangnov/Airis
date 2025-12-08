@@ -9,10 +9,18 @@ import XCTest
 /// - 测试超时处理性能
 /// - 测试并发请求性能
 ///
-/// 注意: 这些测试依赖网络连接，可能会因网络状况而波动
+/// 注意: 这些测试依赖网络连接，默认跳过
+/// 设置环境变量 AIRIS_RUN_NETWORK_TESTS=1 来启用
 final class NetworkPerformanceTests: XCTestCase {
 
-    // MARK: - HTTP 客户端配置测试
+    /// 检查是否应该运行网络测试
+    private func skipIfNetworkTestsDisabled() throws {
+        guard ProcessInfo.processInfo.environment["AIRIS_RUN_NETWORK_TESTS"] == "1" else {
+            throw XCTSkip("网络测试默认跳过。设置 AIRIS_RUN_NETWORK_TESTS=1 启用")
+        }
+    }
+
+    // MARK: - HTTP 客户端配置测试 (不需要网络)
 
     /// 测试 HTTP 客户端创建性能
     func testHTTPClientCreationPerformance() {
@@ -36,10 +44,25 @@ final class NetworkPerformanceTests: XCTestCase {
         }
     }
 
-    // MARK: - GET 请求性能
+    /// 测试超时配置的客户端创建
+    func testShortTimeoutClientCreation() {
+        measure {
+            let config = HTTPClientConfiguration(
+                timeoutIntervalForRequest: 5,
+                timeoutIntervalForResource: 10,
+                waitsForConnectivity: false,
+                maxRetries: 0
+            )
+            let _ = HTTPClient(configuration: config)
+        }
+    }
+
+    // MARK: - 网络请求测试 (需要网络，默认跳过)
 
     /// 测试简单 GET 请求性能
     func testGETRequestPerformance() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let client = HTTPClient()
         let url = URL(string: "https://httpbin.org/get")!
 
@@ -58,6 +81,8 @@ final class NetworkPerformanceTests: XCTestCase {
 
     /// 测试带头部的 GET 请求性能
     func testGETRequestWithHeadersPerformance() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let client = HTTPClient()
         let url = URL(string: "https://httpbin.org/headers")!
         let headers = [
@@ -76,10 +101,10 @@ final class NetworkPerformanceTests: XCTestCase {
         }
     }
 
-    // MARK: - POST 请求性能
-
     /// 测试 POST 请求性能 - 小数据
     func testPOSTRequestPerformance_SmallPayload() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let client = HTTPClient()
         let url = URL(string: "https://httpbin.org/post")!
         let body = "{\"test\": \"data\"}".data(using: .utf8)!
@@ -96,6 +121,8 @@ final class NetworkPerformanceTests: XCTestCase {
 
     /// 测试 POST 请求性能 - 中等数据
     func testPOSTRequestPerformance_MediumPayload() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let client = HTTPClient()
         let url = URL(string: "https://httpbin.org/post")!
 
@@ -113,23 +140,10 @@ final class NetworkPerformanceTests: XCTestCase {
         }
     }
 
-    // MARK: - 超时处理性能
-
-    /// 测试超时配置的客户端创建
-    func testShortTimeoutClientCreation() {
-        measure {
-            let config = HTTPClientConfiguration(
-                timeoutIntervalForRequest: 5,
-                timeoutIntervalForResource: 10,
-                waitsForConnectivity: false,
-                maxRetries: 0
-            )
-            let _ = HTTPClient(configuration: config)
-        }
-    }
-
     /// 测试超时错误处理性能
     func testTimeoutErrorHandling() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let config = HTTPClientConfiguration(
             timeoutIntervalForRequest: 1,
             waitsForConnectivity: false,
@@ -152,10 +166,10 @@ final class NetworkPerformanceTests: XCTestCase {
         }
     }
 
-    // MARK: - 并发请求性能
-
     /// 测试并发 GET 请求性能
     func testConcurrentGETRequests() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let client = HTTPClient()
         let url = URL(string: "https://httpbin.org/get")!
 
@@ -176,10 +190,10 @@ final class NetworkPerformanceTests: XCTestCase {
         }
     }
 
-    // MARK: - 响应大小测试
-
     /// 测试大响应处理性能
     func testLargeResponseHandling() async throws {
+        try skipIfNetworkTestsDisabled()
+
         let client = HTTPClient()
         // 请求返回指定大小的数据
         let url = URL(string: "https://httpbin.org/bytes/10240")! // 10KB
