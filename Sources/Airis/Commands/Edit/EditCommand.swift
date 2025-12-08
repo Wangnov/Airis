@@ -9,9 +9,12 @@ struct EditCommand: AsyncParsableCommand {
             - Background removal (cut)
             - Resizing and cropping
             - Auto-enhancement
-            - Document scanning
-            - Perspective correction
-            - Format conversion
+            - Document scanning (scan)
+            - Image straightening (straighten)
+            - Vector tracing (trace)
+            - Chromatic aberration removal (defringe)
+            - Format conversion (fmt)
+            - Thumbnail generation (thumb)
             - Artistic filters (via 'filter' subcommand)
             - Color adjustments (via 'adjust' subcommand)
 
@@ -23,12 +26,14 @@ struct EditCommand: AsyncParsableCommand {
             ResizeCommand.self,
             CropCommand.self,
             EnhanceCommand.self,
-            // ScanCommand.self,
-            // StraightenCommand.self,
-            // TraceCommand.self,
-            // DefringeCommand.self,
-            // FormatCommand.self,
-            // ThumbCommand.self,
+
+            // 高级编辑命令（Task 6.3 实现）
+            ScanCommand.self,
+            StraightenCommand.self,
+            TraceCommand.self,
+            DefringeCommand.self,
+            FormatCommand.self,
+            ThumbCommand.self,
 
             // 滤镜和调整子命令
             FilterCommand.self,
