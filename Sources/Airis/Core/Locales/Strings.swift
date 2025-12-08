@@ -143,6 +143,72 @@ struct Strings: Sendable {
         "help.language": [
             .en: "Output language (en/cn)",
             .cn: "输出语言（en/cn）"
+        ],
+
+        // ============ Gen 命令 ============
+        "gen.connecting": [
+            .en: "🌐 Connecting to AI Image API...",
+            .cn: "🌐 正在连接 AI 图像 API..."
+        ],
+        "gen.model": [
+            .en: "🔑 Model: %@",
+            .cn: "🔑 模型：%@"
+        ],
+        "gen.prompt": [
+            .en: "📝 Prompt: %@",
+            .cn: "📝 提示词：%@"
+        ],
+        "gen.references": [
+            .en: "🖼️ Processing %d reference image(s)...",
+            .cn: "🖼️ 处理 %d 张参考图片..."
+        ],
+        "gen.placeholder_warning": [
+            .en: "⚠️ Gemini Image API integration coming soon!",
+            .cn: "⚠️ Gemini 图像 API 集成即将推出！"
+        ],
+        "gen.api_key_configured": [
+            .en: "💡 API key is configured. Ready for integration.",
+            .cn: "💡 API Key 已配置，准备集成。"
+        ],
+        "config.key_saved": [
+            .en: "✅ API key saved for provider: %@",
+            .cn: "✅ 已保存服务商的 API Key：%@"
+        ],
+        "config.key_deleted": [
+            .en: "✅ API key deleted for provider: %@",
+            .cn: "✅ 已删除服务商的 API Key：%@"
+        ],
+        "config.key_display": [
+            .en: "API key for %@: %@",
+            .cn: "%@ 的 API Key：%@"
+        ],
+        "config.enter_key": [
+            .en: "Enter API key for %@: ",
+            .cn: "请输入 %@ 的 API Key："
+        ],
+        "config.no_changes": [
+            .en: "No configuration changes specified",
+            .cn: "未指定配置更改"
+        ],
+        "config.updated": [
+            .en: "✅ Configuration updated for provider: %@",
+            .cn: "✅ 已更新服务商配置：%@"
+        ],
+        "config.reset": [
+            .en: "✅ Configuration reset to defaults for provider: %@",
+            .cn: "✅ 已重置服务商配置为默认值：%@"
+        ],
+        "config.file_location": [
+            .en: "Config file: %@",
+            .cn: "配置文件：%@"
+        ],
+        "config.key_configured": [
+            .en: "Configured",
+            .cn: "已配置"
+        ],
+        "config.key_not_configured": [
+            .en: "Not configured",
+            .cn: "未配置"
         ]
     ]
 

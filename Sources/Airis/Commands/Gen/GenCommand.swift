@@ -13,8 +13,8 @@ struct GenCommand: AsyncParsableCommand {
             - config: Manage API keys and settings
             """,
         subcommands: [
-            // DrawCommand.self,      // Task 2.1 实现
-            // ConfigCommand.self,    // Task 2.1 实现
+            DrawCommand.self,
+            ConfigCommand.self
         ]
     )
 }
