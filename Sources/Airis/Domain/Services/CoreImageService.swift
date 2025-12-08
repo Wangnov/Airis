@@ -32,8 +32,9 @@ final class CoreImageService: @unchecked Sendable {
 
     init() {
         // 尝试获取 Metal 设备进行 GPU 加速
-        if let device = MTLCreateSystemDefaultDevice() {
-            self.metalDevice = device
+        self.metalDevice = MTLCreateSystemDefaultDevice()
+
+        if let device = metalDevice {
             self.context = CIContext(mtlDevice: device, options: [
                 .workingColorSpace: CGColorSpaceCreateDeviceRGB(),
                 .cacheIntermediates: true,
@@ -42,7 +43,6 @@ final class CoreImageService: @unchecked Sendable {
             ])
         } else {
             // 回退到软件渲染（虚拟机或不支持 Metal 的情况）
-            self.metalDevice = nil
             self.context = CIContext(options: [
                 .useSoftwareRenderer: true,
                 .workingColorSpace: CGColorSpaceCreateDeviceRGB(),
@@ -691,109 +691,10 @@ final class CoreImageService: @unchecked Sendable {
         context.clearCaches()
     }
 
-    /// 检查是否使用 Metal 加速
-    var isUsingMetalAcceleration: Bool {
-        metalDevice != nil
-    }
 
-    // MARK: - 坐标系转换工具
+    // MARK: - 从 Task 6.3 添加的方法
 
-    /// 将 Vision 框架坐标（左上角原点）转换为 CoreImage 坐标（左下角原点）
-    ///
-    /// - Parameters:
-    ///   - rect: Vision 框架的归一化矩形
-    ///   - imageHeight: 图像高度
-    /// - Returns: CoreImage 坐标系的矩形
-    static func convertVisionToCI(rect: CGRect, imageHeight: CGFloat) -> CGRect {
-        CGRect(
-            x: rect.origin.x,
-            y: imageHeight - rect.origin.y - rect.height,
-            width: rect.width,
-            height: rect.height
-        )
-    }
-
-    /// 将 CoreImage 坐标（左下角原点）转换为 Vision 框架坐标（左上角原点）
-    ///
-    /// - Parameters:
-    ///   - rect: CoreImage 的矩形
-    ///   - imageHeight: 图像高度
-    /// - Returns: Vision 框架坐标系的矩形
-    static func convertCIToVision(rect: CGRect, imageHeight: CGFloat) -> CGRect {
-        CGRect(
-            x: rect.origin.x,
-            y: imageHeight - rect.origin.y - rect.height,
-            width: rect.width,
-            height: rect.height
-        )
-    }
-
-    // MARK: - 背景移除
-
-    /// 保存带 alpha 通道的遮罩图像（用于背景移除）
-    ///
-    /// - Parameters:
-    ///   - maskedBuffer: Vision 框架生成的遮罩 CVPixelBuffer
-    ///   - outputURL: 输出文件 URL（必须是 PNG 格式）
-    func saveMaskedImage(maskedBuffer: CVPixelBuffer, to outputURL: URL) throws {
-        let ciImage = CIImage(cvPixelBuffer: maskedBuffer)
-
-        guard let cgImage = render(ciImage: ciImage) else {
-            throw AirisError.imageEncodeFailed
-        }
-
-        let imageIO = ServiceContainer.shared.imageIOService
-        try imageIO.saveImage(cgImage, to: outputURL, format: "png", quality: 1.0)
-    }
-
-    // MARK: - 自动增强
-
-    /// 自动增强图像（一键优化）
-    ///
-    /// 使用 CoreImage 的 autoAdjustmentFilters 自动检测并应用最佳滤镜：
-    /// - 红眼校正
-    /// - 面部平衡
-    /// - 自然饱和度
-    /// - 色调曲线
-    /// - 高光阴影调整
-    ///
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - enableRedEye: 是否启用红眼校正（默认 true）
-    /// - Returns: 增强后的 CIImage
-    func autoEnhance(ciImage: CIImage, enableRedEye: Bool = true) -> CIImage {
-        var options: [CIImageAutoAdjustmentOption: Any] = [
-            .enhance: true
-        ]
-
-        if !enableRedEye {
-            options[.redEye] = false
-        }
-
-        let filters = ciImage.autoAdjustmentFilters(options: options)
-
-        var enhanced = ciImage
-        for filter in filters {
-            filter.setValue(enhanced, forKey: kCIInputImageKey)
-            if let output = filter.outputImage {
-                enhanced = output
-            }
-        }
-
-        return enhanced
-    }
-
-    // MARK: - 透视校正
-
-    /// 透视校正（用于文档扫描）
-    ///
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - topLeft: 左上角坐标（像素坐标，原点在左下角）
-    ///   - topRight: 右上角坐标
-    ///   - bottomLeft: 左下角坐标
-    ///   - bottomRight: 右下角坐标
-    /// - Returns: 校正后的 CIImage
+    /// 透视校正
     func perspectiveCorrection(
         ciImage: CIImage,
         topLeft: CGPoint,
@@ -814,155 +715,112 @@ final class CoreImageService: @unchecked Sendable {
         return filter.outputImage
     }
 
-    /// 透视校正（使用标准化坐标 0-1，自动转换为像素坐标）
-    ///
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - normalizedTopLeft: 左上角归一化坐标 (0-1)
-    ///   - normalizedTopRight: 右上角归一化坐标
-    ///   - normalizedBottomLeft: 左下角归一化坐标
-    ///   - normalizedBottomRight: 右下角归一化坐标
-    /// - Returns: 校正后的 CIImage
-    func perspectiveCorrectionNormalized(
-        ciImage: CIImage,
-        normalizedTopLeft: CGPoint,
-        normalizedTopRight: CGPoint,
-        normalizedBottomLeft: CGPoint,
-        normalizedBottomRight: CGPoint
-    ) -> CIImage? {
-        let extent = ciImage.extent
-
-        // 将归一化坐标转换为像素坐标
-        let topLeft = CGPoint(
-            x: normalizedTopLeft.x * extent.width,
-            y: normalizedTopLeft.y * extent.height
-        )
-        let topRight = CGPoint(
-            x: normalizedTopRight.x * extent.width,
-            y: normalizedTopRight.y * extent.height
-        )
-        let bottomLeft = CGPoint(
-            x: normalizedBottomLeft.x * extent.width,
-            y: normalizedBottomLeft.y * extent.height
-        )
-        let bottomRight = CGPoint(
-            x: normalizedBottomRight.x * extent.width,
-            y: normalizedBottomRight.y * extent.height
-        )
-
-        return perspectiveCorrection(
-            ciImage: ciImage,
-            topLeft: topLeft,
-            topRight: topRight,
-            bottomLeft: bottomLeft,
-            bottomRight: bottomRight
-        )
-    }
-
-    // MARK: - 边缘检测/描摹效果
-
-    /// 边缘工作滤镜（用于矢量描摹效果）
-    ///
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - radius: 边缘厚度（默认 3.0）
-    /// - Returns: 边缘检测后的 CIImage
+    /// 边缘检测（Edge Work）
     func edgeWork(ciImage: CIImage, radius: Double = 3.0) -> CIImage? {
-        guard let filter = CIFilter(name: "CIEdgeWork") else {
-            return nil
-        }
-
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
-        filter.setValue(radius, forKey: kCIInputRadiusKey)
-
+        let filter = CIFilter.edgeWork()
+        filter.inputImage = ciImage
+        filter.radius = Float(radius)
         return filter.outputImage
     }
 
-    /// 边缘检测滤镜
-    ///
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - intensity: 边缘强度（默认 1.0）
-    /// - Returns: 边缘检测后的 CIImage
+    /// 边缘检测（Edges）
     func edges(ciImage: CIImage, intensity: Double = 1.0) -> CIImage? {
-        guard let filter = CIFilter(name: "CIEdges") else {
-            return nil
-        }
-
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
-        filter.setValue(intensity, forKey: kCIInputIntensityKey)
-
+        let filter = CIFilter.edges()
+        filter.inputImage = ciImage
+        filter.intensity = Float(intensity)
         return filter.outputImage
     }
 
-    /// 线条叠加滤镜（产生类似素描的效果）
-    ///
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - contrast: 对比度（默认 50）
-    ///   - nrNoiseLevel: 噪声等级（默认 0.07）
-    ///   - nrSharpness: 锐度（默认 0.71）
-    ///   - edgeIntensity: 边缘强度（默认 1.0）
-    ///   - threshold: 阈值（默认 0.1）
-    /// - Returns: 处理后的 CIImage
+    /// 线条叠加
     func lineOverlay(
         ciImage: CIImage,
-        contrast: Double = 50,
         nrNoiseLevel: Double = 0.07,
         nrSharpness: Double = 0.71,
         edgeIntensity: Double = 1.0,
-        threshold: Double = 0.1
-    ) -> CIImage? {
-        guard let filter = CIFilter(name: "CILineOverlay") else {
-            return nil
-        }
-
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
-        filter.setValue(contrast, forKey: "inputContrast")
-        filter.setValue(nrNoiseLevel, forKey: "inputNRNoiseLevel")
-        filter.setValue(nrSharpness, forKey: "inputNRSharpness")
-        filter.setValue(edgeIntensity, forKey: "inputEdgeIntensity")
-        filter.setValue(threshold, forKey: "inputThreshold")
-
-        return filter.outputImage
-    }
-
-    // MARK: - 色彩去边（去紫边）
-
-    /// 去除色差/紫边效果
-    ///
-    /// 使用色彩矩阵滤镜减少色差（紫边/绿边）
-    /// - Parameters:
-    ///   - ciImage: 输入图像
-    ///   - amount: 去除强度（0-1，默认 0.5）
-    /// - Returns: 处理后的 CIImage
-    func defringe(ciImage: CIImage, amount: Double = 0.5) -> CIImage {
-        // 使用去饱和度方法减少边缘的色彩偏差
-        // 先检测高对比边缘，然后降低边缘区域的色彩饱和度
-
-        // 方法1：使用 CIColorControls 降低整体紫色分量
-        // 方法2：使用自定义内核（更精确）
-
-        // 这里使用简化方法：降低紫色/洋红色调
-        guard let filter = CIFilter(name: "CIHueAdjust") else {
-            return ciImage
-        }
-
-        // 微调色相来减少紫边
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
-        filter.setValue(amount * 0.1, forKey: kCIInputAngleKey)
-
+        threshold: Double = 0.1,
+        contrast: Double = 50
+    ) -> CIImage {
+        let filter = CIFilter.lineOverlay()
+        filter.inputImage = ciImage
+        filter.nrNoiseLevel = Float(nrNoiseLevel)
+        filter.nrSharpness = Float(nrSharpness)
+        filter.edgeIntensity = Float(edgeIntensity)
+        filter.threshold = Float(threshold)
+        filter.contrast = Float(contrast)
         return filter.outputImage ?? ciImage
     }
 
+    /// 去紫边
+    func defringe(ciImage: CIImage, amount: Double = 0.5) -> CIImage {
+        guard let filter = CIFilter(name: "CIHueAdjust") else {
+            return ciImage
+        }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(amount * 0.1, forKey: kCIInputAngleKey)
+        return filter.outputImage ?? ciImage
+    }
+
+    // MARK: - 从 Task 8.1 添加的方法
+
+    /// 曝光调整
+    func adjustExposure(ciImage: CIImage, ev: Double) -> CIImage {
+        let filter = CIFilter.exposureAdjust()
+        filter.inputImage = ciImage
+        filter.ev = Float(max(-10, min(10, ev)))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 色温和色调调整
+    func adjustTemperatureAndTint(
+        ciImage: CIImage,
+        temperature: Double = 0,
+        tint: Double = 0
+    ) -> CIImage {
+        let filter = CIFilter.temperatureAndTint()
+        filter.inputImage = ciImage
+        let neutralTemp: CGFloat = 6500
+        let targetTemp = neutralTemp + CGFloat(temperature)
+        filter.neutral = CIVector(x: neutralTemp, y: 0)
+        filter.targetNeutral = CIVector(x: targetTemp, y: CGFloat(tint))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 色调分离
+    func posterize(ciImage: CIImage, levels: Double = 6.0) -> CIImage {
+        let filter = CIFilter.colorPosterize()
+        filter.inputImage = ciImage
+        filter.levels = Float(max(2, min(30, levels)))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 阈值化
+    func threshold(ciImage: CIImage, threshold: Double = 0.5) -> CIImage {
+        guard let filter = CIFilter(name: "CIColorThreshold") else {
+            let grayscale = adjustSaturation(ciImage: ciImage, saturation: 0)
+            let posterized = posterize(ciImage: grayscale, levels: 2)
+            return posterized
+        }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(max(0, min(1, threshold)), forKey: "inputThreshold")
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 自动增强图像
+    func autoEnhance(ciImage: CIImage, enableRedEye: Bool = true) -> CIImage {
+        let filters = ciImage.autoAdjustmentFilters()
+
+        var enhanced = ciImage
+        for filter in filters {
+            filter.setValue(enhanced, forKey: kCIInputImageKey)
+            if let output = filter.outputImage {
+                enhanced = output
+            }
+        }
+
+        return enhanced
+    }
+
     /// 加载、自动增强并保存图像
-    ///
-    /// - Parameters:
-    ///   - inputURL: 输入图像 URL
-    ///   - outputURL: 输出图像 URL
-    ///   - format: 输出格式（png, jpg, heic）
-    ///   - quality: 压缩质量（0-1，仅对 jpg/heic 有效）
-    ///   - enableRedEye: 是否启用红眼校正
     func autoEnhanceAndSave(
         inputURL: URL,
         outputURL: URL,
@@ -990,12 +848,72 @@ final class CoreImageService: @unchecked Sendable {
         try imageIO.saveImage(outputCGImage, to: outputURL, format: format, quality: quality)
     }
 
-    /// 获取自动增强将应用的滤镜信息（用于调试/显示）
-    ///
-    /// - Parameter ciImage: 输入图像
-    /// - Returns: 滤镜名称列表
+    /// 获取自动增强将应用的滤镜信息
     func getAutoEnhanceFilters(for ciImage: CIImage) -> [String] {
         let filters = ciImage.autoAdjustmentFilters()
         return filters.map { $0.name }
+    }
+
+    /// 检查是否使用 Metal 加速
+    var isUsingMetalAcceleration: Bool {
+        metalDevice != nil
+    }
+
+    // MARK: - 坐标系转换工具
+
+    /// 将 Vision 框架坐标转换为 CoreImage 坐标
+    static func convertVisionToCI(rect: CGRect, imageHeight: CGFloat) -> CGRect {
+        CGRect(
+            x: rect.origin.x,
+            y: imageHeight - rect.origin.y - rect.height,
+            width: rect.width,
+            height: rect.height
+        )
+    }
+
+    /// 将 CoreImage 坐标转换为 Vision 框架坐标
+    static func convertCIToVision(rect: CGRect, imageHeight: CGFloat) -> CGRect {
+        CGRect(
+            x: rect.origin.x,
+            y: imageHeight - rect.origin.y - rect.height,
+            width: rect.width,
+            height: rect.height
+        )
+    }
+
+    /// 透视校正（归一化坐标版本）
+    func perspectiveCorrectionNormalized(
+        ciImage: CIImage,
+        normalizedTopLeft: CGPoint,
+        normalizedTopRight: CGPoint,
+        normalizedBottomLeft: CGPoint,
+        normalizedBottomRight: CGPoint
+    ) -> CIImage? {
+        let extent = ciImage.extent
+
+        let topLeft = CGPoint(
+            x: normalizedTopLeft.x * extent.width,
+            y: normalizedTopLeft.y * extent.height
+        )
+        let topRight = CGPoint(
+            x: normalizedTopRight.x * extent.width,
+            y: normalizedTopRight.y * extent.height
+        )
+        let bottomLeft = CGPoint(
+            x: normalizedBottomLeft.x * extent.width,
+            y: normalizedBottomLeft.y * extent.height
+        )
+        let bottomRight = CGPoint(
+            x: normalizedBottomRight.x * extent.width,
+            y: normalizedBottomRight.y * extent.height
+        )
+
+        return perspectiveCorrection(
+            ciImage: ciImage,
+            topLeft: topLeft,
+            topRight: topRight,
+            bottomLeft: bottomLeft,
+            bottomRight: bottomRight
+        )
     }
 }
