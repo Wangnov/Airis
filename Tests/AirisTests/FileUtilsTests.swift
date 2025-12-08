@@ -3,6 +3,22 @@ import XCTest
 
 final class FileUtilsTests: XCTestCase {
 
+    var tempDirectory: URL!
+
+    static let testAssetsPath = NSString(string: "~/airis-worktrees/test-assets/task-9.1").expandingTildeInPath
+
+    override func setUp() {
+        super.setUp()
+        tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("airis_fileutils_test_\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
+    }
+
+    override func tearDown() {
+        try? FileManager.default.removeItem(at: tempDirectory)
+        super.tearDown()
+    }
+
     // MARK: - Extension Tests
 
     func testGetExtension() {
@@ -10,6 +26,7 @@ final class FileUtilsTests: XCTestCase {
         XCTAssertEqual(FileUtils.getExtension(from: "/path/to/image.PNG"), "png")
         XCTAssertEqual(FileUtils.getExtension(from: "/path/to/image.HEIC"), "heic")
         XCTAssertEqual(FileUtils.getExtension(from: "file.txt"), "txt")
+        XCTAssertEqual(FileUtils.getExtension(from: "/path/to/file"), "")
     }
 
     // MARK: - Format Validation Tests
@@ -94,5 +111,103 @@ final class FileUtilsTests: XCTestCase {
                 return
             }
         }
+    }
+
+    // MARK: - ensureDirectory Tests
+
+    /// 测试确保目录存在 - 已存在的目录
+    func testEnsureExistingDirectory() throws {
+        let filePath = tempDirectory.appendingPathComponent("test.png").path
+        try FileUtils.ensureDirectory(for: filePath)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: tempDirectory.path))
+    }
+
+    /// 测试确保目录存在 - 创建新目录
+    func testEnsureNewDirectory() throws {
+        let newDir = tempDirectory.appendingPathComponent("new/nested/dir")
+        let filePath = newDir.appendingPathComponent("test.png").path
+
+        try FileUtils.ensureDirectory(for: filePath)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: newDir.path))
+    }
+
+    // MARK: - getFormattedFileSize Tests
+
+    /// 测试获取格式化文件大小
+    func testGetFormattedFileSize() throws {
+        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        guard FileManager.default.fileExists(atPath: testImagePath) else {
+            throw XCTSkip("测试资产不存在")
+        }
+
+        let formattedSize = FileUtils.getFormattedFileSize(at: testImagePath)
+        XCTAssertNotNil(formattedSize)
+    }
+
+    /// 测试获取不存在文件的大小
+    func testGetFormattedFileSizeNonExistent() {
+        let size = FileUtils.getFormattedFileSize(at: "/nonexistent/file.png")
+        XCTAssertNil(size)
+    }
+
+    // MARK: - getFileSize Tests
+
+    /// 测试获取文件大小（字节）
+    func testGetFileSize() throws {
+        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        guard FileManager.default.fileExists(atPath: testImagePath) else {
+            throw XCTSkip("测试资产不存在")
+        }
+
+        let size = FileUtils.getFileSize(at: testImagePath)
+        XCTAssertNotNil(size)
+        XCTAssertGreaterThan(size!, 0)
+    }
+
+    /// 测试获取不存在文件的大小
+    func testGetFileSizeNonExistent() {
+        let size = FileUtils.getFileSize(at: "/nonexistent/file.png")
+        XCTAssertNil(size)
+    }
+
+    // MARK: - validateFile Tests
+
+    /// 测试验证存在的文件
+    func testValidateExistingFile() throws {
+        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        guard FileManager.default.fileExists(atPath: testImagePath) else {
+            throw XCTSkip("测试资产不存在")
+        }
+
+        let url = try FileUtils.validateFile(at: testImagePath)
+        XCTAssertEqual(url.path, testImagePath)
+    }
+
+    // MARK: - validateImageFile Tests
+
+    /// 测试验证存在的图像文件
+    func testValidateExistingImageFile() throws {
+        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        guard FileManager.default.fileExists(atPath: testImagePath) else {
+            throw XCTSkip("测试资产不存在")
+        }
+
+        let url = try FileUtils.validateImageFile(at: testImagePath)
+        XCTAssertEqual(url.path, testImagePath)
+    }
+
+    // MARK: - supportedImageFormats Tests
+
+    /// 测试支持的格式列表
+    func testSupportedImageFormats() {
+        let formats = FileUtils.supportedImageFormats
+
+        XCTAssertTrue(formats.contains("jpg"))
+        XCTAssertTrue(formats.contains("jpeg"))
+        XCTAssertTrue(formats.contains("png"))
+        XCTAssertTrue(formats.contains("heic"))
+        XCTAssertTrue(formats.contains("gif"))
+        XCTAssertTrue(formats.contains("bmp"))
+        XCTAssertFalse(formats.contains("txt"))
     }
 }
