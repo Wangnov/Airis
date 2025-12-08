@@ -23,11 +23,17 @@ struct DetectCommand: AsyncParsableCommand {
               animal    Detect cats and dogs
                         Returns: animal type, confidence, bounding box
 
-            COMING SOON (Task 4.2):
-              pose      Human body pose detection (2D)
-              pose3d    Human body pose detection (3D)
-              hand      Hand landmark detection
-              petpose   Pet body pose detection
+              pose      Human body pose detection (2D, 19 keypoints)
+                        Returns: body joints, normalized coordinates
+
+              pose3d    Human body pose detection (3D, 17 keypoints)
+                        Returns: 3D positions in meters (macOS 14.0+)
+
+              hand      Hand landmark detection (21 keypoints per hand)
+                        Returns: finger joints, left/right detection
+
+              petpose   Pet body pose detection (cats/dogs, 25 keypoints)
+                        Returns: pet skeleton (macOS 14.0+)
 
             COMMON OPTIONS:
               --format <fmt>     Output format: table (default), json
@@ -53,10 +59,10 @@ struct DetectCommand: AsyncParsableCommand {
             BarcodeCommand.self,
             FaceCommand.self,
             AnimalCommand.self,
-            // PoseCommand.self,      // Task 4.2 实现
-            // Pose3DCommand.self,    // Task 4.2 实现
-            // HandCommand.self,      // Task 4.2 实现
-            // PetPoseCommand.self,   // Task 4.2 实现
+            PoseCommand.self,
+            Pose3DCommand.self,
+            HandCommand.self,
+            PetPoseCommand.self,
         ]
     )
 }
