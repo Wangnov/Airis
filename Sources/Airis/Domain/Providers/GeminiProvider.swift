@@ -1,19 +1,21 @@
 import Foundation
 
-/// Gemini 图像生成 Provider
+/// Gemini 兼容 API 图像生成 Provider（支持多个兼容端点）
 final class GeminiProvider {
     private let httpClient: HTTPClient
     private let keychainManager: KeychainManager
     private let configManager: ConfigManager
+    private let providerName: String
 
-    static let providerName = "gemini"
     static let defaultModel = "gemini-3-pro-image-preview"
 
     init(
+        providerName: String,
         httpClient: HTTPClient = HTTPClient(),
         keychainManager: KeychainManager = KeychainManager(),
         configManager: ConfigManager = ConfigManager()
     ) {
+        self.providerName = providerName
         self.httpClient = httpClient
         self.keychainManager = keychainManager
         self.configManager = configManager
@@ -30,10 +32,10 @@ final class GeminiProvider {
         enableSearch: Bool = false
     ) async throws -> URL {
         // 获取 API Key
-        let apiKey = try keychainManager.getAPIKey(for: Self.providerName)
+        let apiKey = try keychainManager.getAPIKey(for: providerName)
 
         // 获取配置
-        let providerConfig = try configManager.getProviderConfig(for: Self.providerName)
+        let providerConfig = try configManager.getProviderConfig(for: providerName)
 
         // 确定模型（参数 > 配置 > 默认）
         let actualModel = model ?? providerConfig.model ?? Self.defaultModel

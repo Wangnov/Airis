@@ -119,8 +119,8 @@ struct DrawCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Model version ID (overrides config)")
     var model: String?
 
-    @Option(name: .long, help: "AI provider (default: gemini)")
-    var provider: String = "gemini"
+    @Option(name: .long, help: "AI provider (default: from config or 'gemini')")
+    var provider: String?
 
     @Option(name: [.short, .long], help: "Output file path")
     var output: String?
@@ -141,6 +141,11 @@ struct DrawCommand: AsyncParsableCommand {
     var enableSearch: Bool = false
 
     func run() async throws {
+        // 确定使用的 provider
+        let configManager = ConfigManager()
+        let config = try configManager.loadConfig()
+        let actualProvider = provider ?? config.defaultProvider ?? "gemini"
+
         // 验证参考图片
         let refURLs = try ref.map { path in
             try FileUtils.validateImageFile(at: path)
@@ -150,6 +155,7 @@ struct DrawCommand: AsyncParsableCommand {
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("🎨 图像生成参数")
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("🏢 Provider: \(actualProvider)")
 
         if let output = output {
             print("💾 输出: \(output)")
@@ -164,33 +170,27 @@ struct DrawCommand: AsyncParsableCommand {
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("")
 
-        // 根据 provider 选择
-        switch provider {
-        case "gemini":
-            let gemini = GeminiProvider()
-            let outputURL = try await gemini.generateImage(
-                prompt: prompt,
-                references: refURLs,
-                model: model,
-                aspectRatio: aspectRatio,
-                imageSize: imageSize,
-                outputPath: output,
-                enableSearch: enableSearch
-            )
+        // 使用通用的 Gemini 兼容 API
+        let imageProvider = GeminiProvider(providerName: actualProvider)
+        let outputURL = try await imageProvider.generateImage(
+            prompt: prompt,
+            references: refURLs,
+            model: model,
+            aspectRatio: aspectRatio,
+            imageSize: imageSize,
+            outputPath: output,
+            enableSearch: enableSearch
+        )
 
-            // 打开图片或在 Finder 中显示
-            if reveal {
-                print("")
-                print("📂 正在 Finder 中显示...")
-                openInFinder(outputURL)
-            } else if open {
-                print("")
-                print("🖼️  正在打开图片...")
-                openWithDefaultApp(outputURL)
-            }
-
-        default:
-            throw AirisError.apiKeyNotFound(provider: provider)
+        // 打开图片或在 Finder 中显示
+        if reveal {
+            print("")
+            print("📂 正在 Finder 中显示...")
+            openInFinder(outputURL)
+        } else if open {
+            print("")
+            print("🖼️  正在打开图片...")
+            openWithDefaultApp(outputURL)
         }
     }
 
