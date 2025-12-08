@@ -77,16 +77,29 @@ final class GeminiProvider {
             )
         ] : nil
 
+        // gemini-2.5-flash-image 不支持 imageSize（固定 1024px）
+        let imageConfig: GeminiGenerateRequest.ImageConfig?
+        if actualModel.contains("2.5-flash") {
+            // Flash 模型只支持 aspectRatio
+            imageConfig = GeminiGenerateRequest.ImageConfig(
+                aspectRatio: aspectRatio,
+                imageSize: nil
+            )
+        } else {
+            // Pro 模型支持 aspectRatio 和 imageSize
+            imageConfig = GeminiGenerateRequest.ImageConfig(
+                aspectRatio: aspectRatio,
+                imageSize: imageSize
+            )
+        }
+
         let request = GeminiGenerateRequest(
             contents: [
                 GeminiGenerateRequest.Content(parts: parts)
             ],
             generationConfig: GeminiGenerateRequest.GenerationConfig(
                 responseModalities: ["TEXT", "IMAGE"],
-                imageConfig: GeminiGenerateRequest.ImageConfig(
-                    aspectRatio: aspectRatio,
-                    imageSize: imageSize
-                )
+                imageConfig: imageConfig
             ),
             tools: tools
         )
