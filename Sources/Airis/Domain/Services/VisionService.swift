@@ -182,4 +182,77 @@ final class VisionService: Sendable {
         let texts: [VNRecognizedTextObservation]
         let barcodes: [VNBarcodeObservation]
     }
+
+    // MARK: - 前景分割（抠图）
+
+    /// 生成前景实例遮罩（用于背景移除）
+    /// - Parameter url: 图像文件 URL
+    /// - Returns: 带 alpha 通道的遮罩图像 CVPixelBuffer
+    /// - Note: 仅支持 macOS 14.0+，需要 GPU 支持
+    @available(macOS 14.0, *)
+    func generateForegroundMask(at url: URL) async throws -> CVPixelBuffer {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNGenerateForegroundInstanceMaskRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+
+                guard let observation = request.results?.first else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                // 获取所有前景实例
+                let allInstances = observation.allInstances
+
+                // 生成掩码图像（保持原始尺寸）
+                let maskedImage = try observation.generateMaskedImage(
+                    ofInstances: allInstances,
+                    from: handler,
+                    croppedToInstancesExtent: false
+                )
+
+                continuation.resume(returning: maskedImage)
+            } catch let error as AirisError {
+                continuation.resume(throwing: error)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    /// 生成前景分割遮罩（仅遮罩，不含原图）
+    /// - Parameter url: 图像文件 URL
+    /// - Returns: 遮罩 CVPixelBuffer（白色=前景，黑色=背景）
+    @available(macOS 14.0, *)
+    func generateForegroundMaskOnly(at url: URL) async throws -> CVPixelBuffer {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNGenerateForegroundInstanceMaskRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+
+                guard let observation = request.results?.first else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                let allInstances = observation.allInstances
+
+                // 仅获取遮罩
+                let maskBuffer = try observation.generateScaledMaskForImage(
+                    forInstances: allInstances,
+                    from: handler
+                )
+
+                continuation.resume(returning: maskBuffer)
+            } catch let error as AirisError {
+                continuation.resume(throwing: error)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
 }

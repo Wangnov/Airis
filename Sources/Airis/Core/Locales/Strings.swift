@@ -275,6 +275,84 @@ struct Strings: Sendable {
         "config.key_not_configured": [
             .en: "Not configured",
             .cn: "未配置"
+        ],
+
+        // ============ Edit 命令 ============
+        "edit.input": [
+            .en: "Input",
+            .cn: "输入"
+        ],
+        "edit.output": [
+            .en: "Output",
+            .cn: "输出"
+        ],
+
+        // Cut 命令
+        "edit.cut.title": [
+            .en: "Background Removal",
+            .cn: "背景移除"
+        ],
+
+        // Resize 命令
+        "edit.resize.title": [
+            .en: "Image Resize",
+            .cn: "图像缩放"
+        ],
+        "edit.resize.original": [
+            .en: "Original size",
+            .cn: "原始尺寸"
+        ],
+        "edit.resize.target": [
+            .en: "Target size",
+            .cn: "目标尺寸"
+        ],
+        "edit.resize.target_width": [
+            .en: "Target width",
+            .cn: "目标宽度"
+        ],
+        "edit.resize.target_height": [
+            .en: "Target height",
+            .cn: "目标高度"
+        ],
+        "edit.resize.result": [
+            .en: "Result size",
+            .cn: "结果尺寸"
+        ],
+
+        // Crop 命令
+        "edit.crop.title": [
+            .en: "Image Crop",
+            .cn: "图像裁剪"
+        ],
+        "edit.crop.original": [
+            .en: "Original size",
+            .cn: "原始尺寸"
+        ],
+        "edit.crop.region": [
+            .en: "Crop region",
+            .cn: "裁剪区域"
+        ],
+        "edit.crop.result": [
+            .en: "Result size",
+            .cn: "结果尺寸"
+        ],
+
+        // Enhance 命令
+        "edit.enhance.title": [
+            .en: "Auto Enhancement",
+            .cn: "自动增强"
+        ],
+        "edit.enhance.redeye_disabled": [
+            .en: "Red-eye correction: disabled",
+            .cn: "红眼校正：已禁用"
+        ],
+        "edit.enhance.no_filters": [
+            .en: "No enhancement filters needed",
+            .cn: "无需增强滤镜"
+        ],
+        "edit.enhance.filters_applied": [
+            .en: "Filters to be applied",
+            .cn: "将应用的滤镜"
         ]
     ]
 
