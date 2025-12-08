@@ -347,6 +347,239 @@ final class CoreImageService: @unchecked Sendable {
         return filter.outputImage ?? ciImage
     }
 
+    // MARK: - 模糊效果
+
+    /// 运动模糊
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - radius: 模糊半径（默认 10，范围建议 0-100）
+    ///   - angle: 运动方向角度（默认 0，范围 0-360 度）
+    /// - Returns: 运动模糊后的 CIImage
+    func motionBlur(ciImage: CIImage, radius: Double = 10, angle: Double = 0) -> CIImage {
+        let filter = CIFilter.motionBlur()
+        filter.inputImage = ciImage
+        filter.radius = Float(max(0, radius))
+        // CIMotionBlur 使用弧度，角度需要转换
+        filter.angle = Float(angle * .pi / 180.0)
+
+        guard let output = filter.outputImage else {
+            return ciImage
+        }
+
+        // 模糊会扩展图像边界，裁剪回原始大小
+        return output.cropped(to: ciImage.extent)
+    }
+
+    /// 缩放模糊（径向模糊）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - center: 模糊中心点（默认为图像中心）
+    ///   - amount: 模糊量（默认 10，范围建议 0-100）
+    /// - Returns: 缩放模糊后的 CIImage
+    func zoomBlur(ciImage: CIImage, center: CGPoint? = nil, amount: Double = 10) -> CIImage {
+        let filter = CIFilter.zoomBlur()
+        filter.inputImage = ciImage
+
+        // 默认使用图像中心
+        let blurCenter = center ?? CGPoint(
+            x: ciImage.extent.midX,
+            y: ciImage.extent.midY
+        )
+        filter.center = blurCenter
+        filter.amount = Float(max(0, amount))
+
+        guard let output = filter.outputImage else {
+            return ciImage
+        }
+
+        // 模糊会扩展图像边界，裁剪回原始大小
+        return output.cropped(to: ciImage.extent)
+    }
+
+    // MARK: - 锐化和降噪
+
+    /// 非锐化蒙版（更精细的锐化控制）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - radius: 影响区域半径（默认 2.5，范围建议 0-10）
+    ///   - intensity: 锐化强度（默认 0.5，范围建议 0-2）
+    /// - Returns: 锐化后的 CIImage
+    func unsharpMask(ciImage: CIImage, radius: Double = 2.5, intensity: Double = 0.5) -> CIImage {
+        let filter = CIFilter.unsharpMask()
+        filter.inputImage = ciImage
+        filter.radius = Float(max(0, radius))
+        filter.intensity = Float(max(0, intensity))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 降噪
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - noiseLevel: 噪声级别（默认 0.02，范围建议 0-0.1）
+    ///   - sharpness: 锐度保持（默认 0.4，范围建议 0-2）
+    /// - Returns: 降噪后的 CIImage
+    func noiseReduction(ciImage: CIImage, noiseLevel: Double = 0.02, sharpness: Double = 0.4) -> CIImage {
+        let filter = CIFilter.noiseReduction()
+        filter.inputImage = ciImage
+        filter.noiseLevel = Float(max(0, noiseLevel))
+        filter.sharpness = Float(max(0, sharpness))
+        return filter.outputImage ?? ciImage
+    }
+
+    // MARK: - 像素化效果
+
+    /// 像素化
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - scale: 像素块大小（默认 8，范围建议 1-100）
+    /// - Returns: 像素化后的 CIImage
+    func pixellate(ciImage: CIImage, scale: Double = 8) -> CIImage {
+        let filter = CIFilter.pixellate()
+        filter.inputImage = ciImage
+        filter.scale = Float(max(1, scale))
+
+        // 默认使用图像中心
+        filter.center = CGPoint(
+            x: ciImage.extent.midX,
+            y: ciImage.extent.midY
+        )
+
+        return filter.outputImage ?? ciImage
+    }
+
+    // MARK: - 艺术效果
+
+    /// 漫画效果
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 漫画风格的 CIImage
+    func comicEffect(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.comicEffect()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 半色调效果（网点印刷风格）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - width: 网点间距（默认 6，范围建议 1-50）
+    ///   - angle: 网点角度（默认 0 度）
+    ///   - sharpness: 边缘锐度（默认 0.7，范围 0-1）
+    /// - Returns: 半色调效果的 CIImage
+    func halftone(ciImage: CIImage, width: Double = 6, angle: Double = 0, sharpness: Double = 0.7) -> CIImage {
+        let filter = CIFilter.dotScreen()
+        filter.inputImage = ciImage
+        filter.width = Float(max(1, width))
+        filter.angle = Float(angle * .pi / 180.0)
+        filter.sharpness = Float(max(0, min(1, sharpness)))
+
+        // 默认使用图像中心
+        filter.center = CGPoint(
+            x: ciImage.extent.midX,
+            y: ciImage.extent.midY
+        )
+
+        return filter.outputImage ?? ciImage
+    }
+
+    // MARK: - 照片效果滤镜
+
+    /// 黑白效果
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 黑白效果的 CIImage
+    func photoEffectMono(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectMono()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 铬黄效果
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 铬黄效果的 CIImage
+    func photoEffectChrome(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectChrome()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 黑色电影效果（高对比度黑白）
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 黑色电影效果的 CIImage
+    func photoEffectNoir(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectNoir()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 即时相机效果（宝丽来风格）
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 即时相机效果的 CIImage
+    func photoEffectInstant(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectInstant()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 褪色效果
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 褪色效果的 CIImage
+    func photoEffectFade(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectFade()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 复古冲印效果
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 复古冲印效果的 CIImage
+    func photoEffectProcess(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectProcess()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 色调转移效果
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 色调转移效果的 CIImage
+    func photoEffectTransfer(ciImage: CIImage) -> CIImage {
+        let filter = CIFilter.photoEffectTransfer()
+        filter.inputImage = ciImage
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 暗角效果
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - intensity: 暗角强度（默认 1，范围建议 0-2）
+    ///   - radius: 暗角半径（默认为图像对角线的一半）
+    /// - Returns: 带暗角效果的 CIImage
+    func vignette(ciImage: CIImage, intensity: Double = 1, radius: Double? = nil) -> CIImage {
+        let filter = CIFilter.vignette()
+        filter.inputImage = ciImage
+        filter.intensity = Float(max(0, intensity))
+
+        // 计算默认半径（图像对角线的一半）
+        let extent = ciImage.extent
+        let defaultRadius = sqrt(extent.width * extent.width + extent.height * extent.height) / 2
+        filter.radius = Float(radius ?? Double(defaultRadius))
+
+        return filter.outputImage ?? ciImage
+    }
+
     // MARK: - 渲染
 
     /// 渲染 CIImage 到 CGImage

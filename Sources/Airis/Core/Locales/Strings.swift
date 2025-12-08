@@ -361,6 +361,119 @@ struct Strings: Sendable {
         "edit.enhance.filters_applied": [
             .en: "Filters to be applied",
             .cn: "将应用的滤镜"
+        ],
+
+        // ============ Filter 命令 ============
+        // Blur
+        "filter.blur.title": [
+            .en: "Blur Filter",
+            .cn: "模糊滤镜"
+        ],
+        "filter.blur.type": [
+            .en: "Type",
+            .cn: "类型"
+        ],
+        "filter.blur.radius": [
+            .en: "Radius",
+            .cn: "半径"
+        ],
+        "filter.blur.angle": [
+            .en: "Angle",
+            .cn: "角度"
+        ],
+
+        // Sharpen
+        "filter.sharpen.title": [
+            .en: "Sharpen Filter",
+            .cn: "锐化滤镜"
+        ],
+        "filter.sharpen.method": [
+            .en: "Method",
+            .cn: "方法"
+        ],
+        "filter.sharpen.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
+        ],
+        "filter.sharpen.radius": [
+            .en: "Radius",
+            .cn: "半径"
+        ],
+
+        // Pixel
+        "filter.pixel.title": [
+            .en: "Pixelate Filter",
+            .cn: "像素化滤镜"
+        ],
+        "filter.pixel.scale": [
+            .en: "Block size",
+            .cn: "像素块大小"
+        ],
+
+        // Noise
+        "filter.noise.title": [
+            .en: "Noise Reduction",
+            .cn: "降噪"
+        ],
+        "filter.noise.level": [
+            .en: "Noise level",
+            .cn: "噪声级别"
+        ],
+        "filter.noise.sharpness": [
+            .en: "Sharpness",
+            .cn: "锐度保持"
+        ],
+
+        // Comic
+        "filter.comic.title": [
+            .en: "Comic Effect",
+            .cn: "漫画效果"
+        ],
+
+        // Halftone
+        "filter.halftone.title": [
+            .en: "Halftone Effect",
+            .cn: "半色调效果"
+        ],
+        "filter.halftone.width": [
+            .en: "Dot spacing",
+            .cn: "网点间距"
+        ],
+        "filter.halftone.angle": [
+            .en: "Angle",
+            .cn: "角度"
+        ],
+        "filter.halftone.sharpness": [
+            .en: "Sharpness",
+            .cn: "锐度"
+        ],
+
+        // Photo Effects
+        "filter.sepia.title": [
+            .en: "Sepia Tone",
+            .cn: "怀旧褐色"
+        ],
+        "filter.mono.title": [
+            .en: "Black & White",
+            .cn: "黑白"
+        ],
+        "filter.chrome.title": [
+            .en: "Chrome Effect",
+            .cn: "铬黄效果"
+        ],
+        "filter.noir.title": [
+            .en: "Film Noir",
+            .cn: "黑色电影"
+        ],
+        "filter.instant.title": [
+            .en: "Instant Camera",
+            .cn: "即时相机"
+        ],
+
+        // Common filter strings
+        "filter.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
         ]
     ]
 
