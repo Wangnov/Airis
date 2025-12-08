@@ -131,6 +131,72 @@ struct Strings: Sendable {
             .cn: "未检测到敏感内容"
         ],
 
+        // ============ Analyze 命令 ============
+        "analyze.processing": [
+            .en: "Analyzing image...",
+            .cn: "正在分析图像..."
+        ],
+        "analyze.tag.found": [
+            .en: "Found %d tag(s)",
+            .cn: "检测到 %d 个标签"
+        ],
+        "analyze.tag.showing": [
+            .en: "Found %d tag(s), showing top %d",
+            .cn: "检测到 %d 个标签（显示前 %d 个）"
+        ],
+        "analyze.ocr.found": [
+            .en: "Recognized %d text segment(s)",
+            .cn: "识别到 %d 段文字"
+        ],
+        "analyze.score.result": [
+            .en: "Aesthetic score: %.2f",
+            .cn: "美学评分：%.2f"
+        ],
+        "analyze.score.excellent": [
+            .en: "Excellent",
+            .cn: "优秀"
+        ],
+        "analyze.score.good": [
+            .en: "Good",
+            .cn: "良好"
+        ],
+        "analyze.score.fair": [
+            .en: "Fair",
+            .cn: "一般"
+        ],
+        "analyze.score.poor": [
+            .en: "Poor",
+            .cn: "较差"
+        ],
+        "analyze.score.utility": [
+            .en: "This is a utility image (screenshot, document, etc.)",
+            .cn: "这是一张实用性图像（截图、文档等）"
+        ],
+        "analyze.score.unavailable": [
+            .en: "⚠️ Aesthetic scoring requires macOS 15.0 or later",
+            .cn: "⚠️ 美学评分需要 macOS 15.0 或更高版本"
+        ],
+        "info.color_model": [
+            .en: "Color Model: %@",
+            .cn: "色彩模型：%@"
+        ],
+        "info.bit_depth": [
+            .en: "Bit Depth: %d",
+            .cn: "位深度：%d"
+        ],
+        "info.has_alpha": [
+            .en: "Has Alpha: %@",
+            .cn: "包含透明通道：%@"
+        ],
+        "info.yes": [
+            .en: "Yes",
+            .cn: "是"
+        ],
+        "info.no": [
+            .en: "No",
+            .cn: "否"
+        ],
+
         // ============ 命令帮助 ============
         "help.image_path": [
             .en: "Path to the image file",

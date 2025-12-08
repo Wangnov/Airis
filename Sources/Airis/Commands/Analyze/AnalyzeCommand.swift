@@ -18,10 +18,10 @@ struct AnalyzeCommand: AsyncParsableCommand {
             and CoreImage frameworks.
             """,
         subcommands: [
-            // InfoCommand.self,      // Task 3.2 实现
-            // TagCommand.self,       // Task 3.2 实现
-            // ScoreCommand.self,     // Task 3.2 实现
-            // OCRCommand.self,       // Task 3.2 实现
+            InfoCommand.self,
+            TagCommand.self,
+            ScoreCommand.self,
+            OCRCommand.self,
             // SafeCommand.self,      // Task 3.3 实现
             // PaletteCommand.self,   // Task 3.3 实现
             // SimilarCommand.self,   // Task 3.3 实现
