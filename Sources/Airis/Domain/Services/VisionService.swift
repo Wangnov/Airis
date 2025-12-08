@@ -477,4 +477,39 @@ final class VisionService: Sendable {
             }
         }
     }
+
+    // MARK: - 前景分割（抠图）
+
+    /// 生成前景实例遮罩（用于背景移除）
+    @available(macOS 14.0, *)
+    func generateForegroundMask(at url: URL) async throws -> CIImage {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNGenerateForegroundInstanceMaskRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+
+                guard let observation = request.results?.first else {
+                    continuation.resume(throwing: AirisError.noResultsFound)
+                    return
+                }
+
+                let allInstances = observation.allInstances
+
+                // 生成遮罩图像
+                let maskedImage = try observation.generateMaskedImage(
+                    ofInstances: allInstances,
+                    from: handler,
+                    croppedToInstancesExtent: false
+                )
+
+                continuation.resume(returning: maskedImage)
+            } catch let error as AirisError {
+                continuation.resume(throwing: error)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
 }
