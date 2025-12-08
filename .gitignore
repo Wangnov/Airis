@@ -5,3 +5,5 @@
 DerivedData/
 .swiftpm/
 docs/
+*.profraw
+*.profdata
