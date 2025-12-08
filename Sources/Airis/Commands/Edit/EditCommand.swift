@@ -19,10 +19,10 @@ struct EditCommand: AsyncParsableCommand {
             """,
         subcommands: [
             // 基础编辑命令（Task 6.2 实现）
-            // CutCommand.self,
-            // ResizeCommand.self,
-            // CropCommand.self,
-            // EnhanceCommand.self,
+            CutCommand.self,
+            ResizeCommand.self,
+            CropCommand.self,
+            EnhanceCommand.self,
             // ScanCommand.self,
             // StraightenCommand.self,
             // TraceCommand.self,

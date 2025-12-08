@@ -494,4 +494,103 @@ final class CoreImageService: @unchecked Sendable {
             height: rect.height
         )
     }
+
+    // MARK: - 背景移除
+
+    /// 保存带 alpha 通道的遮罩图像（用于背景移除）
+    ///
+    /// - Parameters:
+    ///   - maskedBuffer: Vision 框架生成的遮罩 CVPixelBuffer
+    ///   - outputURL: 输出文件 URL（必须是 PNG 格式）
+    func saveMaskedImage(maskedBuffer: CVPixelBuffer, to outputURL: URL) throws {
+        let ciImage = CIImage(cvPixelBuffer: maskedBuffer)
+
+        guard let cgImage = render(ciImage: ciImage) else {
+            throw AirisError.imageEncodeFailed
+        }
+
+        let imageIO = ServiceContainer.shared.imageIOService
+        try imageIO.saveImage(cgImage, to: outputURL, format: "png", quality: 1.0)
+    }
+
+    // MARK: - 自动增强
+
+    /// 自动增强图像（一键优化）
+    ///
+    /// 使用 CoreImage 的 autoAdjustmentFilters 自动检测并应用最佳滤镜：
+    /// - 红眼校正
+    /// - 面部平衡
+    /// - 自然饱和度
+    /// - 色调曲线
+    /// - 高光阴影调整
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - enableRedEye: 是否启用红眼校正（默认 true）
+    /// - Returns: 增强后的 CIImage
+    func autoEnhance(ciImage: CIImage, enableRedEye: Bool = true) -> CIImage {
+        var options: [CIImageAutoAdjustmentOption: Any] = [
+            .enhance: true
+        ]
+
+        if !enableRedEye {
+            options[.redEye] = false
+        }
+
+        let filters = ciImage.autoAdjustmentFilters(options: options)
+
+        var enhanced = ciImage
+        for filter in filters {
+            filter.setValue(enhanced, forKey: kCIInputImageKey)
+            if let output = filter.outputImage {
+                enhanced = output
+            }
+        }
+
+        return enhanced
+    }
+
+    /// 加载、自动增强并保存图像
+    ///
+    /// - Parameters:
+    ///   - inputURL: 输入图像 URL
+    ///   - outputURL: 输出图像 URL
+    ///   - format: 输出格式（png, jpg, heic）
+    ///   - quality: 压缩质量（0-1，仅对 jpg/heic 有效）
+    ///   - enableRedEye: 是否启用红眼校正
+    func autoEnhanceAndSave(
+        inputURL: URL,
+        outputURL: URL,
+        format: String = "png",
+        quality: Float = 1.0,
+        enableRedEye: Bool = true
+    ) throws {
+        let imageIO = ServiceContainer.shared.imageIOService
+
+        // 加载图像
+        let cgImage = try imageIO.loadImage(at: inputURL)
+
+        // 转换为 CIImage
+        let ciImage = CIImage(cgImage: cgImage)
+
+        // 自动增强
+        let enhanced = autoEnhance(ciImage: ciImage, enableRedEye: enableRedEye)
+
+        // 渲染
+        guard let outputCGImage = render(ciImage: enhanced) else {
+            throw AirisError.imageEncodeFailed
+        }
+
+        // 保存
+        try imageIO.saveImage(outputCGImage, to: outputURL, format: format, quality: quality)
+    }
+
+    /// 获取自动增强将应用的滤镜信息（用于调试/显示）
+    ///
+    /// - Parameter ciImage: 输入图像
+    /// - Returns: 滤镜名称列表
+    func getAutoEnhanceFilters(for ciImage: CIImage) -> [String] {
+        let filters = ciImage.autoAdjustmentFilters()
+        return filters.map { $0.name }
+    }
 }
