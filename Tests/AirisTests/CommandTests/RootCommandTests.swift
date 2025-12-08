@@ -57,8 +57,8 @@ final class RootCommandTests: XCTestCase {
     func testEditCommandConfiguration() throws {
         XCTAssertEqual(EditCommand.configuration.commandName, "edit")
         XCTAssertTrue(EditCommand.configuration.abstract.contains("Edit"))
-        // 包含: cut, resize, crop, enhance, filter, adjust
-        XCTAssertEqual(EditCommand.configuration.subcommands.count, 6)
+        // 包含: cut, resize, crop, enhance, scan, straighten, trace, defringe, fmt, thumb, filter, adjust
+        XCTAssertEqual(EditCommand.configuration.subcommands.count, 12)
     }
 
     func testFilterCommandConfiguration() throws {

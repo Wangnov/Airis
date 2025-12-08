@@ -361,6 +361,146 @@ struct Strings: Sendable {
         "edit.enhance.filters_applied": [
             .en: "Filters to be applied",
             .cn: "将应用的滤镜"
+        ],
+
+        // Scan 命令（Task 6.3）
+        "edit.scan.title": [
+            .en: "Document Scan",
+            .cn: "文档扫描"
+        ],
+        "edit.scan.detecting": [
+            .en: "Detecting document edges...",
+            .cn: "正在检测文档边界..."
+        ],
+        "edit.scan.found": [
+            .en: "Document detected (confidence: %@)",
+            .cn: "检测到文档（置信度：%@）"
+        ],
+        "edit.scan.correcting": [
+            .en: "Applying perspective correction...",
+            .cn: "正在应用透视校正..."
+        ],
+        "edit.scan.result_size": [
+            .en: "Result size: %d × %d",
+            .cn: "结果尺寸：%d × %d"
+        ],
+
+        // Straighten 命令（Task 6.3）
+        "edit.straighten.title": [
+            .en: "Image Straighten",
+            .cn: "图像拉直"
+        ],
+        "edit.straighten.detecting": [
+            .en: "Detecting horizon angle...",
+            .cn: "正在检测地平线角度..."
+        ],
+        "edit.straighten.no_horizon": [
+            .en: "No horizon detected, skipping rotation",
+            .cn: "未检测到地平线，跳过旋转"
+        ],
+        "edit.straighten.detected": [
+            .en: "Detected tilt: %@°",
+            .cn: "检测到倾斜：%@°"
+        ],
+        "edit.straighten.already_level": [
+            .en: "Image is already level",
+            .cn: "图像已水平"
+        ],
+        "edit.straighten.manual": [
+            .en: "Manual angle: %@°",
+            .cn: "手动角度：%@°"
+        ],
+        "edit.straighten.rotating": [
+            .en: "Rotating image...",
+            .cn: "正在旋转图像..."
+        ],
+        "edit.straighten.rotated": [
+            .en: "Rotated by %@°",
+            .cn: "旋转了 %@°"
+        ],
+
+        // Trace 命令（Task 6.3）
+        "edit.trace.title": [
+            .en: "Vector Trace",
+            .cn: "矢量描摹"
+        ],
+        "edit.trace.style": [
+            .en: "Style",
+            .cn: "样式"
+        ],
+        "edit.trace.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
+        ],
+        "edit.trace.radius": [
+            .en: "Radius",
+            .cn: "半径"
+        ],
+
+        // Defringe 命令（Task 6.3）
+        "edit.defringe.title": [
+            .en: "Defringe",
+            .cn: "去紫边"
+        ],
+        "edit.defringe.amount": [
+            .en: "Amount",
+            .cn: "强度"
+        ],
+
+        // Format 命令（Task 6.3）
+        "edit.fmt.title": [
+            .en: "Format Conversion",
+            .cn: "格式转换"
+        ],
+        "edit.fmt.target_format": [
+            .en: "Target format",
+            .cn: "目标格式"
+        ],
+        "edit.fmt.quality": [
+            .en: "Quality",
+            .cn: "质量"
+        ],
+        "edit.fmt.converting": [
+            .en: "Converting format...",
+            .cn: "正在转换格式..."
+        ],
+        "edit.fmt.size_comparison": [
+            .en: "Size: %@ → %@",
+            .cn: "大小：%@ → %@"
+        ],
+        "edit.fmt.compressed": [
+            .en: "Compressed by %@",
+            .cn: "压缩了 %@"
+        ],
+        "edit.fmt.expanded": [
+            .en: "Expanded by %@",
+            .cn: "增大了 %@"
+        ],
+
+        // Thumb 命令（Task 6.3）
+        "edit.thumb.title": [
+            .en: "Thumbnail Generation",
+            .cn: "生成缩略图"
+        ],
+        "edit.thumb.original_size": [
+            .en: "Original size",
+            .cn: "原始尺寸"
+        ],
+        "edit.thumb.target_size": [
+            .en: "Target size",
+            .cn: "目标尺寸"
+        ],
+        "edit.thumb.generating": [
+            .en: "Generating thumbnail...",
+            .cn: "正在生成缩略图..."
+        ],
+        "edit.thumb.result_size": [
+            .en: "Result size",
+            .cn: "结果尺寸"
+        ],
+        "edit.thumb.scale_factor": [
+            .en: "Scale: %@",
+            .cn: "缩放：%@"
         ]
     ]
 

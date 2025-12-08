@@ -478,6 +478,108 @@ final class VisionService: Sendable {
         }
     }
 
+    // MARK: - 矩形检测
+
+    /// 矩形检测结果
+    struct RectangleObservation: Sendable {
+        let topLeft: CGPoint
+        let topRight: CGPoint
+        let bottomLeft: CGPoint
+        let bottomRight: CGPoint
+        let confidence: Float
+        let boundingBox: CGRect
+    }
+
+    /// 检测图像中的矩形区域（用于文档扫描）
+    ///
+    /// - Parameters:
+    ///   - url: 图像文件 URL
+    ///   - minimumConfidence: 最小置信度（默认 0.5）
+    ///   - minimumSize: 最小尺寸占比（默认 0.1）
+    ///   - maximumObservations: 最大检测数量（默认 1）
+    /// - Returns: 检测到的矩形数组
+    func detectRectangles(
+        at url: URL,
+        minimumConfidence: Float = 0.5,
+        minimumSize: Float = 0.1,
+        maximumObservations: Int = 1
+    ) async throws -> [RectangleObservation] {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNDetectRectanglesRequest()
+
+        // 配置检测参数
+        request.minimumConfidence = minimumConfidence
+        request.minimumSize = minimumSize
+        request.maximumObservations = maximumObservations
+        request.minimumAspectRatio = 0.3
+        request.maximumAspectRatio = 1.0
+        request.quadratureTolerance = 30.0
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                guard let results = request.results, !results.isEmpty else {
+                    continuation.resume(returning: [])
+                    return
+                }
+
+                let observations = results.map { rect in
+                    RectangleObservation(
+                        topLeft: rect.topLeft,
+                        topRight: rect.topRight,
+                        bottomLeft: rect.bottomLeft,
+                        bottomRight: rect.bottomRight,
+                        confidence: rect.confidence,
+                        boundingBox: rect.boundingBox
+                    )
+                }
+                continuation.resume(returning: observations)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    // MARK: - 地平线检测
+
+    /// 地平线检测结果
+    struct HorizonObservation: Sendable {
+        let angleInRadians: CGFloat
+        let angleInDegrees: CGFloat
+        let confidence: Float
+    }
+
+    /// 检测图像中的地平线倾斜角度
+    ///
+    /// - Parameter url: 图像文件 URL
+    /// - Returns: 地平线检测结果（如果检测到）
+    func detectHorizon(at url: URL) async throws -> HorizonObservation? {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNDetectHorizonRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                guard let results = request.results,
+                      let horizon = results.first else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let angleInRadians = horizon.angle
+                let angleInDegrees = angleInRadians * 180.0 / .pi
+
+                continuation.resume(returning: HorizonObservation(
+                    angleInRadians: angleInRadians,
+                    angleInDegrees: angleInDegrees,
+                    confidence: horizon.confidence
+                ))
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
     // MARK: - 前景分割（抠图）
 
     /// 生成前景实例遮罩（用于背景移除）
