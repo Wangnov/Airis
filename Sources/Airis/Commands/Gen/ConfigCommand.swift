@@ -8,10 +8,30 @@ struct ConfigCommand: AsyncParsableCommand {
         discussion: """
             Configure API keys and settings for AI providers.
 
-            - API keys are stored securely in macOS Keychain
-            - Other settings are stored in ~/.config/airis/config.json
+            QUICK START:
+              1. Set API key:
+                 airis gen config set-key --provider gemini --key "YOUR_API_KEY"
 
-            Supported providers: gemini
+              2. (Optional) Configure base URL:
+                 airis gen config set --provider gemini --base-url "https://api.example.com"
+
+              3. (Optional) Configure default model:
+                 airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
+
+              4. View configuration:
+                 airis gen config show --provider gemini
+
+            STORAGE:
+              - API keys: Stored securely in macOS Keychain
+              - Settings: Stored in ~/.config/airis/config.json
+
+            SUPPORTED PROVIDERS:
+              - gemini: Google Gemini Image Generation API
+                        Get API key from: https://aistudio.google.com/apikey
+
+            CONFIGURABLE SETTINGS (via 'set' command):
+              - base-url: API endpoint (default: https://generativelanguage.googleapis.com)
+              - model: Default model name (default: gemini-3-pro-image-preview)
             """,
         subcommands: [
             SetKeyCommand.self,
@@ -131,11 +151,25 @@ struct SetConfigCommand: AsyncParsableCommand {
         commandName: "set",
         abstract: "Set provider configuration",
         discussion: """
-            Configure provider settings (stored in config file).
+            Configure provider settings (stored in ~/.config/airis/config.json).
 
-            Examples:
-              airis gen config set --provider gemini --base-url "https://api.example.com"
-              airis gen config set --provider gemini --model "gemini-2.0-flash"
+            AVAILABLE SETTINGS:
+              --base-url <url>     Custom API endpoint (default: https://generativelanguage.googleapis.com)
+              --model <name>       Default model name (default: gemini-3-pro-image-preview)
+
+            EXAMPLES:
+              # Set custom API endpoint (e.g., proxy server)
+              airis gen config set --provider gemini --base-url "https://proxy.example.com"
+
+              # Set default model
+              airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
+
+              # Set both at once
+              airis gen config set --provider gemini \\
+                --base-url "https://api.example.com" \\
+                --model "custom-model"
+
+            NOTE: You can omit --provider if only one provider is configured.
             """
     )
 
@@ -189,9 +223,26 @@ struct ShowConfigCommand: AsyncParsableCommand {
         discussion: """
             Display current configuration for a provider.
 
-            Examples:
+            OUTPUT FORMAT:
+              Config file: ~/.config/airis/config.json
+
+              [provider_name]
+                api_key: ✓ Configured / ✗ Not configured
+                base_url: https://...
+                model: model-name
+
+            EXAMPLES:
+              # Show specific provider
               airis gen config show --provider gemini
-              airis gen config show  # show all providers
+
+              # Show all configured providers
+              airis gen config show
+
+            SAMPLE OUTPUT:
+              [gemini]
+                api_key: ✓ Configured
+                base_url: https://generativelanguage.googleapis.com
+                model: gemini-3-pro-image-preview
             """
     )
 
