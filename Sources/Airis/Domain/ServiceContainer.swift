@@ -45,9 +45,13 @@ final class ServiceContainer: @unchecked Sendable {
         )
     }
 
+    // MARK: - 图像编辑服务
+
+    /// CoreImage 服务（图像编辑）
+    lazy var coreImageService = CoreImageService()
+
     // MARK: - 未来扩展的服务（占位）
 
-    // lazy var coreImageService = CoreImageService()
     // lazy var sensitiveContentService = SensitiveContentService()
 
     private init() {}
