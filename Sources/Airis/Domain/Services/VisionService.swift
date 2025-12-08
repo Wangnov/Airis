@@ -147,6 +147,79 @@ final class VisionService: Sendable {
         }
     }
 
+    // MARK: - 人体姿态检测
+
+    /// 检测人体 2D 姿态（19 个关键点）
+    func detectHumanBodyPose(at url: URL) async throws -> [VNHumanBodyPoseObservation] {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNDetectHumanBodyPoseRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                let results = (request.results as? [VNHumanBodyPoseObservation]) ?? []
+                continuation.resume(returning: results)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    /// 检测人体 3D 姿态（17 个关键点，需要 macOS 14.0+）
+    @available(macOS 14.0, *)
+    func detectHumanBodyPose3D(at url: URL) async throws -> [VNHumanBodyPose3DObservation] {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNDetectHumanBodyPose3DRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                let results = (request.results as? [VNHumanBodyPose3DObservation]) ?? []
+                continuation.resume(returning: results)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    // MARK: - 手部姿态检测
+
+    /// 检测手部姿态（21 个关键点）
+    func detectHumanHandPose(at url: URL, maximumHandCount: Int = 2) async throws -> [VNHumanHandPoseObservation] {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNDetectHumanHandPoseRequest()
+        request.maximumHandCount = maximumHandCount
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                let results = (request.results as? [VNHumanHandPoseObservation]) ?? []
+                continuation.resume(returning: results)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    // MARK: - 动物姿态检测
+
+    /// 检测动物身体姿态（猫/狗，23 个关键点，需要 macOS 14.0+）
+    @available(macOS 14.0, *)
+    func detectAnimalBodyPose(at url: URL) async throws -> [VNAnimalBodyPoseObservation] {
+        let handler = VNImageRequestHandler(url: url, options: [:])
+        let request = VNDetectAnimalBodyPoseRequest()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try handler.perform([request])
+                let results = (request.results as? [VNAnimalBodyPoseObservation]) ?? []
+                continuation.resume(returning: results)
+            } catch {
+                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+            }
+        }
+    }
+
     // MARK: - 批量请求
 
     /// 执行多个请求（复用同一个 handler）
