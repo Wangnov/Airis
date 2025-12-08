@@ -84,11 +84,16 @@ struct CutCommand: AsyncParsableCommand {
 
         // 使用 VisionService 生成遮罩
         let vision = ServiceContainer.shared.visionService
-        let maskedBuffer = try await vision.generateForegroundMask(at: inputURL)
+        let maskedImage = try await vision.generateForegroundMask(at: inputURL)
 
-        // 使用 CoreImageService 保存结果
+        // 渲染并保存
         let coreImage = ServiceContainer.shared.coreImageService
-        try coreImage.saveMaskedImage(maskedBuffer: maskedBuffer, to: outputURL)
+        guard let cgImage = coreImage.render(ciImage: maskedImage) else {
+            throw AirisError.imageEncodeFailed
+        }
+
+        let imageIO = ServiceContainer.shared.imageIOService
+        try imageIO.saveImage(cgImage, to: outputURL, format: "png")
 
         print("")
         print("✅ " + Strings.get("info.saved_to", output))

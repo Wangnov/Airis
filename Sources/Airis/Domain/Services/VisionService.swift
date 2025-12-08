@@ -497,12 +497,15 @@ final class VisionService: Sendable {
 
                 let allInstances = observation.allInstances
 
-                // 生成遮罩图像
-                let maskedImage = try observation.generateMaskedImage(
+                // 生成遮罩图像（CVPixelBuffer）
+                let maskedBuffer = try observation.generateMaskedImage(
                     ofInstances: allInstances,
                     from: handler,
                     croppedToInstancesExtent: false
                 )
+
+                // 转换为 CIImage
+                let maskedImage = CIImage(cvPixelBuffer: maskedBuffer)
 
                 continuation.resume(returning: maskedImage)
             } catch let error as AirisError {
