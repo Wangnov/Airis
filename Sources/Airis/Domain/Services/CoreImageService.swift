@@ -347,6 +347,91 @@ final class CoreImageService: @unchecked Sendable {
         return filter.outputImage ?? ciImage
     }
 
+    // MARK: - 调整效果（Task 8.1）
+
+    /// 曝光调整
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - ev: 曝光值（-10.0 到 10.0，0 为不变）
+    /// - Returns: 调整后的 CIImage
+    func adjustExposure(ciImage: CIImage, ev: Double) -> CIImage {
+        let filter = CIFilter.exposureAdjust()
+        filter.inputImage = ciImage
+        filter.ev = Float(max(-10, min(10, ev)))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 色温和色调调整
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - temperature: 色温调整值（负值偏冷/蓝，正值偏暖/黄，范围建议 -2000 到 2000）
+    ///   - tint: 色调调整值（负值偏绿，正值偏品红，范围建议 -150 到 150）
+    /// - Returns: 调整后的 CIImage
+    func adjustTemperatureAndTint(
+        ciImage: CIImage,
+        temperature: Double = 0,
+        tint: Double = 0
+    ) -> CIImage {
+        let filter = CIFilter.temperatureAndTint()
+        filter.inputImage = ciImage
+        // 使用中性点 6500K，根据调整值计算目标色温
+        let neutralTemp: CGFloat = 6500
+        let targetTemp = neutralTemp + CGFloat(temperature)
+        filter.neutral = CIVector(x: neutralTemp, y: 0)
+        filter.targetNeutral = CIVector(x: targetTemp, y: CGFloat(tint))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 暗角效果
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - intensity: 暗角强度（0 到 2.0，0 为无效果）
+    ///   - radius: 暗角半径（0 到 2.0，控制暗角开始位置）
+    /// - Returns: 添加暗角效果的 CIImage
+    func vignette(ciImage: CIImage, intensity: Double = 1.0, radius: Double = 1.0) -> CIImage {
+        let filter = CIFilter.vignette()
+        filter.inputImage = ciImage
+        filter.intensity = Float(max(0, min(2, intensity)))
+        filter.radius = Float(max(0, min(2, radius)))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 色调分离（海报效果）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - levels: 每个颜色通道的级别数（2 到 30，默认 6）
+    /// - Returns: 色调分离后的 CIImage
+    func posterize(ciImage: CIImage, levels: Double = 6.0) -> CIImage {
+        let filter = CIFilter.colorPosterize()
+        filter.inputImage = ciImage
+        filter.levels = Float(max(2, min(30, levels)))
+        return filter.outputImage ?? ciImage
+    }
+
+    /// 阈值化（黑白二值）
+    ///
+    /// - Parameters:
+    ///   - ciImage: 输入图像
+    ///   - threshold: 阈值（0.0 到 1.0，默认 0.5）
+    /// - Returns: 二值化后的 CIImage
+    func threshold(ciImage: CIImage, threshold: Double = 0.5) -> CIImage {
+        // 使用 CIColorThreshold 滤镜（macOS 10.13+）
+        guard let filter = CIFilter(name: "CIColorThreshold") else {
+            // 如果 CIColorThreshold 不可用，使用替代方案
+            // 先转灰度，再用极端对比度模拟
+            let grayscale = adjustSaturation(ciImage: ciImage, saturation: 0)
+            let posterized = posterize(ciImage: grayscale, levels: 2)
+            return posterized
+        }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(max(0, min(1, threshold)), forKey: "inputThreshold")
+        return filter.outputImage ?? ciImage
+    }
+
     // MARK: - 渲染
 
     /// 渲染 CIImage 到 CGImage

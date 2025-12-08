@@ -361,6 +361,122 @@ struct Strings: Sendable {
         "edit.enhance.filters_applied": [
             .en: "Filters to be applied",
             .cn: "将应用的滤镜"
+        ],
+
+        // ============ Adjust 命令 (Task 8.1) ============
+
+        // Color 命令
+        "edit.adjust.color.title": [
+            .en: "Color Adjustment",
+            .cn: "色彩调整"
+        ],
+        "edit.adjust.brightness": [
+            .en: "Brightness",
+            .cn: "亮度"
+        ],
+        "edit.adjust.contrast": [
+            .en: "Contrast",
+            .cn: "对比度"
+        ],
+        "edit.adjust.saturation": [
+            .en: "Saturation",
+            .cn: "饱和度"
+        ],
+
+        // Exposure 命令
+        "edit.adjust.exposure.title": [
+            .en: "Exposure Adjustment",
+            .cn: "曝光调整"
+        ],
+        "edit.adjust.ev": [
+            .en: "Exposure",
+            .cn: "曝光值"
+        ],
+
+        // Temperature 命令
+        "edit.adjust.temperature.title": [
+            .en: "White Balance Adjustment",
+            .cn: "白平衡调整"
+        ],
+        "edit.adjust.temp": [
+            .en: "Temperature",
+            .cn: "色温"
+        ],
+        "edit.adjust.tint": [
+            .en: "Tint",
+            .cn: "色调"
+        ],
+
+        // Vignette 命令
+        "edit.adjust.vignette.title": [
+            .en: "Vignette Effect",
+            .cn: "暗角效果"
+        ],
+        "edit.adjust.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
+        ],
+        "edit.adjust.radius": [
+            .en: "Radius",
+            .cn: "半径"
+        ],
+
+        // Invert 命令
+        "edit.adjust.invert.title": [
+            .en: "Color Inversion",
+            .cn: "颜色反转"
+        ],
+
+        // Posterize 命令
+        "edit.adjust.posterize.title": [
+            .en: "Posterize Effect",
+            .cn: "色调分离"
+        ],
+        "edit.adjust.levels": [
+            .en: "Color levels",
+            .cn: "色阶数"
+        ],
+
+        // Threshold 命令
+        "edit.adjust.threshold.title": [
+            .en: "Threshold Conversion",
+            .cn: "阈值转换"
+        ],
+        "edit.adjust.threshold_value": [
+            .en: "Threshold",
+            .cn: "阈值"
+        ],
+
+        // Flip 命令
+        "edit.adjust.flip.title": [
+            .en: "Image Flip",
+            .cn: "图像翻转"
+        ],
+        "edit.adjust.flip.direction": [
+            .en: "Direction",
+            .cn: "方向"
+        ],
+        "edit.adjust.flip.horizontal": [
+            .en: "Horizontal",
+            .cn: "水平翻转"
+        ],
+        "edit.adjust.flip.vertical": [
+            .en: "Vertical",
+            .cn: "垂直翻转"
+        ],
+        "edit.adjust.flip.both": [
+            .en: "Both (180°)",
+            .cn: "双向 (180°)"
+        ],
+
+        // Rotate 命令
+        "edit.adjust.rotate.title": [
+            .en: "Image Rotation",
+            .cn: "图像旋转"
+        ],
+        "edit.adjust.angle": [
+            .en: "Angle",
+            .cn: "角度"
         ]
     ]
 
