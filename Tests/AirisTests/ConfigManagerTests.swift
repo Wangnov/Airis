@@ -4,20 +4,17 @@ import XCTest
 final class ConfigManagerTests: XCTestCase {
 
     var tempConfigFile: URL!
-    var originalConfigFile: URL!
+    var manager: ConfigManager!
 
     override func setUp() {
         super.setUp()
 
-        // 保存原始配置文件路径
-        originalConfigFile = ConfigManager.configFile
-
-        // 创建临时配置文件
+        // 创建临时配置文件路径
         let tempDir = FileManager.default.temporaryDirectory
         tempConfigFile = tempDir.appendingPathComponent("test_config_\(UUID().uuidString).json")
 
-        // 替换配置文件路径（需要修改 ConfigManager 支持）
-        // 这里先测试默认行为
+        // 使用临时路径初始化 ConfigManager
+        manager = ConfigManager(configFile: tempConfigFile)
     }
 
     override func tearDown() {
@@ -32,7 +29,6 @@ final class ConfigManagerTests: XCTestCase {
     // MARK: - Load/Save Tests
 
     func testLoadDefaultConfig() throws {
-        let manager = ConfigManager()
         let config = try manager.loadConfig()
 
         // 应包含默认的 gemini provider
@@ -41,7 +37,6 @@ final class ConfigManagerTests: XCTestCase {
     }
 
     func testLoadConfigWithDefaults() throws {
-        let manager = ConfigManager()
         let config = try manager.loadConfig()
 
         let geminiConfig = config.providers["gemini"]
@@ -53,8 +48,6 @@ final class ConfigManagerTests: XCTestCase {
     // MARK: - Update Config Tests
 
     func testUpdateProviderConfig() throws {
-        let manager = ConfigManager()
-
         // 更新配置
         try manager.updateProviderConfig(
             for: "gemini",
@@ -69,8 +62,6 @@ final class ConfigManagerTests: XCTestCase {
     }
 
     func testUpdateOnlyBaseURL() throws {
-        let manager = ConfigManager()
-
         // 只更新 baseURL
         try manager.updateProviderConfig(
             for: "gemini",
@@ -84,8 +75,6 @@ final class ConfigManagerTests: XCTestCase {
     }
 
     func testUpdateOnlyModel() throws {
-        let manager = ConfigManager()
-
         // 只更新 model
         try manager.updateProviderConfig(
             for: "gemini",
@@ -101,8 +90,6 @@ final class ConfigManagerTests: XCTestCase {
     // MARK: - Reset Tests
 
     func testResetProviderConfig() throws {
-        let manager = ConfigManager()
-
         // 先修改配置
         try manager.updateProviderConfig(
             for: "gemini",
@@ -122,8 +109,6 @@ final class ConfigManagerTests: XCTestCase {
     // MARK: - Provider Config Tests
 
     func testGetProviderConfigForUnknownProvider() throws {
-        let manager = ConfigManager()
-
         // 获取不存在的 provider 应返回空配置
         let config = try manager.getProviderConfig(for: "unknown-provider")
         XCTAssertNil(config.baseURL)
@@ -133,11 +118,11 @@ final class ConfigManagerTests: XCTestCase {
     // MARK: - Config File Path Tests
 
     func testGetConfigFilePath() {
-        let manager = ConfigManager()
         let path = manager.getConfigFilePath()
 
-        XCTAssertTrue(path.contains(".config/airis"))
-        XCTAssertTrue(path.hasSuffix("config.json"))
+        // 应该是临时文件路径
+        XCTAssertTrue(path.contains("test_config"))
+        XCTAssertTrue(path.hasSuffix(".json"))
     }
 
     // MARK: - Default Configs Tests
@@ -156,5 +141,22 @@ final class ConfigManagerTests: XCTestCase {
         XCTAssertNotNil(geminiConfig.baseURL)
         XCTAssertNotNil(geminiConfig.model)
         XCTAssertTrue(geminiConfig.baseURL?.contains("googleapis") ?? false)
+    }
+
+    // MARK: - Isolation Tests
+
+    func testTestsUseIsolatedConfig() throws {
+        // 验证测试不会影响真实配置文件
+        XCTAssertNotEqual(tempConfigFile.path, ConfigManager.defaultConfigFile.path)
+
+        // 修改测试配置
+        try manager.updateProviderConfig(for: "test", baseURL: "https://test.com")
+
+        // 真实配置应该不受影响
+        let realManager = ConfigManager()  // 使用默认路径
+        let realConfig = try realManager.loadConfig()
+
+        // 真实配置中不应该有 test provider
+        XCTAssertNil(realConfig.providers["test"])
     }
 }

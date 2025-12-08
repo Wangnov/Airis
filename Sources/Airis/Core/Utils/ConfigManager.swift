@@ -29,17 +29,17 @@ struct AppConfig: Codable, Sendable {
     }
 }
 
-/// 配置文件管理器
+/// 配置文件管理器（支持依赖注入，测试隔离）
 final class ConfigManager: Sendable {
-    /// 配置文件目录
-    static let configDirectory: URL = {
+    /// 默认配置目录
+    static let defaultConfigDirectory: URL = {
         let home = FileManager.default.homeDirectoryForCurrentUser
         return home.appendingPathComponent(".config/airis")
     }()
 
-    /// 配置文件路径
-    static let configFile: URL = {
-        configDirectory.appendingPathComponent("config.json")
+    /// 默认配置文件路径
+    static let defaultConfigFile: URL = {
+        defaultConfigDirectory.appendingPathComponent("config.json")
     }()
 
     /// 默认 Provider 配置
@@ -51,16 +51,33 @@ final class ConfigManager: Sendable {
         )
     ]
 
+    // MARK: - Instance Properties
+
+    private let configFile: URL
+    private let configDirectory: URL
+
+    /// 初始化
+    /// - Parameter configFile: 自定义配置文件路径（默认使用 ~/.config/airis/config.json）
+    init(configFile: URL? = nil) {
+        if let customFile = configFile {
+            self.configFile = customFile
+            self.configDirectory = customFile.deletingLastPathComponent()
+        } else {
+            self.configFile = Self.defaultConfigFile
+            self.configDirectory = Self.defaultConfigDirectory
+        }
+    }
+
     /// 加载配置
     func loadConfig() throws -> AppConfig {
         // 如果文件不存在，返回默认配置
-        guard FileManager.default.fileExists(atPath: Self.configFile.path) else {
+        guard FileManager.default.fileExists(atPath: configFile.path) else {
             var config = AppConfig()
             config.providers = Self.defaultConfigs
             return config
         }
 
-        let data = try Data(contentsOf: Self.configFile)
+        let data = try Data(contentsOf: configFile)
         let decoder = JSONDecoder()
         var config = try decoder.decode(AppConfig.self, from: data)
 
@@ -78,7 +95,7 @@ final class ConfigManager: Sendable {
     func saveConfig(_ config: AppConfig) throws {
         // 确保目录存在
         try FileManager.default.createDirectory(
-            at: Self.configDirectory,
+            at: configDirectory,
             withIntermediateDirectories: true
         )
 
@@ -86,7 +103,7 @@ final class ConfigManager: Sendable {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(config)
 
-        try data.write(to: Self.configFile)
+        try data.write(to: configFile)
     }
 
     /// 获取 Provider 配置
@@ -128,6 +145,6 @@ final class ConfigManager: Sendable {
 
     /// 获取配置文件路径（用于显示）
     func getConfigFilePath() -> String {
-        Self.configFile.path
+        configFile.path
     }
 }
