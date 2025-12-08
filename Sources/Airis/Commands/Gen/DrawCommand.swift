@@ -8,13 +8,97 @@ struct DrawCommand: AsyncParsableCommand {
         discussion: """
             Generate images from text prompts, with optional reference images.
 
-            Examples:
+            BASIC EXAMPLES:
               airis gen draw "cyberpunk cat"
-              airis gen draw "realistic photo" --ref sketch.jpg --aspect-ratio 16:9
-              airis gen draw "portrait" --aspect-ratio 3:4 --image-size 4K
-              airis gen draw "mix styles" --ref style1.jpg --ref style2.jpg -o output.png
-              airis gen draw "sunset" --open  # Auto-open after generation
-              airis gen draw "landscape" --reveal  # Show in Finder after generation
+              airis gen draw "sunset landscape" --aspect-ratio 16:9 --image-size 4K
+              airis gen draw "portrait" -o output.png --open
+
+            PROMPT STRATEGIES (from Gemini best practices):
+
+            1. PHOTOREALISTIC SCENES (use photography terms):
+               "A photorealistic close-up portrait of an elderly Japanese ceramicist
+               with deep wrinkles and warm smile, inspecting a tea bowl in his
+               rustic workshop. Soft golden hour light through window. 85mm lens,
+               bokeh background."
+
+            2. STYLIZED ILLUSTRATIONS (be explicit about style):
+               "A kawaii-style sticker of a happy red panda wearing a bamboo hat,
+               munching bamboo. Bold outlines, cel-shading, vibrant colors.
+               Transparent background."
+
+            3. ACCURATE TEXT RENDERING (Pro model recommended):
+               "Create a modern logo for 'The Daily Grind' coffee shop. Clean,
+               bold sans-serif font. Black and white. Circular design with
+               clever coffee bean element."
+
+            4. PRODUCT MOCKUPS (use lighting/camera details):
+               "Studio-lit product photo of matte black ceramic mug on concrete.
+               Three-point softbox setup, soft highlights. 45-degree elevated
+               angle. Sharp focus on steam. Square format."
+
+            REFERENCE IMAGES (up to 14 with gemini-3-pro):
+              # Single reference (style transfer, editing)
+              airis gen draw "make it more vibrant" --ref original.jpg
+
+              # Multiple references (character/object consistency)
+              airis gen draw "group photo of these people making funny faces" \\
+                --ref person1.jpg --ref person2.jpg --ref person3.jpg \\
+                --model gemini-3-pro-image-preview --aspect-ratio 5:4
+
+              # Style + composition mixing
+              airis gen draw "combine these styles into landscape" \\
+                --ref style1.jpg --ref style2.jpg --ref composition.jpg
+
+            MODEL SELECTION:
+              • Use gemini-2.5-flash-image for:
+                - Fast iterations and previews
+                - High-volume batch generation
+                - Simple text-to-image
+
+              • Use gemini-3-pro-image-preview for:
+                - Professional assets and high resolution (4K)
+                - Complex multi-turn editing
+                - Accurate text rendering (logos, infographics)
+                - Real-time data (Google Search grounding)
+                - Multiple reference images (up to 14)
+
+            ASPECT RATIO GUIDE:
+              1:1   - Social media, icons, avatars
+              3:4   - Portraits, book covers
+              4:3   - Standard photos
+              16:9  - Desktop wallpapers, presentations, YouTube thumbnails
+              9:16  - Mobile wallpapers, Stories, Reels
+              21:9  - Ultrawide cinema, banners
+
+            RESOLUTION GUIDE (gemini-3-pro only):
+              1K - Quick previews, web thumbnails
+              2K - Standard social media, presentations (DEFAULT)
+              4K - Print quality, professional assets
+
+              Note: Must use uppercase 'K' (1K, not 1k)
+
+            ADVANCED WORKFLOWS:
+              # Image editing with reference
+              airis gen draw "add wizard hat to this cat" --ref cat.jpg
+
+              # Style transfer
+              airis gen draw "transform to Van Gogh Starry Night style" --ref city.jpg
+
+              # Multi-image composition
+              airis gen draw "woman wearing this dress" --ref dress.jpg --ref model.jpg
+
+            BEST PRACTICES:
+              ✓ Describe scenes, don't just list keywords
+              ✓ Use specific details (colors, lighting, textures)
+              ✓ Mention camera/lens for photorealistic results
+              ✓ Be explicit about style for illustrations
+              ✓ Use step-by-step for complex compositions
+              ✗ Avoid vague terms like "make it better"
+              ✗ Don't use negative prompts ("no cars"), describe positively
+
+            POST-GENERATION:
+              --open    Auto-open with default image viewer
+              --reveal  Show in Finder after generation
             """
     )
 
