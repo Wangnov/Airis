@@ -26,7 +26,8 @@ final class GeminiProvider {
         model: String? = nil,
         aspectRatio: String = "1:1",
         imageSize: String = "2K",
-        outputPath: String? = nil
+        outputPath: String? = nil,
+        enableSearch: Bool = false
     ) async throws -> URL {
         // 获取 API Key
         let apiKey = try keychainManager.getAPIKey(for: Self.providerName)
@@ -70,6 +71,12 @@ final class GeminiProvider {
         }
 
         // 构建完整请求
+        let tools: [GeminiGenerateRequest.Tool]? = enableSearch ? [
+            GeminiGenerateRequest.Tool(
+                googleSearch: GeminiGenerateRequest.Tool.GoogleSearch()
+            )
+        ] : nil
+
         let request = GeminiGenerateRequest(
             contents: [
                 GeminiGenerateRequest.Content(parts: parts)
@@ -80,7 +87,8 @@ final class GeminiProvider {
                     aspectRatio: aspectRatio,
                     imageSize: imageSize
                 )
-            )
+            ),
+            tools: tools
         )
 
         // 发送请求
@@ -101,10 +109,22 @@ final class GeminiProvider {
         let decoder = JSONDecoder()
         let response = try decoder.decode(GeminiGenerateResponse.self, from: responseData)
 
-        // 提取生成的图片
-        guard let candidate = response.candidates.first,
-              let imagePart = candidate.content.parts.first(where: { $0.inlineData != nil }),
-              let inlineData = imagePart.inlineData else {
+        // 提取生成的图片（搜索所有 parts，因为使用 Google Search 时可能有多个 parts）
+        guard let candidate = response.candidates.first else {
+            throw AirisError.noResultsFound
+        }
+
+        // 查找包含图片的 part
+        var imagePart: GeminiGenerateResponse.Part?
+        for part in candidate.content.parts {
+            if part.inlineData != nil {
+                imagePart = part
+                break
+            }
+        }
+
+        guard let foundImagePart = imagePart,
+              let inlineData = foundImagePart.inlineData else {
             throw AirisError.noResultsFound
         }
 

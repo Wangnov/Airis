@@ -6,6 +6,7 @@ import Foundation
 struct GeminiGenerateRequest: Codable {
     let contents: [Content]
     let generationConfig: GenerationConfig
+    let tools: [Tool]?
 
     struct Content: Codable {
         let parts: [Part]
@@ -28,6 +29,18 @@ struct GeminiGenerateRequest: Codable {
         enum CodingKeys: String, CodingKey {
             case mimeType = "mime_type"
             case data
+        }
+    }
+
+    struct Tool: Codable {
+        let googleSearch: GoogleSearch
+
+        enum CodingKeys: String, CodingKey {
+            case googleSearch = "google_search"
+        }
+
+        struct GoogleSearch: Codable {
+            // 空对象即可
         }
     }
 

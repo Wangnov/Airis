@@ -87,6 +87,14 @@ struct DrawCommand: AsyncParsableCommand {
               # Multi-image composition
               airis gen draw "woman wearing this dress" --ref dress.jpg --ref model.jpg
 
+              # Real-time information with Google Search (Pro model only)
+              airis gen draw "current weather forecast for next 5 days in San Francisco" \\
+                --enable-search --aspect-ratio 16:9 --model gemini-3-pro-image-preview
+
+              # Sports news with Search grounding
+              airis gen draw "last night's Champions League match graphic" \\
+                --enable-search --model gemini-3-pro-image-preview
+
             BEST PRACTICES:
               ✓ Describe scenes, don't just list keywords
               ✓ Use specific details (colors, lighting, textures)
@@ -129,6 +137,9 @@ struct DrawCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Reveal image in Finder after generation")
     var reveal: Bool = false
 
+    @Flag(name: .long, help: "Enable Google Search for real-time information (gemini-3-pro only)")
+    var enableSearch: Bool = false
+
     func run() async throws {
         // 验证参考图片
         let refURLs = try ref.map { path in
@@ -145,7 +156,8 @@ struct DrawCommand: AsyncParsableCommand {
                 model: model,
                 aspectRatio: aspectRatio,
                 imageSize: imageSize,
-                outputPath: output
+                outputPath: output,
+                enableSearch: enableSearch
             )
 
             // 打开图片或在 Finder 中显示
