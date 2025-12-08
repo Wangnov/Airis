@@ -13,6 +13,8 @@ struct DrawCommand: AsyncParsableCommand {
               airis gen draw "realistic photo" --ref sketch.jpg --aspect-ratio 16:9
               airis gen draw "portrait" --aspect-ratio 3:4 --image-size 4K
               airis gen draw "mix styles" --ref style1.jpg --ref style2.jpg -o output.png
+              airis gen draw "sunset" --open  # Auto-open after generation
+              airis gen draw "landscape" --reveal  # Show in Finder after generation
             """
     )
 
@@ -37,6 +39,12 @@ struct DrawCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Image size (1K, 2K, 4K)")
     var imageSize: String = "2K"
 
+    @Flag(name: .long, help: "Open image with default app after generation")
+    var open: Bool = false
+
+    @Flag(name: .long, help: "Reveal image in Finder after generation")
+    var reveal: Bool = false
+
     func run() async throws {
         // 验证参考图片
         let refURLs = try ref.map { path in
@@ -56,11 +64,41 @@ struct DrawCommand: AsyncParsableCommand {
                 outputPath: output
             )
 
-            // 显示输出位置（已在 Provider 中打印，这里无需重复）
-            _ = outputURL
+            // 打开图片或在 Finder 中显示
+            if reveal {
+                openInFinder(outputURL)
+            } else if open {
+                openWithDefaultApp(outputURL)
+            }
 
         default:
             throw AirisError.apiKeyNotFound(provider: provider)
+        }
+    }
+
+    /// 使用默认应用打开图片
+    private func openWithDefaultApp(_ url: URL) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = [url.path]
+
+        do {
+            try process.run()
+        } catch {
+            print("⚠️ Failed to open image: \(error.localizedDescription)")
+        }
+    }
+
+    /// 在 Finder 中显示图片
+    private func openInFinder(_ url: URL) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = ["-R", url.path]
+
+        do {
+            try process.run()
+        } catch {
+            print("⚠️ Failed to reveal in Finder: \(error.localizedDescription)")
         }
     }
 }
