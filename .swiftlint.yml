@@ -1,0 +1,119 @@
+# SwiftLint 配置 - Airis 项目
+# 适用于 Swift CLI 工具项目，与 SwiftFormat 配合使用
+
+# ------------------------------------------------------------------------------
+# 启用可选规则
+# ------------------------------------------------------------------------------
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - fatal_error_message
+  - force_unwrapping
+  - closure_spacing
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - empty_collection_literal
+  - explicit_init
+  - first_where
+  - joined_default_parameter
+  - last_where
+  - literal_expression_end_indentation
+  - operator_usage_whitespace
+  - redundant_nil_coalescing
+  - sorted_first_last
+  - yoda_condition
+
+# ------------------------------------------------------------------------------
+# 禁用规则（与 SwiftFormat 冲突或 CLI 特性）
+# ------------------------------------------------------------------------------
+disabled_rules:
+  # --- 让 SwiftFormat 处理 ---
+  - trailing_whitespace
+  - vertical_whitespace
+  - opening_brace
+  - colon
+  - comma
+  - statement_position
+  - trailing_comma
+  - void_return
+
+  # --- ArgumentParser 和 CLI 项目特性 ---
+  - nesting                    # ArgumentParser 需要嵌套结构
+  - function_body_length       # CLI 的 run() 方法可能较长
+  - file_length                # CLI 主文件自然会较长
+  - type_body_length           # 命令配置可能有长 discussion
+
+  # --- 开发灵活性 ---
+  - todo                       # 允许 TODO 注释
+  - missing_docs               # 可选：开源库再启用
+  - explicit_top_level_acl     # internal 是默认的
+
+  # --- 与类型推断冲突 ---
+  - explicit_type_interface
+
+# ------------------------------------------------------------------------------
+# 分析器规则（需要编译）
+# ------------------------------------------------------------------------------
+analyzer_rules:
+  - unused_import
+
+# ------------------------------------------------------------------------------
+# 包含和排除路径
+# ------------------------------------------------------------------------------
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - .swiftpm
+  - DerivedData
+
+# ------------------------------------------------------------------------------
+# 规则配置
+# ------------------------------------------------------------------------------
+line_length:
+  warning: 120
+  error: 160
+  ignores_comments: true
+  ignores_urls: true
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+
+identifier_name:
+  min_length:
+    warning: 2
+  excluded:
+    - id
+    - x
+    - y
+    - i
+    - v
+    - db
+    - ok
+    - to
+    - at
+    - ev  # exposure value
+    - r   # RGB red
+    - g   # RGB green
+    - b   # RGB blue
+
+# ------------------------------------------------------------------------------
+# 严格错误规则（CLI 安全性）
+# ------------------------------------------------------------------------------
+force_try:
+  severity: error
+
+force_cast:
+  severity: error
+
+# 源代码中严格禁止强制解包，测试代码设为警告
+force_unwrapping:
+  severity: warning  # 测试中改为警告而非错误
+
+# ------------------------------------------------------------------------------
+# 输出配置
+# ------------------------------------------------------------------------------
+reporter: "xcode"
