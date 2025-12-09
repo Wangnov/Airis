@@ -161,11 +161,9 @@ final class GeminiProvider {
 
         // 查找包含图片的 part
         var imagePart: GeminiGenerateResponse.Part?
-        for part in candidate.content.parts {
-            if part.inlineData != nil {
-                imagePart = part
-                break
-            }
+        for part in candidate.content.parts where part.inlineData != nil {
+            imagePart = part
+            break
         }
 
         guard let foundImagePart = imagePart,

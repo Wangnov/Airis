@@ -165,7 +165,6 @@ struct PetPoseCommand: AsyncParsableCommand {
     }
 
     @available(macOS 14.0, *)
-    // swiftlint:disable:next cyclomatic_complexity
     private func jointNameString(_ name: VNAnimalBodyPoseObservation.JointName) -> String {
         switch name {
         case .nose: return "nose"

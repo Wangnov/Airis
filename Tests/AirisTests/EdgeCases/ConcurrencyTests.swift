@@ -127,10 +127,8 @@ final class ConcurrencyTests: XCTestCase {
         }
 
         var successCount = 0
-        for image in testImages {
-            if coreImageService.render(ciImage: image) != nil {
-                successCount += 1
-            }
+        for image in testImages where coreImageService.render(ciImage: image) != nil {
+            successCount += 1
         }
 
         XCTAssertEqual(successCount, 3)

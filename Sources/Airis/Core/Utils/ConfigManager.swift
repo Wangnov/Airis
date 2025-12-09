@@ -82,10 +82,8 @@ final class ConfigManager: Sendable {
         var config = try decoder.decode(AppConfig.self, from: data)
 
         // 合并默认配置（确保新 provider 有默认值）
-        for (name, defaultConfig) in Self.defaultConfigs {
-            if config.providers[name] == nil {
-                config.providers[name] = defaultConfig
-            }
+        for (name, defaultConfig) in Self.defaultConfigs where config.providers[name] == nil {
+            config.providers[name] = defaultConfig
         }
 
         return config

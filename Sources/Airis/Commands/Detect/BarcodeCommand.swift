@@ -142,6 +142,8 @@ struct BarcodeCommand: AsyncParsableCommand {
         }
     }
 
+
+
     private func formatSymbology(_ symbology: VNBarcodeSymbology) -> String {
         switch symbology {
         case .qr:

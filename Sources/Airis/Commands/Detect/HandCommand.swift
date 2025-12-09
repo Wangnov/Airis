@@ -156,7 +156,6 @@ struct HandCommand: AsyncParsableCommand {
         ]
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     private func jointNameString(_ name: VNHumanHandPoseObservation.JointName) -> String {
         switch name {
         case .wrist: return "wrist"

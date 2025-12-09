@@ -78,7 +78,7 @@ final class EditBatch1Tests: XCTestCase {
 
         XCTAssertNotNil(resized)
         // 取较小的缩放比
-        let expectedScale = min(100.0/200.0, 100.0/150.0)
+        let expectedScale = min(100.0 / 200.0, 100.0 / 150.0)
         XCTAssertEqual(resized.extent.width, 200 * expectedScale, accuracy: 2)
         XCTAssertEqual(resized.extent.height, 150 * expectedScale, accuracy: 2)
     }
