@@ -14,20 +14,26 @@ final class HTTPClient: Sendable {
     private let session: URLSession
     private let configuration: HTTPClientConfiguration
 
-    init(configuration: HTTPClientConfiguration = HTTPClientConfiguration()) {
+    init(configuration: HTTPClientConfiguration = HTTPClientConfiguration(), session: URLSession? = nil) {
         self.configuration = configuration
 
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = configuration.timeoutIntervalForRequest
-        config.timeoutIntervalForResource = configuration.timeoutIntervalForResource
-        config.waitsForConnectivity = configuration.waitsForConnectivity
+        if let customSession = session {
+            // 使用注入的 session（用于测试）
+            self.session = customSession
+        } else {
+            // 创建默认 session
+            let config = URLSessionConfiguration.default
+            config.timeoutIntervalForRequest = configuration.timeoutIntervalForRequest
+            config.timeoutIntervalForResource = configuration.timeoutIntervalForResource
+            config.waitsForConnectivity = configuration.waitsForConnectivity
 
-        // 标准配置
-        config.httpShouldSetCookies = true
-        config.httpCookieAcceptPolicy = .onlyFromMainDocumentDomain
-        config.allowsCellularAccess = true
+            // 标准配置
+            config.httpShouldSetCookies = true
+            config.httpCookieAcceptPolicy = .onlyFromMainDocumentDomain
+            config.allowsCellularAccess = true
 
-        self.session = URLSession(configuration: config)
+            self.session = URLSession(configuration: config)
+        }
     }
 
     deinit {
@@ -103,10 +109,6 @@ final class HTTPClient: Sendable {
                 )
             }
 
-        } catch is CancellationError {
-            throw AirisError.networkError(
-                NSError(domain: "HTTPClient", code: NSURLErrorCancelled, userInfo: nil)
-            )
         } catch let error as AirisError {
             throw error
         } catch {
