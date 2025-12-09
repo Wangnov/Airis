@@ -10,6 +10,24 @@ struct SafeCommand: AsyncParsableCommand {
             Analyze images for sensitive content (nudity) using Apple's
             SensitiveContentAnalysis framework.
 
+            ⚠️  IMPORTANT REQUIREMENTS:
+            ────────────────────────────────────────
+            This feature requires ALL of the following:
+
+            1. macOS 14.0 or later
+
+            2. System setting enabled:
+               System Settings > Privacy & Security > Sensitive Content Warning
+
+            3. App signed with PAID Apple Developer Program:
+               - Free developer accounts CANNOT use this feature
+               - Requires entitlement: com.apple.developer.sensitivecontentanalysis.client
+               - CLI must be code-signed with Developer ID
+
+            If ANY requirement is not met, the command will show a warning
+            and exit without analysis.
+            ────────────────────────────────────────
+
             QUICK START:
               airis analyze safe photo.jpg
 
@@ -37,11 +55,6 @@ struct SafeCommand: AsyncParsableCommand {
                 "file": "photo.jpg",
                 "is_sensitive": false
               }
-
-            REQUIREMENTS:
-              macOS 14.0 or later
-              User must enable: System Settings > Privacy & Security
-                               > Sensitive Content Warning
 
             PRIVACY NOTES:
               - All analysis is performed locally on device
