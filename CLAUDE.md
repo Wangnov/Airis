@@ -337,6 +337,69 @@ print(Strings.get("error.file_not_found", filename))
 print("文件未找到: \(filename)")  // 无法切换语言
 ```
 
+### SwiftLint 常见问题（避坑指南）
+
+**运行检查**: `make lint` 或 `swiftlint`
+
+#### Force Unwrapping（必须避免）
+
+```swift
+// ❌ 源代码绝不使用
+let image = CIImage(contentsOf: url)!
+if x != nil { count += x!.value }
+
+// ✅ 使用 if let / guard let
+if let x = x { count += x.value }
+guard let image = CIImage(contentsOf: url) else { throw ... }
+
+// ✅ 测试用 XCTUnwrap
+func test() throws {
+    let url = try XCTUnwrap(testImageURL)
+}
+
+// ⚠️ measure 闭包不支持 throws，需在外部解包
+func testPerf() throws {
+    let img = try XCTUnwrap(testCIImage)
+    measure { _ = process(img) }
+}
+```
+
+#### Cyclomatic Complexity（已全局禁用）
+
+CLI 项目的命令 `run()` 函数和枚举映射函数复杂度高是正常的，已在 `.swiftlint.yml` 中禁用此规则。
+
+#### Empty Count
+
+```swift
+// ❌ 无意义断言
+XCTAssertTrue(array.count >= 0)  // 永远为 true
+
+// ✅ 删除或改为
+XCTAssertNotNil(array)
+```
+
+#### Identifier Name
+
+单字符变量需加入白名单（已配置）：`r,g,b,w,h,x,y,z,i,v,ev`
+
+#### Line Length
+
+CLI 项目设为 150 字符（不是默认的 120）。超长行拆分为局部变量：
+```swift
+// 前: print("\(String(format: ...)), \(String(format: ...)), ...")
+// 后: let x = String(format: ...); print("\(x), \(y), ...")
+```
+
+#### Prefer For-Where
+
+```swift
+// ❌ 不推荐
+for item in items { if condition { ... } }
+
+// ✅ 推荐
+for item in items where condition { ... }
+```
+
 ---
 
 ## 已知问题和注意事项
