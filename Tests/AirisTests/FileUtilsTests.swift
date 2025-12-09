@@ -5,7 +5,7 @@ final class FileUtilsTests: XCTestCase {
 
     var tempDirectory: URL!
 
-    static let testAssetsPath = NSString(string: "~/airis-worktrees/test-assets/task-9.1").expandingTildeInPath
+    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
 
     override func setUp() {
         super.setUp()

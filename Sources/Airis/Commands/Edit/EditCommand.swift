@@ -3,8 +3,7 @@ import ArgumentParser
 struct EditCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "edit",
-        abstract: "Edit and transform images",
-        discussion: """
+        abstract: "Edit and transform images",        discussion: """
             Comprehensive image editing capabilities:
             - Background removal (cut)
             - Resizing and cropping
@@ -38,6 +37,7 @@ struct EditCommand: AsyncParsableCommand {
             // 滤镜和调整子命令
             FilterCommand.self,
             AdjustCommand.self,
-        ]
+        ],
+        aliases: ["e"]
     )
 }

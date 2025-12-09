@@ -14,7 +14,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     var largeCIImage: CIImage!
 
     // 测试资产目录
-    static let testAssetsPath = NSString(string: "~/airis-worktrees/test-assets/task-9.1").expandingTildeInPath
+    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
 
     override func setUp() {
         super.setUp()

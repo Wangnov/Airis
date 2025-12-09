@@ -7,3 +7,6 @@ DerivedData/
 docs/
 *.profraw
 *.profdata
+
+# Worktrees 和测试资产（项目内）
+worktrees/

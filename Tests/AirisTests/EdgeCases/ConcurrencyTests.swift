@@ -12,7 +12,7 @@ import Vision
 final class ConcurrencyTests: XCTestCase {
 
     // 测试资产目录
-    static let testAssetsPath = NSString(string: "~/airis-worktrees/test-assets/task-9.1").expandingTildeInPath
+    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
 
     var testImageURL: URL!
     var tempDirectory: URL!
