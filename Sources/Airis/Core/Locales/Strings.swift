@@ -501,6 +501,174 @@ struct Strings: Sendable {
         "edit.thumb.scale_factor": [
             .en: "Scale: %@",
             .cn: "缩放：%@"
+        ],
+
+        // ============ Filter 命令 ============
+        "filter.blur.title": [
+            .en: "Blur Effect",
+            .cn: "模糊效果"
+        ],
+        "filter.blur.type": [
+            .en: "Type",
+            .cn: "类型"
+        ],
+        "filter.blur.radius": [
+            .en: "Radius",
+            .cn: "半径"
+        ],
+        "filter.blur.angle": [
+            .en: "Angle",
+            .cn: "角度"
+        ],
+        "filter.sharpen.title": [
+            .en: "Sharpen",
+            .cn: "锐化"
+        ],
+        "filter.sharpen.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
+        ],
+        "filter.pixel.title": [
+            .en: "Pixelate",
+            .cn: "像素化"
+        ],
+        "filter.pixel.scale": [
+            .en: "Scale",
+            .cn: "比例"
+        ],
+        "filter.noise.title": [
+            .en: "Noise Reduction",
+            .cn: "降噪"
+        ],
+        "filter.noise.level": [
+            .en: "Level",
+            .cn: "级别"
+        ],
+        "filter.comic.title": [
+            .en: "Comic Effect",
+            .cn: "漫画效果"
+        ],
+        "filter.halftone.title": [
+            .en: "Halftone",
+            .cn: "半调网屏"
+        ],
+        "filter.halftone.center": [
+            .en: "Center",
+            .cn: "中心点"
+        ],
+        "filter.halftone.width": [
+            .en: "Width",
+            .cn: "宽度"
+        ],
+        "filter.sepia.title": [
+            .en: "Sepia Tone",
+            .cn: "怀旧色调"
+        ],
+        "filter.sepia.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
+        ],
+        "filter.mono.title": [
+            .en: "Monochrome",
+            .cn: "黑白"
+        ],
+        "filter.chrome.title": [
+            .en: "Chrome Effect",
+            .cn: "铬黄效果"
+        ],
+        "filter.noir.title": [
+            .en: "Film Noir",
+            .cn: "黑色电影"
+        ],
+        "filter.instant.title": [
+            .en: "Instant Photo",
+            .cn: "即时照片"
+        ],
+
+        // ============ Adjust 命令 ============
+        "adjust.color.title": [
+            .en: "Color Adjustment",
+            .cn: "颜色调整"
+        ],
+        "adjust.color.brightness": [
+            .en: "Brightness",
+            .cn: "亮度"
+        ],
+        "adjust.color.contrast": [
+            .en: "Contrast",
+            .cn: "对比度"
+        ],
+        "adjust.color.saturation": [
+            .en: "Saturation",
+            .cn: "饱和度"
+        ],
+        "adjust.exposure.title": [
+            .en: "Exposure Adjustment",
+            .cn: "曝光调整"
+        ],
+        "adjust.exposure.ev": [
+            .en: "EV",
+            .cn: "曝光值"
+        ],
+        "adjust.temperature.title": [
+            .en: "Temperature Adjustment",
+            .cn: "色温调整"
+        ],
+        "adjust.temperature.temp": [
+            .en: "Temperature",
+            .cn: "色温"
+        ],
+        "adjust.temperature.tint": [
+            .en: "Tint",
+            .cn: "色调"
+        ],
+        "adjust.vignette.title": [
+            .en: "Vignette Effect",
+            .cn: "暗角效果"
+        ],
+        "adjust.vignette.intensity": [
+            .en: "Intensity",
+            .cn: "强度"
+        ],
+        "adjust.vignette.radius": [
+            .en: "Radius",
+            .cn: "半径"
+        ],
+        "adjust.invert.title": [
+            .en: "Invert Colors",
+            .cn: "反转颜色"
+        ],
+        "adjust.posterize.title": [
+            .en: "Posterize",
+            .cn: "色调分离"
+        ],
+        "adjust.posterize.levels": [
+            .en: "Levels",
+            .cn: "级数"
+        ],
+        "adjust.threshold.title": [
+            .en: "Threshold",
+            .cn: "阈值"
+        ],
+        "adjust.threshold.value": [
+            .en: "Value",
+            .cn: "数值"
+        ],
+        "adjust.flip.title": [
+            .en: "Flip Image",
+            .cn: "翻转图像"
+        ],
+        "adjust.flip.direction": [
+            .en: "Direction",
+            .cn: "方向"
+        ],
+        "adjust.rotate.title": [
+            .en: "Rotate Image",
+            .cn: "旋转图像"
+        ],
+        "adjust.rotate.angle": [
+            .en: "Angle",
+            .cn: "角度"
         ]
     ]
 
