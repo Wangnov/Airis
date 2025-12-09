@@ -41,10 +41,8 @@ final class EditBatch1Tests: XCTestCase {
     func testGetAutoEnhanceFilters() {
         let filters = coreImageService.getAutoEnhanceFilters(for: testCIImage)
 
-        // 滤镜列表应该是数组（可能为空）
+        // 验证返回非 nil 的数组即可
         XCTAssertNotNil(filters)
-        // 对于纯色图像，可能没有建议的滤镜
-        XCTAssertTrue(filters.count >= 0)
     }
 
     // MARK: - Resize Command Tests
