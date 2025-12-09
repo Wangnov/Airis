@@ -5,23 +5,23 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - AnalyzeCommand Configuration Tests
 
-    func testAnalyzeCommandHasSubcommands() {
+    func testAnalyzeCommandHasSubcommands() throws {
         XCTAssertEqual(AnalyzeCommand.configuration.subcommands.count, 8)
         XCTAssertEqual(AnalyzeCommand.configuration.commandName, "analyze")
     }
 
-    func testAnalyzeCommandAbstract() {
+    func testAnalyzeCommandAbstract() throws {
         XCTAssertTrue(AnalyzeCommand.configuration.abstract.contains("Analyze"))
     }
 
     // MARK: - InfoCommand Configuration Tests
 
-    func testInfoCommandConfiguration() {
+    func testInfoCommandConfiguration() throws {
         XCTAssertEqual(InfoCommand.configuration.commandName, "info")
         XCTAssertTrue(InfoCommand.configuration.abstract.contains("image information"))
     }
 
-    func testInfoCommandDiscussionContainsQuickStart() {
+    func testInfoCommandDiscussionContainsQuickStart() throws {
         let discussion = InfoCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -30,12 +30,12 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - TagCommand Configuration Tests
 
-    func testTagCommandConfiguration() {
+    func testTagCommandConfiguration() throws {
         XCTAssertEqual(TagCommand.configuration.commandName, "tag")
         XCTAssertTrue(TagCommand.configuration.abstract.contains("Classify"))
     }
 
-    func testTagCommandDiscussionContainsExamples() {
+    func testTagCommandDiscussionContainsExamples() throws {
         let discussion = TagCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -44,12 +44,12 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - ScoreCommand Configuration Tests
 
-    func testScoreCommandConfiguration() {
+    func testScoreCommandConfiguration() throws {
         XCTAssertEqual(ScoreCommand.configuration.commandName, "score")
         XCTAssertTrue(ScoreCommand.configuration.abstract.contains("aesthetic"))
     }
 
-    func testScoreCommandDiscussionContainsRequirements() {
+    func testScoreCommandDiscussionContainsRequirements() throws {
         let discussion = ScoreCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("macOS 15.0"))
         XCTAssertTrue(discussion.contains("SCORE INTERPRETATION"))
@@ -57,12 +57,12 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - OCRCommand Configuration Tests
 
-    func testOCRCommandConfiguration() {
+    func testOCRCommandConfiguration() throws {
         XCTAssertEqual(OCRCommand.configuration.commandName, "ocr")
         XCTAssertTrue(OCRCommand.configuration.abstract.contains("text"))
     }
 
-    func testOCRCommandDiscussionContainsLanguages() {
+    func testOCRCommandDiscussionContainsLanguages() throws {
         let discussion = OCRCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("SUPPORTED LANGUAGES"))
         XCTAssertTrue(discussion.contains("zh-Hans"))
@@ -71,19 +71,19 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - Service Integration Tests
 
-    func testVisionServiceAccessible() {
+    func testVisionServiceAccessible() throws {
         let service = ServiceContainer.shared.visionService
         XCTAssertNotNil(service)
     }
 
-    func testImageIOServiceAccessible() {
+    func testImageIOServiceAccessible() throws {
         let service = ServiceContainer.shared.imageIOService
         XCTAssertNotNil(service)
     }
 
     // MARK: - ScoreCommand Result Structure Tests
 
-    func testAestheticsResultStructure() {
+    func testAestheticsResultStructure() throws {
         let result = ScoreCommand.AestheticsResult(
             overallScore: 0.75,
             isUtility: false
@@ -93,7 +93,7 @@ final class AnalyzeCommandTests: XCTestCase {
         XCTAssertFalse(result.isUtility)
     }
 
-    func testAestheticsResultNegativeScore() {
+    func testAestheticsResultNegativeScore() throws {
         let result = ScoreCommand.AestheticsResult(
             overallScore: -0.5,
             isUtility: true
@@ -105,7 +105,7 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - OCRCommand Result Structure Tests
 
-    func testOCRTextResultStructure() {
+    func testOCRTextResultStructure() throws {
         let result = OCRCommand.TextResult(
             text: "Hello World",
             confidence: 0.95,
@@ -122,20 +122,20 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - Localization Tests
 
-    func testAnalyzeStringsExist() {
+    func testAnalyzeStringsExist() throws {
         XCTAssertFalse(Strings.get("analyze.processing").isEmpty)
         XCTAssertFalse(Strings.get("analyze.tag.found", 5).isEmpty)
         XCTAssertFalse(Strings.get("analyze.ocr.found", 3).isEmpty)
     }
 
-    func testScoreRatingStringsExist() {
+    func testScoreRatingStringsExist() throws {
         XCTAssertFalse(Strings.get("analyze.score.excellent").isEmpty)
         XCTAssertFalse(Strings.get("analyze.score.good").isEmpty)
         XCTAssertFalse(Strings.get("analyze.score.fair").isEmpty)
         XCTAssertFalse(Strings.get("analyze.score.poor").isEmpty)
     }
 
-    func testInfoStringsExist() {
+    func testInfoStringsExist() throws {
         XCTAssertFalse(Strings.get("info.dimension", 1920, 1080).isEmpty)
         XCTAssertFalse(Strings.get("info.dpi", 72).isEmpty)
         XCTAssertFalse(Strings.get("info.file_size", "2.3 MB").isEmpty)
@@ -143,7 +143,7 @@ final class AnalyzeCommandTests: XCTestCase {
 
     // MARK: - FileUtils Integration Tests
 
-    func testSupportedImageFormatsIncludesCommonFormats() {
+    func testSupportedImageFormatsIncludesCommonFormats() throws {
         XCTAssertTrue(FileUtils.isSupportedImageFormat("test.jpg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("test.jpeg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("test.png"))
@@ -151,7 +151,7 @@ final class AnalyzeCommandTests: XCTestCase {
         XCTAssertTrue(FileUtils.isSupportedImageFormat("test.webp"))
     }
 
-    func testUnsupportedFormatRejected() {
+    func testUnsupportedFormatRejected() throws {
         XCTAssertFalse(FileUtils.isSupportedImageFormat("test.txt"))
         XCTAssertFalse(FileUtils.isSupportedImageFormat("test.pdf"))
         XCTAssertFalse(FileUtils.isSupportedImageFormat("test.doc"))

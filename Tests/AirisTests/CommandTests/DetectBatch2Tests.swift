@@ -7,19 +7,19 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - PoseCommand Configuration Tests
 
-    func testPoseCommandConfiguration() {
+    func testPoseCommandConfiguration() throws {
         XCTAssertEqual(PoseCommand.configuration.commandName, "pose")
         XCTAssertTrue(PoseCommand.configuration.abstract.contains("pose"))
         XCTAssertTrue(PoseCommand.configuration.abstract.contains("2D"))
     }
 
-    func testPoseCommandDiscussionContainsQuickStart() {
+    func testPoseCommandDiscussionContainsQuickStart() throws {
         let discussion = PoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("airis detect pose"))
     }
 
-    func testPoseCommandDiscussionContainsKeypoints() {
+    func testPoseCommandDiscussionContainsKeypoints() throws {
         let discussion = PoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("KEYPOINTS"))
         XCTAssertTrue(discussion.contains("19 total") || discussion.contains("19"))
@@ -28,14 +28,14 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("LEGS"))
     }
 
-    func testPoseCommandDiscussionContainsExamples() {
+    func testPoseCommandDiscussionContainsExamples() throws {
         let discussion = PoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("--format json"))
         XCTAssertTrue(discussion.contains("--threshold"))
     }
 
-    func testPoseCommandDiscussionContainsOptions() {
+    func testPoseCommandDiscussionContainsOptions() throws {
         let discussion = PoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("OPTIONS"))
         XCTAssertTrue(discussion.contains("--threshold"))
@@ -43,25 +43,25 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("--format"))
     }
 
-    func testPoseCommandDiscussionContainsOutputExample() {
+    func testPoseCommandDiscussionContainsOutputExample() throws {
         let discussion = PoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("OUTPUT EXAMPLE") || discussion.contains("OUTPUT"))
     }
 
     // MARK: - Pose3DCommand Configuration Tests
 
-    func testPose3DCommandConfiguration() {
+    func testPose3DCommandConfiguration() throws {
         XCTAssertEqual(Pose3DCommand.configuration.commandName, "pose3d")
         XCTAssertTrue(Pose3DCommand.configuration.abstract.contains("3D"))
         XCTAssertTrue(Pose3DCommand.configuration.abstract.contains("pose"))
     }
 
-    func testPose3DCommandDiscussionContainsRequirements() {
+    func testPose3DCommandDiscussionContainsRequirements() throws {
         let discussion = Pose3DCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("REQUIREMENTS") || discussion.contains("macOS 14.0"))
     }
 
-    func testPose3DCommandDiscussionContainsKeypoints() {
+    func testPose3DCommandDiscussionContainsKeypoints() throws {
         let discussion = Pose3DCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("KEYPOINTS"))
         XCTAssertTrue(discussion.contains("17 total") || discussion.contains("17"))
@@ -69,12 +69,12 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("TORSO"))
     }
 
-    func testPose3DCommandDiscussionContainsCoordinateSystem() {
+    func testPose3DCommandDiscussionContainsCoordinateSystem() throws {
         let discussion = Pose3DCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("COORDINATE SYSTEM") || discussion.contains("meters") || discussion.contains("3D"))
     }
 
-    func testPose3DCommandDiscussionContainsExamples() {
+    func testPose3DCommandDiscussionContainsExamples() throws {
         let discussion = Pose3DCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("airis detect pose3d"))
@@ -82,19 +82,19 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - HandCommand Configuration Tests
 
-    func testHandCommandConfiguration() {
+    func testHandCommandConfiguration() throws {
         XCTAssertEqual(HandCommand.configuration.commandName, "hand")
         XCTAssertTrue(HandCommand.configuration.abstract.contains("hand"))
         XCTAssertTrue(HandCommand.configuration.abstract.contains("21"))
     }
 
-    func testHandCommandDiscussionContainsQuickStart() {
+    func testHandCommandDiscussionContainsQuickStart() throws {
         let discussion = HandCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("airis detect hand"))
     }
 
-    func testHandCommandDiscussionContainsKeypoints() {
+    func testHandCommandDiscussionContainsKeypoints() throws {
         let discussion = HandCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("KEYPOINTS"))
         XCTAssertTrue(discussion.contains("21"))
@@ -103,12 +103,12 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("WRIST"))
     }
 
-    func testHandCommandDiscussionContainsChirality() {
+    func testHandCommandDiscussionContainsChirality() throws {
         let discussion = HandCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("CHIRALITY") || discussion.contains("left") || discussion.contains("right"))
     }
 
-    func testHandCommandDiscussionContainsOptions() {
+    func testHandCommandDiscussionContainsOptions() throws {
         let discussion = HandCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("OPTIONS"))
         XCTAssertTrue(discussion.contains("--threshold"))
@@ -116,7 +116,7 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("--format"))
     }
 
-    func testHandCommandDiscussionContainsExamples() {
+    func testHandCommandDiscussionContainsExamples() throws {
         let discussion = HandCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("--format json"))
@@ -124,24 +124,24 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - PetPoseCommand Configuration Tests
 
-    func testPetPoseCommandConfiguration() {
+    func testPetPoseCommandConfiguration() throws {
         XCTAssertEqual(PetPoseCommand.configuration.commandName, "petpose")
         XCTAssertTrue(PetPoseCommand.configuration.abstract.contains("pet") ||
                       PetPoseCommand.configuration.abstract.contains("Pet"))
     }
 
-    func testPetPoseCommandDiscussionContainsRequirements() {
+    func testPetPoseCommandDiscussionContainsRequirements() throws {
         let discussion = PetPoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("REQUIREMENTS") || discussion.contains("macOS 14.0"))
     }
 
-    func testPetPoseCommandDiscussionContainsSupportedAnimals() {
+    func testPetPoseCommandDiscussionContainsSupportedAnimals() throws {
         let discussion = PetPoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("SUPPORTED ANIMALS") ||
                       (discussion.contains("Cat") && discussion.contains("Dog")))
     }
 
-    func testPetPoseCommandDiscussionContainsKeypoints() {
+    func testPetPoseCommandDiscussionContainsKeypoints() throws {
         let discussion = PetPoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("KEYPOINTS"))
         XCTAssertTrue(discussion.contains("25") || discussion.contains("23"))
@@ -149,14 +149,14 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("TAIL") || discussion.contains("tail"))
     }
 
-    func testPetPoseCommandDiscussionContainsOptions() {
+    func testPetPoseCommandDiscussionContainsOptions() throws {
         let discussion = PetPoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("OPTIONS"))
         XCTAssertTrue(discussion.contains("--threshold"))
         XCTAssertTrue(discussion.contains("--format"))
     }
 
-    func testPetPoseCommandDiscussionContainsExamples() {
+    func testPetPoseCommandDiscussionContainsExamples() throws {
         let discussion = PetPoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("airis detect petpose"))
@@ -164,13 +164,13 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - VisionService Pose Detection Methods Tests
 
-    func testVisionServiceHasHumanBodyPoseMethod() {
+    func testVisionServiceHasHumanBodyPoseMethod() throws {
         let service = VisionService()
         XCTAssertNotNil(service)
         // 验证方法存在（通过编译通过来验证）
     }
 
-    func testVisionServiceHasHandPoseMethod() {
+    func testVisionServiceHasHandPoseMethod() throws {
         let service = VisionService()
         XCTAssertNotNil(service)
         // 验证方法存在（通过编译通过来验证）
@@ -178,25 +178,25 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - DetectCommand Integration Tests
 
-    func testDetectCommandContainsPoseSubcommand() {
+    func testDetectCommandContainsPoseSubcommand() throws {
         let subcommands = DetectCommand.configuration.subcommands
         let hasCommand = subcommands.contains { $0 == PoseCommand.self }
         XCTAssertTrue(hasCommand)
     }
 
-    func testDetectCommandContainsPose3DSubcommand() {
+    func testDetectCommandContainsPose3DSubcommand() throws {
         let subcommands = DetectCommand.configuration.subcommands
         let hasCommand = subcommands.contains { $0 == Pose3DCommand.self }
         XCTAssertTrue(hasCommand)
     }
 
-    func testDetectCommandContainsHandSubcommand() {
+    func testDetectCommandContainsHandSubcommand() throws {
         let subcommands = DetectCommand.configuration.subcommands
         let hasCommand = subcommands.contains { $0 == HandCommand.self }
         XCTAssertTrue(hasCommand)
     }
 
-    func testDetectCommandContainsPetPoseSubcommand() {
+    func testDetectCommandContainsPetPoseSubcommand() throws {
         let subcommands = DetectCommand.configuration.subcommands
         let hasCommand = subcommands.contains { $0 == PetPoseCommand.self }
         XCTAssertTrue(hasCommand)
@@ -204,7 +204,7 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - Default Values Tests
 
-    func testPoseCommandDefaultsInConfiguration() {
+    func testPoseCommandDefaultsInConfiguration() throws {
         let discussion = PoseCommand.configuration.discussion
         // Default format is table
         XCTAssertTrue(discussion.contains("table (default)") || discussion.contains("table"))
@@ -212,7 +212,7 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("0.3") || discussion.contains("threshold"))
     }
 
-    func testHandCommandDefaultsInConfiguration() {
+    func testHandCommandDefaultsInConfiguration() throws {
         let discussion = HandCommand.configuration.discussion
         // Default format is table
         XCTAssertTrue(discussion.contains("table (default)") || discussion.contains("table"))
@@ -220,7 +220,7 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("default: 2") || discussion.contains("2"))
     }
 
-    func testPetPoseCommandDefaultsInConfiguration() {
+    func testPetPoseCommandDefaultsInConfiguration() throws {
         let discussion = PetPoseCommand.configuration.discussion
         // Default format is table
         XCTAssertTrue(discussion.contains("table (default)") || discussion.contains("table"))
@@ -228,7 +228,7 @@ final class DetectBatch2Tests: XCTestCase {
 
     // MARK: - Help Quality Tests (评估帮助文档质量)
 
-    func testPoseCommandHelpQuality() {
+    func testPoseCommandHelpQuality() throws {
         let discussion = PoseCommand.configuration.discussion
         var score = 0
 
@@ -261,7 +261,7 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertGreaterThanOrEqual(score, 9, "Help quality score should be 9+/10, got \(score)")
     }
 
-    func testHandCommandHelpQuality() {
+    func testHandCommandHelpQuality() throws {
         let discussion = HandCommand.configuration.discussion
         var score = 0
 
@@ -278,7 +278,7 @@ final class DetectBatch2Tests: XCTestCase {
         XCTAssertGreaterThanOrEqual(score, 9, "Help quality score should be 9+/10, got \(score)")
     }
 
-    func testPetPoseCommandHelpQuality() {
+    func testPetPoseCommandHelpQuality() throws {
         let discussion = PetPoseCommand.configuration.discussion
         var score = 0
 

@@ -40,7 +40,7 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试并发图像分类 - 使用 async let
     func testConcurrentClassification() async throws {
         let visionService = VisionService()
-        let url = testImageURL!
+        let url = try XCTUnwrap(testImageURL)
 
         async let result1 = visionService.classifyImage(at: url, threshold: 0.1)
         async let result2 = visionService.classifyImage(at: url, threshold: 0.1)
@@ -69,7 +69,7 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试并发人脸检测
     func testConcurrentFaceDetection() async throws {
         let visionService = VisionService()
-        let url = testImageURL!
+        let url = try XCTUnwrap(testImageURL)
 
         async let result1 = visionService.detectFaceRectangles(at: url)
         async let result2 = visionService.detectFaceRectangles(at: url)
@@ -81,7 +81,7 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试混合 Vision 操作并发
     func testMixedVisionOperationsConcurrent() async throws {
         let visionService = VisionService()
-        let url = testImageURL!
+        let url = try XCTUnwrap(testImageURL)
 
         async let classifyResult = visionService.classifyImage(at: url)
         async let faceResult = visionService.detectFaceLandmarks(at: url)
@@ -157,7 +157,7 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试并发图像加载
     func testConcurrentImageLoading() async throws {
         let imageIOService = ImageIOService()
-        let url = testImageURL!
+        let url = try XCTUnwrap(testImageURL)
 
         // 加载不同尺寸
         let image128 = try imageIOService.loadImage(at: url, maxDimension: 128)
@@ -175,8 +175,8 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试并发图像保存
     func testConcurrentImageSaving() async throws {
         let imageIOService = ImageIOService()
-        let url = testImageURL!
-        let tempDir = tempDirectory!
+        let url = try XCTUnwrap(testImageURL)
+        let tempDir = try XCTUnwrap(tempDirectory)
         let cgImage = try imageIOService.loadImage(at: url, maxDimension: 200)
 
         // 保存多个文件
@@ -195,7 +195,7 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试并发元数据读取
     func testConcurrentMetadataReading() async throws {
         let imageIOService = ImageIOService()
-        let url = testImageURL!
+        let url = try XCTUnwrap(testImageURL)
 
         // 多次读取元数据
         for _ in 0..<5 {
@@ -211,7 +211,7 @@ final class ConcurrencyTests: XCTestCase {
         let visionService = VisionService()
         let imageIOService = ImageIOService()
         let coreImageService = CoreImageService()
-        let url = testImageURL!
+        let url = try XCTUnwrap(testImageURL)
 
         // Vision 操作
         _ = try await visionService.classifyImage(at: url)
@@ -220,7 +220,7 @@ final class ConcurrencyTests: XCTestCase {
         _ = try imageIOService.loadImage(at: url, maxDimension: 512)
 
         // CoreImage 操作
-        let image = CIImage(contentsOf: url)!
+        let image = try XCTUnwrap(CIImage(contentsOf: url))
         let blurred = coreImageService.gaussianBlur(ciImage: image, radius: 5)
         _ = coreImageService.render(ciImage: blurred)
 
@@ -231,8 +231,8 @@ final class ConcurrencyTests: XCTestCase {
     func testFullWorkflow() async throws {
         let imageIOService = ImageIOService()
         let coreImageService = CoreImageService()
-        let url = testImageURL!
-        let tempDir = tempDirectory!
+        let url = try XCTUnwrap(testImageURL)
+        let tempDir = try XCTUnwrap(tempDirectory)
 
         for i in 0..<2 {
             let outputPath = tempDir.appendingPathComponent("workflow_\(i).jpg")

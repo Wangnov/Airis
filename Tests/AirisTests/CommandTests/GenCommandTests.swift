@@ -16,21 +16,21 @@ final class GenCommandTests: XCTestCase {
 
     // MARK: - GenCommand Configuration Tests
 
-    func testGenCommandHasSubcommands() {
+    func testGenCommandHasSubcommands() throws {
         XCTAssertEqual(GenCommand.configuration.subcommands.count, 2)
         XCTAssertEqual(GenCommand.configuration.commandName, "gen")
     }
 
     // MARK: - ConfigCommand Tests
 
-    func testConfigCommandHasAllSubcommands() {
+    func testConfigCommandHasAllSubcommands() throws {
         // set-key, get-key, delete-key, set, show, reset
         XCTAssertEqual(ConfigCommand.configuration.subcommands.count, 6)
     }
 
     // MARK: - DrawCommand Configuration Tests
 
-    func testDrawCommandConfiguration() {
+    func testDrawCommandConfiguration() throws {
         XCTAssertEqual(DrawCommand.configuration.commandName, "draw")
         XCTAssertTrue(DrawCommand.configuration.abstract.contains("Generate"))
     }
@@ -70,7 +70,7 @@ final class GenCommandTests: XCTestCase {
         XCTAssertNotNil(config.model)
     }
 
-    func testDefaultModelConstant() {
+    func testDefaultModelConstant() throws {
         XCTAssertEqual(GeminiProvider.defaultModel, "gemini-3-pro-image-preview")
     }
 

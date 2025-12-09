@@ -400,7 +400,7 @@ final class RealWorldUseCaseTests: XCTestCase {
 
     /// 测试：服务容器多次访问
     /// 场景：模拟在应用中多次获取服务
-    func testServiceContainerMultipleAccess() {
+    func testServiceContainerMultipleAccess() throws {
         // 多次获取同一个服务
         let vision1 = ServiceContainer.shared.visionService
         let vision2 = ServiceContainer.shared.visionService
@@ -418,7 +418,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     }
 
     /// 测试：获取不同的 Provider
-    func testMultipleProviders() {
+    func testMultipleProviders() throws {
         let container = ServiceContainer.shared
 
         // 获取默认 provider

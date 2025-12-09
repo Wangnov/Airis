@@ -5,7 +5,7 @@ final class ServiceContainerTests: XCTestCase {
 
     // MARK: - Singleton Tests
 
-    func testSharedInstance() {
+    func testSharedInstance() throws {
         let instance1 = ServiceContainer.shared
         let instance2 = ServiceContainer.shared
 
@@ -14,44 +14,44 @@ final class ServiceContainerTests: XCTestCase {
 
     // MARK: - Service Access Tests
 
-    func testVisionServiceAccess() {
+    func testVisionServiceAccess() throws {
         let service = ServiceContainer.shared.visionService
         XCTAssertNotNil(service)
     }
 
-    func testImageIOServiceAccess() {
+    func testImageIOServiceAccess() throws {
         let service = ServiceContainer.shared.imageIOService
         XCTAssertNotNil(service)
     }
 
-    func testHTTPClientAccess() {
+    func testHTTPClientAccess() throws {
         let client = ServiceContainer.shared.httpClient
         XCTAssertNotNil(client)
     }
 
-    func testKeychainManagerAccess() {
+    func testKeychainManagerAccess() throws {
         let manager = ServiceContainer.shared.keychainManager
         XCTAssertNotNil(manager)
     }
 
-    func testConfigManagerAccess() {
+    func testConfigManagerAccess() throws {
         let manager = ServiceContainer.shared.configManager
         XCTAssertNotNil(manager)
     }
 
-    func testGeminiProviderAccess() {
+    func testGeminiProviderAccess() throws {
         let provider = ServiceContainer.shared.geminiProvider
         XCTAssertNotNil(provider)
     }
 
-    func testGetProviderByName() {
+    func testGetProviderByName() throws {
         let provider = ServiceContainer.shared.getProvider(name: "custom-provider")
         XCTAssertNotNil(provider)
     }
 
     // MARK: - Lazy Loading Tests
 
-    func testLazyLoadingBehavior() {
+    func testLazyLoadingBehavior() throws {
         // 访问服务应该触发懒加载
         _ = ServiceContainer.shared.visionService
         _ = ServiceContainer.shared.imageIOService

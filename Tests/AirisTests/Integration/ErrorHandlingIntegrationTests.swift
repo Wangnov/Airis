@@ -28,7 +28,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     // MARK: - 文件不存在错误测试
 
     /// 测试：Vision 服务处理不存在的文件
-    func testVisionServiceFileNotFound() async {
+    func testVisionServiceFileNotFound() async throws {
         let visionService = VisionService()
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.jpg")
 
@@ -42,7 +42,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：ImageIO 服务处理不存在的文件
-    func testImageIOServiceFileNotFound() {
+    func testImageIOServiceFileNotFound() throws {
         let imageIOService = ImageIOService()
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.png")
 
@@ -55,7 +55,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：ImageIO 元数据读取处理不存在的文件
-    func testImageIOMetadataFileNotFound() {
+    func testImageIOMetadataFileNotFound() throws {
         let imageIOService = ImageIOService()
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.png")
 
@@ -68,7 +68,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：文件验证工具处理不存在的文件
-    func testFileUtilsValidateFileNotFound() {
+    func testFileUtilsValidateFileNotFound() throws {
         let nonExistentPath = "/nonexistent/path/to/file.jpg"
 
         XCTAssertThrowsError(try FileUtils.validateFile(at: nonExistentPath)) { error in
@@ -82,7 +82,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     // MARK: - 格式不支持错误测试
 
     /// 测试：不支持的文件格式
-    func testUnsupportedFormatError() {
+    func testUnsupportedFormatError() throws {
         // 创建一个文本文件
         let textFileURL = tempDir.appendingPathComponent("test.txt")
         try? "This is not an image".write(to: textFileURL, atomically: true, encoding: .utf8)
@@ -97,7 +97,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：尝试加载非图像文件
-    func testLoadNonImageFile() {
+    func testLoadNonImageFile() throws {
         let imageIOService = ImageIOService()
 
         // 创建一个 JSON 文件
@@ -112,7 +112,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：损坏的图像文件
-    func testCorruptedImageFile() {
+    func testCorruptedImageFile() throws {
         let imageIOService = ImageIOService()
 
         // 创建一个假的 PNG 文件（错误的内容）
@@ -129,7 +129,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     // MARK: - API Key 错误测试
 
     /// 测试：API Key 未配置错误
-    func testMissingAPIKeyError() {
+    func testMissingAPIKeyError() throws {
         let keychain = KeychainManager()
 
         // 使用一个肯定不存在的 provider 名
@@ -184,7 +184,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     // MARK: - 网络错误测试
 
     /// 测试：HTTP 客户端超时处理
-    func testHTTPClientTimeout() async {
+    func testHTTPClientTimeout() async throws {
         // 创建一个超短超时的配置
         let config = HTTPClientConfiguration(
             timeoutIntervalForRequest: 0.001,  // 1 毫秒超时
@@ -195,7 +195,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
 
         do {
             // 尝试请求一个需要延迟的端点（会超时）
-            let _ = try await client.get(url: URL(string: "https://httpbin.org/delay/10")!)
+            let _ = try await client.get(url: try XCTUnwrap(URL(string: "https://httpbin.org/delay/10")))
             XCTFail("Should timeout")
         } catch {
             // 预期超时错误
@@ -204,11 +204,11 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：HTTP 客户端处理无效 URL
-    func testHTTPClientInvalidRequest() async {
+    func testHTTPClientInvalidRequest() async throws {
         let client = HTTPClient()
 
         // 使用一个不存在的域名
-        let invalidURL = URL(string: "https://this-domain-does-not-exist-\(UUID().uuidString).com")!
+        let invalidURL = try XCTUnwrap(URL(string: "https://this-domain-does-not-exist-\(UUID().uuidString).com"))
 
         do {
             let _ = try await client.get(url: invalidURL)
@@ -222,7 +222,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     // MARK: - 图像处理错误测试
 
     /// 测试：空图像处理
-    func testEmptyImageProcessing() {
+    func testEmptyImageProcessing() throws {
         let coreImageService = CoreImageService()
 
         // 创建一个极小的图像
@@ -240,7 +240,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：极端参数值处理
-    func testExtremeParameterValues() {
+    func testExtremeParameterValues() throws {
         let coreImageService = CoreImageService()
         let testImage = CIImage(color: .blue).cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -267,7 +267,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：无效裁剪区域
-    func testInvalidCropRegion() {
+    func testInvalidCropRegion() throws {
         let coreImageService = CoreImageService()
         let testImage = CIImage(color: .green).cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -290,7 +290,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     // MARK: - 文件写入错误测试
 
     /// 测试：写入只读目录
-    func testWriteToReadOnlyLocation() {
+    func testWriteToReadOnlyLocation() throws {
         let imageIOService = ImageIOService()
         let coreImageService = CoreImageService()
 
@@ -310,7 +310,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：写入不存在的目录
-    func testWriteToNonExistentDirectory() {
+    func testWriteToNonExistentDirectory() throws {
         let imageIOService = ImageIOService()
         let coreImageService = CoreImageService()
 
@@ -404,7 +404,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     }
 
     /// 测试：配置管理器处理损坏的配置文件
-    func testConfigManagerCorruptedConfig() {
+    func testConfigManagerCorruptedConfig() throws {
         // 创建一个损坏的 JSON 配置文件
         let corruptedConfigFile = tempDir.appendingPathComponent("corrupted_config.json")
         try? "{ invalid json }".write(to: corruptedConfigFile, atomically: true, encoding: .utf8)

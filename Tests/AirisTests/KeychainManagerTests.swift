@@ -71,7 +71,7 @@ final class KeychainManagerTests: XCTestCase {
 
     // MARK: - Error Tests
 
-    func testGetNonExistentKeyThrows() {
+    func testGetNonExistentKeyThrows() throws {
         XCTAssertThrowsError(try keychain.getAPIKey(for: "non-existent-provider")) { error in
             guard case AirisError.apiKeyNotFound = error else {
                 XCTFail("Expected apiKeyNotFound error")

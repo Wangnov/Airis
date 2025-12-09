@@ -228,7 +228,7 @@ struct PaletteCommand: AsyncParsableCommand {
     }
 
     private func printColorRow(color: ColorInfo, index: Int?) {
-        let indexStr = index != nil ? "\(index!). " : "   "
+        let indexStr = index.map { "\($0). " } ?? "   "
         let rgbStr = "RGB(\(color.r), \(color.g), \(color.b))"
         let colorBlock = generateColorBlock(r: color.r, g: color.g, b: color.b)
         print("  \(indexStr)\(color.hex)  \(rgbStr.padding(toLength: 18, withPad: " ", startingAt: 0)) \(colorBlock)")

@@ -539,7 +539,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
             throw XCTSkip("Test asset not found")
         }
 
-        let service = visionService!
+        let service = try XCTUnwrap(visionService)
 
         // 顺序执行所有检测
         let classifications = try await service.classifyImage(at: imageURL)
@@ -559,7 +559,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
     }
 
     /// 测试：CoreImageService 的工具方法
-    func testCoreImageServiceUtilities() {
+    func testCoreImageServiceUtilities() throws {
         // 测试坐标转换
         let testRect = CGRect(x: 100, y: 200, width: 300, height: 400)
         let imageHeight: CGFloat = 1000

@@ -211,7 +211,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
         // 模拟批量处理同一张图片多次（实际场景会是多张不同图片）
         let imageURLs: [URL] = Array(repeating: imageURL, count: 5)
-        let service = visionService!  // 创建局部引用
+        let service = try XCTUnwrap(visionService)  // 创建局部引用
 
         var allResults: [[VNClassificationObservation]] = []
 

@@ -36,7 +36,7 @@ final class ImageUtilsTests: XCTestCase {
     }
 
     /// 测试编码不存在的文件
-    func testEncodeImageToBase64NonExistent() {
+    func testEncodeImageToBase64NonExistent() throws {
         let url = URL(fileURLWithPath: "/nonexistent/image.png")
 
         XCTAssertThrowsError(try ImageUtils.encodeImageToBase64(at: url))
@@ -45,7 +45,7 @@ final class ImageUtilsTests: XCTestCase {
     // MARK: - mimeTypeForImageFile Tests
 
     /// 测试 MIME 类型检测 - JPEG
-    func testMimeTypeJPEG() {
+    func testMimeTypeJPEG() throws {
         let urlJpg = URL(fileURLWithPath: "/path/to/image.jpg")
         let urlJpeg = URL(fileURLWithPath: "/path/to/image.jpeg")
 
@@ -54,43 +54,43 @@ final class ImageUtilsTests: XCTestCase {
     }
 
     /// 测试 MIME 类型检测 - PNG
-    func testMimeTypePNG() {
+    func testMimeTypePNG() throws {
         let url = URL(fileURLWithPath: "/path/to/image.png")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/png")
     }
 
     /// 测试 MIME 类型检测 - HEIC
-    func testMimeTypeHEIC() {
+    func testMimeTypeHEIC() throws {
         let url = URL(fileURLWithPath: "/path/to/image.heic")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/heic")
     }
 
     /// 测试 MIME 类型检测 - HEIF
-    func testMimeTypeHEIF() {
+    func testMimeTypeHEIF() throws {
         let url = URL(fileURLWithPath: "/path/to/image.heif")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/heif")
     }
 
     /// 测试 MIME 类型检测 - WebP
-    func testMimeTypeWebP() {
+    func testMimeTypeWebP() throws {
         let url = URL(fileURLWithPath: "/path/to/image.webp")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/webp")
     }
 
     /// 测试 MIME 类型检测 - GIF
-    func testMimeTypeGIF() {
+    func testMimeTypeGIF() throws {
         let url = URL(fileURLWithPath: "/path/to/image.gif")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/gif")
     }
 
     /// 测试 MIME 类型检测 - 未知格式（默认 JPEG）
-    func testMimeTypeUnknown() {
+    func testMimeTypeUnknown() throws {
         let url = URL(fileURLWithPath: "/path/to/file.xyz")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/jpeg")
     }
 
     /// 测试大写扩展名
-    func testMimeTypeUppercase() {
+    func testMimeTypeUppercase() throws {
         let url = URL(fileURLWithPath: "/path/to/image.PNG")
         XCTAssertEqual(ImageUtils.mimeTypeForImageFile(at: url), "image/png")
     }
@@ -111,7 +111,7 @@ final class ImageUtilsTests: XCTestCase {
     }
 
     /// 测试解码无效 Base64
-    func testDecodeAndSaveImageInvalidBase64() {
+    func testDecodeAndSaveImageInvalidBase64() throws {
         let invalidBase64 = "not-valid-base64!!!"
         let outputPath = tempDirectory.appendingPathComponent("output.png").path
 
@@ -150,7 +150,7 @@ final class ImageUtilsTests: XCTestCase {
     }
 
     /// 测试获取不存在图片的尺寸
-    func testGetImageDimensionsNonExistent() {
+    func testGetImageDimensionsNonExistent() throws {
         let url = URL(fileURLWithPath: "/nonexistent/image.png")
 
         XCTAssertThrowsError(try ImageUtils.getImageDimensions(at: url)) { error in

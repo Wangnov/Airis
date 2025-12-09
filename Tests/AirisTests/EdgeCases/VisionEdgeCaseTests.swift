@@ -30,7 +30,7 @@ final class VisionEdgeCaseTests: XCTestCase {
     // MARK: - 无效文件测试
 
     /// 测试不存在的文件
-    func testNonExistentFile() async {
+    func testNonExistentFile() async throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.jpg")
 
         do {
@@ -43,7 +43,7 @@ final class VisionEdgeCaseTests: XCTestCase {
     }
 
     /// 测试不存在的文件 - OCR
-    func testNonExistentFile_OCR() async {
+    func testNonExistentFile_OCR() async throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/document.png")
 
         do {
@@ -55,7 +55,7 @@ final class VisionEdgeCaseTests: XCTestCase {
     }
 
     /// 测试不存在的文件 - 人脸检测
-    func testNonExistentFile_FaceDetection() async {
+    func testNonExistentFile_FaceDetection() async throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/face.jpg")
 
         do {

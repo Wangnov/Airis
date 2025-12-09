@@ -23,7 +23,7 @@ final class NetworkPerformanceTests: XCTestCase {
     // MARK: - HTTP 客户端配置测试 (不需要网络)
 
     /// 测试 HTTP 客户端创建性能
-    func testHTTPClientCreationPerformance() {
+    func testHTTPClientCreationPerformance() throws {
         measure {
             let config = HTTPClientConfiguration(
                 timeoutIntervalForRequest: 30,
@@ -35,7 +35,7 @@ final class NetworkPerformanceTests: XCTestCase {
     }
 
     /// 测试多个客户端创建性能
-    func testMultipleHTTPClientCreationPerformance() {
+    func testMultipleHTTPClientCreationPerformance() throws {
         measure {
             for _ in 0..<10 {
                 let config = HTTPClientConfiguration()
@@ -45,7 +45,7 @@ final class NetworkPerformanceTests: XCTestCase {
     }
 
     /// 测试超时配置的客户端创建
-    func testShortTimeoutClientCreation() {
+    func testShortTimeoutClientCreation() throws {
         measure {
             let config = HTTPClientConfiguration(
                 timeoutIntervalForRequest: 5,
@@ -64,7 +64,7 @@ final class NetworkPerformanceTests: XCTestCase {
         try skipIfNetworkTestsDisabled()
 
         let client = HTTPClient()
-        let url = URL(string: "https://httpbin.org/get")!
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/get"))
 
         // 预热
         _ = try? await client.get(url: url)
@@ -84,7 +84,7 @@ final class NetworkPerformanceTests: XCTestCase {
         try skipIfNetworkTestsDisabled()
 
         let client = HTTPClient()
-        let url = URL(string: "https://httpbin.org/headers")!
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/headers"))
         let headers = [
             "X-Custom-Header": "TestValue",
             "Accept": "application/json",
@@ -106,8 +106,8 @@ final class NetworkPerformanceTests: XCTestCase {
         try skipIfNetworkTestsDisabled()
 
         let client = HTTPClient()
-        let url = URL(string: "https://httpbin.org/post")!
-        let body = "{\"test\": \"data\"}".data(using: .utf8)!
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/post"))
+        let body = Data("{\"test\": \"data\"}".utf8)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -124,11 +124,11 @@ final class NetworkPerformanceTests: XCTestCase {
         try skipIfNetworkTestsDisabled()
 
         let client = HTTPClient()
-        let url = URL(string: "https://httpbin.org/post")!
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/post"))
 
         // 生成 10KB 数据
         let testData = String(repeating: "x", count: 10 * 1024)
-        let body = "{\"data\": \"\(testData)\"}".data(using: .utf8)!
+        let body = Data("{\"data\": \"\(testData)\"}".utf8)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -150,7 +150,7 @@ final class NetworkPerformanceTests: XCTestCase {
             maxRetries: 0
         )
         let client = HTTPClient(configuration: config)
-        let url = URL(string: "https://httpbin.org/delay/10")!
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/delay/10"))
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -171,7 +171,7 @@ final class NetworkPerformanceTests: XCTestCase {
         try skipIfNetworkTestsDisabled()
 
         let client = HTTPClient()
-        let url = URL(string: "https://httpbin.org/get")!
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/get"))
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -196,7 +196,7 @@ final class NetworkPerformanceTests: XCTestCase {
 
         let client = HTTPClient()
         // 请求返回指定大小的数据
-        let url = URL(string: "https://httpbin.org/bytes/10240")! // 10KB
+        let url = try XCTUnwrap(URL(string: "https://httpbin.org/bytes/10240")) // 10KB
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)

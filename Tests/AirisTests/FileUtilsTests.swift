@@ -21,7 +21,7 @@ final class FileUtilsTests: XCTestCase {
 
     // MARK: - Extension Tests
 
-    func testGetExtension() {
+    func testGetExtension() throws {
         XCTAssertEqual(FileUtils.getExtension(from: "/path/to/image.jpg"), "jpg")
         XCTAssertEqual(FileUtils.getExtension(from: "/path/to/image.PNG"), "png")
         XCTAssertEqual(FileUtils.getExtension(from: "/path/to/image.HEIC"), "heic")
@@ -31,7 +31,7 @@ final class FileUtilsTests: XCTestCase {
 
     // MARK: - Format Validation Tests
 
-    func testIsSupportedImageFormat() {
+    func testIsSupportedImageFormat() throws {
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.jpg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.jpeg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.png"))
@@ -46,7 +46,7 @@ final class FileUtilsTests: XCTestCase {
 
     // MARK: - Output Path Generation Tests
 
-    func testGenerateOutputPath() {
+    func testGenerateOutputPath() throws {
         let input = "/Users/test/images/photo.jpg"
 
         // 默认后缀
@@ -64,14 +64,14 @@ final class FileUtilsTests: XCTestCase {
 
     // MARK: - Path Expansion Tests
 
-    func testExpandPath() {
+    func testExpandPath() throws {
         // 波浪号应被展开
         let expanded = FileUtils.expandPath("~/Documents")
         XCTAssertFalse(expanded.hasPrefix("~"))
         XCTAssertTrue(expanded.hasPrefix("/"))
     }
 
-    func testAbsolutePath() {
+    func testAbsolutePath() throws {
         // 绝对路径保持不变
         let absPath = "/Users/test/file.jpg"
         XCTAssertEqual(FileUtils.absolutePath(absPath), absPath)
@@ -85,7 +85,7 @@ final class FileUtilsTests: XCTestCase {
 
     // MARK: - File Validation Tests
 
-    func testValidateFileNotFound() {
+    func testValidateFileNotFound() throws {
         let nonExistentPath = "/nonexistent/path/to/file.jpg"
         XCTAssertThrowsError(try FileUtils.validateFile(at: nonExistentPath)) { error in
             guard case AirisError.fileNotFound = error else {
@@ -95,7 +95,7 @@ final class FileUtilsTests: XCTestCase {
         }
     }
 
-    func testValidateImageFileUnsupportedFormat() {
+    func testValidateImageFileUnsupportedFormat() throws {
         // 创建临时文件
         let tempDir = FileManager.default.temporaryDirectory
         let tempFile = tempDir.appendingPathComponent("test.txt")
@@ -145,7 +145,7 @@ final class FileUtilsTests: XCTestCase {
     }
 
     /// 测试获取不存在文件的大小
-    func testGetFormattedFileSizeNonExistent() {
+    func testGetFormattedFileSizeNonExistent() throws {
         let size = FileUtils.getFormattedFileSize(at: "/nonexistent/file.png")
         XCTAssertNil(size)
     }
@@ -161,11 +161,11 @@ final class FileUtilsTests: XCTestCase {
 
         let size = FileUtils.getFileSize(at: testImagePath)
         XCTAssertNotNil(size)
-        XCTAssertGreaterThan(size!, 0)
+        XCTAssertGreaterThan(try XCTUnwrap(size), 0)
     }
 
     /// 测试获取不存在文件的大小
-    func testGetFileSizeNonExistent() {
+    func testGetFileSizeNonExistent() throws {
         let size = FileUtils.getFileSize(at: "/nonexistent/file.png")
         XCTAssertNil(size)
     }
@@ -199,7 +199,7 @@ final class FileUtilsTests: XCTestCase {
     // MARK: - supportedImageFormats Tests
 
     /// 测试支持的格式列表
-    func testSupportedImageFormats() {
+    func testSupportedImageFormats() throws {
         let formats = FileUtils.supportedImageFormats
 
         XCTAssertTrue(formats.contains("jpg"))

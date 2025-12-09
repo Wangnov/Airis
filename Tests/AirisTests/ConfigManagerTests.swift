@@ -117,7 +117,7 @@ final class ConfigManagerTests: XCTestCase {
 
     // MARK: - Config File Path Tests
 
-    func testGetConfigFilePath() {
+    func testGetConfigFilePath() throws {
         let path = manager.getConfigFilePath()
 
         // 应该是临时文件路径
@@ -127,12 +127,12 @@ final class ConfigManagerTests: XCTestCase {
 
     // MARK: - Default Configs Tests
 
-    func testDefaultConfigsExist() {
+    func testDefaultConfigsExist() throws {
         XCTAssertFalse(ConfigManager.defaultConfigs.isEmpty)
         XCTAssertNotNil(ConfigManager.defaultConfigs["gemini"])
     }
 
-    func testDefaultGeminiConfig() {
+    func testDefaultGeminiConfig() throws {
         guard let geminiConfig = ConfigManager.defaultConfigs["gemini"] else {
             XCTFail("Gemini default config not found")
             return
