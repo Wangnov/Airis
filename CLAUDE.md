@@ -78,6 +78,8 @@ make test-integration # 仅集成测试
 make clean            # 清理构建产物
 make format           # 格式化代码（需要 swiftformat）
 make lint             # 代码检查（需要 swiftlint）
+make cov              # 生成代码覆盖率报告
+make cov-html         # 生成 HTML 覆盖率报告并打开
 make help             # 显示帮助
 ```
 
