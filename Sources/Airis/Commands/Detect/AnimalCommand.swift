@@ -138,7 +138,11 @@ struct AnimalCommand: AsyncParsableCommand {
             print("    Confidence: \(String(format: "%.2f", animal.confidence))")
 
             let box = animal.boundingBox
-            print("    Bounding Box: (\(String(format: "%.2f", box.origin.x)), \(String(format: "%.2f", box.origin.y))) - \(String(format: "%.2f", box.width))×\(String(format: "%.2f", box.height))")
+            let x = String(format: "%.2f", box.origin.x)
+            let y = String(format: "%.2f", box.origin.y)
+            let w = String(format: "%.2f", box.width)
+            let h = String(format: "%.2f", box.height)
+            print("    Bounding Box: (\(x), \(y)) - \(w)×\(h)")
             print("")
         }
     }

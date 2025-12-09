@@ -165,6 +165,7 @@ struct PetPoseCommand: AsyncParsableCommand {
     }
 
     @available(macOS 14.0, *)
+    // swiftlint:disable:next cyclomatic_complexity
     private func jointNameString(_ name: VNAnimalBodyPoseObservation.JointName) -> String {
         switch name {
         case .nose: return "nose"
@@ -219,7 +220,10 @@ struct PetPoseCommand: AsyncParsableCommand {
                     let py = Int(point.location.y * CGFloat(imageHeight))
                     print("      \(paddedName): (\(px), \(py)) px - conf: \(String(format: "%.2f", point.confidence))")
                 } else {
-                    print("      \(paddedName): (\(String(format: "%.3f", point.location.x)), \(String(format: "%.3f", point.location.y))) - conf: \(String(format: "%.2f", point.confidence))")
+                    let x = String(format: "%.3f", point.location.x)
+                    let y = String(format: "%.3f", point.location.y)
+                    let conf = String(format: "%.2f", point.confidence)
+                    print("      \(paddedName): (\(x), \(y)) - conf: \(conf)")
                 }
             }
 

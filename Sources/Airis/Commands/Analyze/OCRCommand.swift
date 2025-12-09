@@ -150,7 +150,11 @@ struct OCRCommand: AsyncParsableCommand {
 
             if showBounds {
                 let box = result.boundingBox
-                print("    位置: (\(String(format: "%.2f", box.origin.x)), \(String(format: "%.2f", box.origin.y))) 大小: \(String(format: "%.2f", box.width)) × \(String(format: "%.2f", box.height))")
+                let x = String(format: "%.2f", box.origin.x)
+                let y = String(format: "%.2f", box.origin.y)
+                let w = String(format: "%.2f", box.width)
+                let h = String(format: "%.2f", box.height)
+                print("    位置: (\(x), \(y)) 大小: \(w) × \(h)")
             }
 
             // 仅当置信度低时显示
