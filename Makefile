@@ -1,7 +1,7 @@
 # Airis Makefile
 # Swift CLI 工具构建和测试脚本
 
-.PHONY: help build test test-quick test-perf install clean format lint
+.PHONY: help build test test-quick test-perf install clean format lint cov cov-html
 
 .DEFAULT_GOAL := help
 
@@ -30,6 +30,8 @@ help:
 	@echo "  make clean         清理构建产物"
 	@echo "  make format        格式化代码（需要 swiftformat）"
 	@echo "  make lint          代码检查（需要 swiftlint）"
+	@echo "  make cov           生成代码覆盖率报告"
+	@echo "  make cov-html      生成 HTML 覆盖率报告并打开"
 	@echo ""
 
 ## build: 编译 debug 版本
@@ -126,3 +128,30 @@ dev: test-quick build
 ## check: 完整检查 - 测试 + 格式 + lint
 check: test format lint
 	@echo "✅ 完整检查通过"
+
+## cov: 生成代码覆盖率报告
+cov:
+	@echo "📊 生成代码覆盖率报告..."
+	@swift test --enable-code-coverage --parallel
+	@echo ""
+	@echo "📈 核心服务覆盖率："
+	@xcrun llvm-cov report \
+		.build/debug/AirisPackageTests.xctest/Contents/MacOS/AirisPackageTests \
+		-instr-profile=.build/debug/codecov/default.profdata \
+		2>/dev/null | grep "^Sources/Airis" | grep -v "Commands/" \
+		| awk '{printf "  %-50s %s\n", $$1, $$NF}' | sort -t' ' -k2 -rn || true
+	@echo ""
+	@echo "💡 生成 HTML 详细报告: make cov-html"
+
+## cov-html: 生成 HTML 覆盖率报告并打开
+cov-html:
+	@echo "🌐 生成 HTML 覆盖率报告..."
+	@swift test --enable-code-coverage --parallel
+	@mkdir -p .build/coverage
+	@xcrun llvm-cov show \
+		.build/debug/AirisPackageTests.xctest/Contents/MacOS/AirisPackageTests \
+		-instr-profile=.build/debug/codecov/default.profdata \
+		-format=html \
+		-output-dir=.build/coverage
+	@echo "✅ HTML 报告已生成: .build/coverage/index.html"
+	@open .build/coverage/index.html 2>/dev/null || echo "   请手动打开: .build/coverage/index.html"
