@@ -151,18 +151,18 @@ struct FaceCommand: AsyncParsableCommand {
             // 特征点信息
             if hasLandmarks, let landmarks = face.landmarks {
                 var pointCount = 0
-                if landmarks.faceContour != nil { pointCount += landmarks.faceContour!.pointCount }
-                if landmarks.leftEye != nil { pointCount += landmarks.leftEye!.pointCount }
-                if landmarks.rightEye != nil { pointCount += landmarks.rightEye!.pointCount }
-                if landmarks.leftEyebrow != nil { pointCount += landmarks.leftEyebrow!.pointCount }
-                if landmarks.rightEyebrow != nil { pointCount += landmarks.rightEyebrow!.pointCount }
-                if landmarks.nose != nil { pointCount += landmarks.nose!.pointCount }
-                if landmarks.noseCrest != nil { pointCount += landmarks.noseCrest!.pointCount }
-                if landmarks.medianLine != nil { pointCount += landmarks.medianLine!.pointCount }
-                if landmarks.outerLips != nil { pointCount += landmarks.outerLips!.pointCount }
-                if landmarks.innerLips != nil { pointCount += landmarks.innerLips!.pointCount }
-                if landmarks.leftPupil != nil { pointCount += landmarks.leftPupil!.pointCount }
-                if landmarks.rightPupil != nil { pointCount += landmarks.rightPupil!.pointCount }
+                if let faceContour = landmarks.faceContour { pointCount += faceContour.pointCount }
+                if let leftEye = landmarks.leftEye { pointCount += leftEye.pointCount }
+                if let rightEye = landmarks.rightEye { pointCount += rightEye.pointCount }
+                if let leftEyebrow = landmarks.leftEyebrow { pointCount += leftEyebrow.pointCount }
+                if let rightEyebrow = landmarks.rightEyebrow { pointCount += rightEyebrow.pointCount }
+                if let nose = landmarks.nose { pointCount += nose.pointCount }
+                if let noseCrest = landmarks.noseCrest { pointCount += noseCrest.pointCount }
+                if let medianLine = landmarks.medianLine { pointCount += medianLine.pointCount }
+                if let outerLips = landmarks.outerLips { pointCount += outerLips.pointCount }
+                if let innerLips = landmarks.innerLips { pointCount += innerLips.pointCount }
+                if let leftPupil = landmarks.leftPupil { pointCount += leftPupil.pointCount }
+                if let rightPupil = landmarks.rightPupil { pointCount += rightPupil.pointCount }
 
                 print("    Landmarks: \(pointCount) points detected")
             }

@@ -7,12 +7,12 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - SafeCommand Configuration Tests
 
-    func testSafeCommandConfiguration() {
+    func testSafeCommandConfiguration() throws {
         XCTAssertEqual(SafeCommand.configuration.commandName, "safe")
         XCTAssertTrue(SafeCommand.configuration.abstract.contains("sensitive"))
     }
 
-    func testSafeCommandDiscussionContainsRequirements() {
+    func testSafeCommandDiscussionContainsRequirements() throws {
         let discussion = SafeCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -21,7 +21,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("OUTPUT FORMAT"))
     }
 
-    func testSafeCommandDiscussionContainsPrivacyNotes() {
+    func testSafeCommandDiscussionContainsPrivacyNotes() throws {
         let discussion = SafeCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("PRIVACY"))
         XCTAssertTrue(discussion.contains("locally"))
@@ -29,12 +29,12 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - PaletteCommand Configuration Tests
 
-    func testPaletteCommandConfiguration() {
+    func testPaletteCommandConfiguration() throws {
         XCTAssertEqual(PaletteCommand.configuration.commandName, "palette")
         XCTAssertTrue(PaletteCommand.configuration.abstract.contains("color"))
     }
 
-    func testPaletteCommandDiscussionContainsExamples() {
+    func testPaletteCommandDiscussionContainsExamples() throws {
         let discussion = PaletteCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -42,7 +42,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("ALGORITHM"))
     }
 
-    func testPaletteCommandDiscussionContainsAlgorithmInfo() {
+    func testPaletteCommandDiscussionContainsAlgorithmInfo() throws {
         let discussion = PaletteCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("K-means"))
         XCTAssertTrue(discussion.contains("CIKMeans"))
@@ -50,7 +50,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - PaletteCommand Data Structure Tests
 
-    func testPaletteColorInfoStructure() {
+    func testPaletteColorInfoStructure() throws {
         let color = PaletteCommand.ColorInfo(hex: "#FF5733", r: 255, g: 87, b: 51)
 
         XCTAssertEqual(color.hex, "#FF5733")
@@ -59,7 +59,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertEqual(color.b, 51)
     }
 
-    func testPaletteResultStructure() {
+    func testPaletteResultStructure() throws {
         let color1 = PaletteCommand.ColorInfo(hex: "#FF5733", r: 255, g: 87, b: 51)
         let color2 = PaletteCommand.ColorInfo(hex: "#3498DB", r: 52, g: 152, b: 219)
 
@@ -77,12 +77,12 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - SimilarCommand Configuration Tests
 
-    func testSimilarCommandConfiguration() {
+    func testSimilarCommandConfiguration() throws {
         XCTAssertEqual(SimilarCommand.configuration.commandName, "similar")
         XCTAssertTrue(SimilarCommand.configuration.abstract.contains("similarity"))
     }
 
-    func testSimilarCommandDiscussionContainsExamples() {
+    func testSimilarCommandDiscussionContainsExamples() throws {
         let discussion = SimilarCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -90,7 +90,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("DISTANCE INTERPRETATION"))
     }
 
-    func testSimilarCommandDiscussionContainsAlgorithmInfo() {
+    func testSimilarCommandDiscussionContainsAlgorithmInfo() throws {
         let discussion = SimilarCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("VNGenerateImageFeaturePrintRequest"))
         XCTAssertTrue(discussion.contains("fingerprint"))
@@ -98,7 +98,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - SimilarCommand Data Structure Tests
 
-    func testSimilarityResultStructure() {
+    func testSimilarityResultStructure() throws {
         let result = SimilarCommand.SimilarityResult(
             image1: "photo1.jpg",
             image2: "photo2.jpg",
@@ -112,7 +112,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertEqual(result.similarity, 0.875)
     }
 
-    func testSimilarityResultHighSimilarity() {
+    func testSimilarityResultHighSimilarity() throws {
         let result = SimilarCommand.SimilarityResult(
             image1: "a.jpg",
             image2: "b.jpg",
@@ -124,7 +124,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertGreaterThan(result.similarity, 0.8)
     }
 
-    func testSimilarityResultLowSimilarity() {
+    func testSimilarityResultLowSimilarity() throws {
         let result = SimilarCommand.SimilarityResult(
             image1: "a.jpg",
             image2: "b.jpg",
@@ -138,12 +138,12 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - MetaCommand Configuration Tests
 
-    func testMetaCommandConfiguration() {
+    func testMetaCommandConfiguration() throws {
         XCTAssertEqual(MetaCommand.configuration.commandName, "meta")
         XCTAssertTrue(MetaCommand.configuration.abstract.contains("EXIF"))
     }
 
-    func testMetaCommandDiscussionContainsExamples() {
+    func testMetaCommandDiscussionContainsExamples() throws {
         let discussion = MetaCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -151,7 +151,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("CATEGORIES"))
     }
 
-    func testMetaCommandDiscussionContainsCategories() {
+    func testMetaCommandDiscussionContainsCategories() throws {
         let discussion = MetaCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("exif"))
         XCTAssertTrue(discussion.contains("gps"))
@@ -159,7 +159,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertTrue(discussion.contains("iptc"))
     }
 
-    func testMetaCommandDiscussionContainsWriteOperations() {
+    func testMetaCommandDiscussionContainsWriteOperations() throws {
         let discussion = MetaCommand.configuration.discussion ?? ""
         XCTAssertTrue(discussion.contains("WRITE OPERATIONS"))
         XCTAssertTrue(discussion.contains("--set-comment"))
@@ -169,7 +169,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - Localization Tests for Batch 2
 
-    func testSafeStringsExist() {
+    func testSafeStringsExist() throws {
         XCTAssertFalse(Strings.get("safe.disabled_hint").isEmpty)
         XCTAssertFalse(Strings.get("safe.is_safe").isEmpty)
         XCTAssertFalse(Strings.get("safe.is_sensitive", "Yes").isEmpty)
@@ -177,19 +177,19 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - Service Integration Tests
 
-    func testCoreImageServiceAccessible() {
+    func testCoreImageServiceAccessible() throws {
         let service = ServiceContainer.shared.coreImageService
         XCTAssertNotNil(service)
     }
 
-    func testVisionServiceAccessibleForSimilar() {
+    func testVisionServiceAccessibleForSimilar() throws {
         let service = ServiceContainer.shared.visionService
         XCTAssertNotNil(service)
     }
 
     // MARK: - FileUtils Tests for Batch 2 Commands
 
-    func testGenerateOutputPathForMeta() {
+    func testGenerateOutputPathForMeta() throws {
         let inputPath = "/path/to/photo.jpg"
         let outputPath = FileUtils.generateOutputPath(
             from: inputPath,
@@ -201,7 +201,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertTrue(outputPath.hasSuffix(".jpg"))
     }
 
-    func testSupportedFormatsForMetadata() {
+    func testSupportedFormatsForMetadata() throws {
         // JPEG 支持完整的 EXIF
         XCTAssertTrue(FileUtils.isSupportedImageFormat("test.jpg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("test.jpeg"))
@@ -218,7 +218,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
 
     // MARK: - Help Quality Tests
 
-    func testSafeCommandHelpQuality() {
+    func testSafeCommandHelpQuality() throws {
         let discussion = SafeCommand.configuration.discussion ?? ""
 
         // 检查 Help 文档质量指标
@@ -233,7 +233,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertGreaterThanOrEqual(score, 4, "SafeCommand help should have quality score >= 4")
     }
 
-    func testPaletteCommandHelpQuality() {
+    func testPaletteCommandHelpQuality() throws {
         let discussion = PaletteCommand.configuration.discussion ?? ""
 
         var score = 0
@@ -247,7 +247,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertGreaterThanOrEqual(score, 4, "PaletteCommand help should have quality score >= 4")
     }
 
-    func testSimilarCommandHelpQuality() {
+    func testSimilarCommandHelpQuality() throws {
         let discussion = SimilarCommand.configuration.discussion ?? ""
 
         var score = 0
@@ -261,7 +261,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
         XCTAssertGreaterThanOrEqual(score, 4, "SimilarCommand help should have quality score >= 4")
     }
 
-    func testMetaCommandHelpQuality() {
+    func testMetaCommandHelpQuality() throws {
         let discussion = MetaCommand.configuration.discussion ?? ""
 
         var score = 0

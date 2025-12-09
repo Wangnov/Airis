@@ -39,7 +39,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 模糊滤镜性能
 
     /// 高斯模糊性能 - 标准半径
-    func testGaussianBlurPerformance_StandardRadius() {
+    func testGaussianBlurPerformance_StandardRadius() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -49,7 +49,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 高斯模糊性能 - 大半径
-    func testGaussianBlurPerformance_LargeRadius() {
+    func testGaussianBlurPerformance_LargeRadius() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -59,7 +59,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 运动模糊性能
-    func testMotionBlurPerformance() {
+    func testMotionBlurPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -69,7 +69,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 缩放模糊性能
-    func testZoomBlurPerformance() {
+    func testZoomBlurPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -81,7 +81,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 缩放性能
 
     /// 缩放性能 - 4K → 1K
-    func testResizePerformance_4KTo1K() {
+    func testResizePerformance_4KTo1K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -91,7 +91,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 缩放性能 - 2K → 512
-    func testResizePerformance_2KTo512() {
+    func testResizePerformance_2KTo512() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -101,7 +101,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 缩放性能 - 上采样
-    func testResizePerformance_Upscale() {
+    func testResizePerformance_Upscale() throws {
         let smallImage = CIImage(color: .green)
             .cropped(to: CGRect(x: 0, y: 0, width: 256, height: 256))
 
@@ -116,7 +116,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 渲染性能
 
     /// 渲染性能 - 2K 图像
-    func testRenderPerformance_2K() {
+    func testRenderPerformance_2K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -126,7 +126,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 渲染性能 - 4K 图像
-    func testRenderPerformance_4K() {
+    func testRenderPerformance_4K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -138,12 +138,14 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 滤镜链性能
 
     /// 滤镜链性能 - 3 个滤镜组合
-    func testFilterChainPerformance_3Filters() {
+    func testFilterChainPerformance_3Filters() throws {
+        let testImage = try XCTUnwrap(testCIImage)
+
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
-            var processed = testCIImage!
+            var processed = testImage
             processed = service.gaussianBlur(ciImage: processed, radius: 5)
             processed = service.sharpen(ciImage: processed, sharpness: 0.5)
             processed = service.adjustColors(ciImage: processed, brightness: 0.1, contrast: 1.2, saturation: 1.1)
@@ -152,12 +154,14 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 滤镜链性能 - 5 个滤镜组合
-    func testFilterChainPerformance_5Filters() {
+    func testFilterChainPerformance_5Filters() throws {
+        let testImage = try XCTUnwrap(testCIImage)
+
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            var processed = testCIImage!
+            var processed = testImage
             processed = service.gaussianBlur(ciImage: processed, radius: 3)
             processed = service.sharpen(ciImage: processed, sharpness: 0.3)
             processed = service.adjustColors(ciImage: processed, brightness: 0.05, contrast: 1.1, saturation: 1.05)
@@ -170,7 +174,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 颜色调整性能
 
     /// 颜色调整性能 - 综合调整
-    func testColorAdjustmentPerformance() {
+    func testColorAdjustmentPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -185,7 +189,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 色温调整性能
-    func testTemperatureAdjustmentPerformance() {
+    func testTemperatureAdjustmentPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -199,7 +203,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 曝光调整性能
-    func testExposureAdjustmentPerformance() {
+    func testExposureAdjustmentPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -211,7 +215,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 艺术效果性能
 
     /// 漫画效果性能
-    func testComicEffectPerformance() {
+    func testComicEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -221,7 +225,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 半色调效果性能
-    func testHalftoneEffectPerformance() {
+    func testHalftoneEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -231,7 +235,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 像素化效果性能
-    func testPixellatePerformance() {
+    func testPixellatePerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -243,7 +247,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 照片效果性能
 
     /// 黑白效果性能
-    func testMonoEffectPerformance() {
+    func testMonoEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -253,7 +257,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 棕褐色效果性能
-    func testSepiaEffectPerformance() {
+    func testSepiaEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -263,7 +267,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 黑色电影效果性能
-    func testNoirEffectPerformance() {
+    func testNoirEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -275,7 +279,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 变换性能
 
     /// 旋转性能
-    func testRotationPerformance() {
+    func testRotationPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -285,7 +289,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 翻转性能
-    func testFlipPerformance() {
+    func testFlipPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -295,7 +299,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     }
 
     /// 裁剪性能
-    func testCropPerformance() {
+    func testCropPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         
@@ -307,7 +311,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     // MARK: - 自动增强性能
 
     /// 自动增强性能
-    func testAutoEnhancePerformance() {
+    func testAutoEnhancePerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         

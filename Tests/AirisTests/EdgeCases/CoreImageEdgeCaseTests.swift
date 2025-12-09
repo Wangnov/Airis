@@ -29,7 +29,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 极大图像测试
 
     /// 测试 8K 图像处理
-    func testHugeImageProcessing_8K() {
+    func testHugeImageProcessing_8K() throws {
         // 创建 8K 图像 (7680 x 4320)
         let hugeImage = CIImage(color: .white)
             .cropped(to: CGRect(x: 0, y: 0, width: 7680, height: 4320))
@@ -40,7 +40,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极大模糊半径
-    func testExtremeBlurRadius() {
+    func testExtremeBlurRadius() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -51,7 +51,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试零模糊半径
-    func testZeroBlurRadius() {
+    func testZeroBlurRadius() throws {
         let image = CIImage(color: .blue)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -60,7 +60,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试负模糊半径（应该被处理为 0）
-    func testNegativeBlurRadius() {
+    func testNegativeBlurRadius() throws {
         let image = CIImage(color: .green)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -72,7 +72,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 极端参数测试
 
     /// 测试极大锐化值
-    func testExtremeSharpen() {
+    func testExtremeSharpen() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -81,7 +81,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极端亮度调整
-    func testExtremeBrightness() {
+    func testExtremeBrightness() throws {
         let image = CIImage(color: .gray)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -95,7 +95,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极端对比度调整
-    func testExtremeContrast() {
+    func testExtremeContrast() throws {
         let image = CIImage(color: .gray)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -109,7 +109,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试零饱和度（灰度）
-    func testZeroSaturation() {
+    func testZeroSaturation() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -118,7 +118,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极大饱和度
-    func testExtremeSaturation() {
+    func testExtremeSaturation() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -129,7 +129,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 裁剪边界测试
 
     /// 测试完全超出边界的裁剪
-    func testCropCompletelyOutOfBounds() {
+    func testCropCompletelyOutOfBounds() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -142,7 +142,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试部分超出边界的裁剪
-    func testCropPartiallyOutOfBounds() {
+    func testCropPartiallyOutOfBounds() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -156,7 +156,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试零尺寸裁剪
-    func testCropZeroSize() {
+    func testCropZeroSize() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -170,7 +170,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 缩放边界测试
 
     /// 测试缩放到极小尺寸
-    func testResizeToTinySize() {
+    func testResizeToTinySize() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 1000, height: 1000))
 
@@ -180,7 +180,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试不指定尺寸的缩放
-    func testResizeNoSize() {
+    func testResizeNoSize() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -192,7 +192,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 旋转边界测试
 
     /// 测试 360 度旋转
-    func testRotate360Degrees() {
+    func testRotate360Degrees() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -201,7 +201,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试负角度旋转
-    func testRotateNegativeAngle() {
+    func testRotateNegativeAngle() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -210,7 +210,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极大角度旋转
-    func testRotateLargeAngle() {
+    func testRotateLargeAngle() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -221,7 +221,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 翻转边界测试
 
     /// 测试不翻转
-    func testFlipNone() {
+    func testFlipNone() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -230,7 +230,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试双向翻转
-    func testFlipBoth() {
+    func testFlipBoth() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -241,7 +241,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 像素化边界测试
 
     /// 测试最小像素化比例
-    func testPixellateMinScale() {
+    func testPixellateMinScale() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -250,7 +250,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极大像素化比例
-    func testPixellateLargeScale() {
+    func testPixellateLargeScale() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -261,7 +261,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 暗角边界测试
 
     /// 测试零暗角强度
-    func testVignetteZeroIntensity() {
+    func testVignetteZeroIntensity() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -270,7 +270,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试极大暗角强度
-    func testVignetteHighIntensity() {
+    func testVignetteHighIntensity() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -281,7 +281,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 色调分离边界测试
 
     /// 测试最小色阶
-    func testPosterizeMinLevels() {
+    func testPosterizeMinLevels() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -290,7 +290,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试最大色阶
-    func testPosterizeMaxLevels() {
+    func testPosterizeMaxLevels() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -301,7 +301,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 阈值边界测试
 
     /// 测试最小阈值
-    func testThresholdMin() {
+    func testThresholdMin() throws {
         let image = CIImage(color: .gray)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -310,7 +310,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     }
 
     /// 测试最大阈值
-    func testThresholdMax() {
+    func testThresholdMax() throws {
         let image = CIImage(color: .gray)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -321,7 +321,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 曝光边界测试
 
     /// 测试极端曝光值
-    func testExtremeExposure() {
+    func testExtremeExposure() throws {
         let image = CIImage(color: .gray)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -337,7 +337,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 色温边界测试
 
     /// 测试极端色温
-    func testExtremeTemperature() {
+    func testExtremeTemperature() throws {
         let image = CIImage(color: .white)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
@@ -353,7 +353,7 @@ final class CoreImageEdgeCaseTests: XCTestCase {
     // MARK: - 透视校正边界测试
 
     /// 测试透视校正 - 极端点位
-    func testPerspectiveCorrectionExtremePoints() {
+    func testPerspectiveCorrectionExtremePoints() throws {
         let image = CIImage(color: .red)
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 

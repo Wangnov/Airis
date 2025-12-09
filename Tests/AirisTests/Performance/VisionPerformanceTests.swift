@@ -38,8 +38,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试图像分类性能 - 使用 4K 图像
     func testClassifyImagePerformance_4K() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         // 预热 - 首次调用可能较慢
         _ = try? await svc.classifyImage(at: url, threshold: 0.1)
@@ -57,8 +57,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试图像分类性能 - 高阈值过滤
     func testClassifyImagePerformance_HighThreshold() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -78,8 +78,8 @@ final class VisionPerformanceTests: XCTestCase {
             throw XCTSkip("文档测试图片不存在")
         }
 
-        let url = documentImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(documentImageURL)
+        let svc = try XCTUnwrap(service)
 
         // 预热
         _ = try? await svc.recognizeText(at: url, level: .accurate)
@@ -100,8 +100,8 @@ final class VisionPerformanceTests: XCTestCase {
             throw XCTSkip("文档测试图片不存在")
         }
 
-        let url = documentImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(documentImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -117,8 +117,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试人脸特征检测性能
     func testFaceLandmarksDetectionPerformance() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -132,8 +132,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试人脸位置检测性能（不含特征，更快）
     func testFaceRectanglesDetectionPerformance() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -149,8 +149,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试批量请求性能（复用同一个 handler）
     func testBatchRequestsPerformance() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         // 预热
         _ = try? await svc.performMultipleRequests(at: url)
@@ -169,8 +169,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试注意力显著性检测性能
     func testAttentionSaliencyPerformance() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -184,8 +184,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试对象显著性检测性能
     func testObjectnessSaliencyPerformance() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -201,8 +201,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试人物分割性能 - 快速模式
     func testPersonSegmentationPerformance_Fast() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)
@@ -216,8 +216,8 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试人物分割性能 - 精确模式
     func testPersonSegmentationPerformance_Accurate() async throws {
-        let url = testImageURL!
-        let svc = service!
+        let url = try XCTUnwrap(testImageURL)
+        let svc = try XCTUnwrap(service)
 
         measure {
             let semaphore = DispatchSemaphore(value: 0)

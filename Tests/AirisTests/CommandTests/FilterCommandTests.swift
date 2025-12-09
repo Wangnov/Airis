@@ -25,7 +25,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Motion Blur Tests
 
-    func testMotionBlur() {
+    func testMotionBlur() throws {
         let blurred = coreImageService.motionBlur(ciImage: testCIImage, radius: 10, angle: 0)
 
         XCTAssertNotNil(blurred)
@@ -33,14 +33,14 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(blurred.extent.height, testCIImage.extent.height)
     }
 
-    func testMotionBlurWithAngle() {
+    func testMotionBlurWithAngle() throws {
         let blurred = coreImageService.motionBlur(ciImage: testCIImage, radius: 15, angle: 45)
 
         XCTAssertNotNil(blurred)
         XCTAssertEqual(blurred.extent.width, testCIImage.extent.width)
     }
 
-    func testMotionBlurZeroRadius() {
+    func testMotionBlurZeroRadius() throws {
         let blurred = coreImageService.motionBlur(ciImage: testCIImage, radius: 0, angle: 0)
 
         XCTAssertNotNil(blurred)
@@ -48,7 +48,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Zoom Blur Tests
 
-    func testZoomBlur() {
+    func testZoomBlur() throws {
         let blurred = coreImageService.zoomBlur(ciImage: testCIImage, amount: 10)
 
         XCTAssertNotNil(blurred)
@@ -56,14 +56,14 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(blurred.extent.height, testCIImage.extent.height)
     }
 
-    func testZoomBlurWithCenter() {
+    func testZoomBlurWithCenter() throws {
         let center = CGPoint(x: 50, y: 50)
         let blurred = coreImageService.zoomBlur(ciImage: testCIImage, center: center, amount: 15)
 
         XCTAssertNotNil(blurred)
     }
 
-    func testZoomBlurZeroAmount() {
+    func testZoomBlurZeroAmount() throws {
         let blurred = coreImageService.zoomBlur(ciImage: testCIImage, amount: 0)
 
         XCTAssertNotNil(blurred)
@@ -71,7 +71,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Unsharp Mask Tests
 
-    func testUnsharpMask() {
+    func testUnsharpMask() throws {
         let sharpened = coreImageService.unsharpMask(ciImage: testCIImage, radius: 2.5, intensity: 0.5)
 
         XCTAssertNotNil(sharpened)
@@ -79,7 +79,7 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(sharpened.extent.height, testCIImage.extent.height)
     }
 
-    func testUnsharpMaskHighIntensity() {
+    func testUnsharpMaskHighIntensity() throws {
         let sharpened = coreImageService.unsharpMask(ciImage: testCIImage, radius: 5, intensity: 1.5)
 
         XCTAssertNotNil(sharpened)
@@ -87,7 +87,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Noise Reduction Tests
 
-    func testNoiseReduction() {
+    func testNoiseReduction() throws {
         let denoised = coreImageService.noiseReduction(ciImage: testCIImage, noiseLevel: 0.02, sharpness: 0.4)
 
         XCTAssertNotNil(denoised)
@@ -95,7 +95,7 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(denoised.extent.height, testCIImage.extent.height)
     }
 
-    func testNoiseReductionHighLevel() {
+    func testNoiseReductionHighLevel() throws {
         let denoised = coreImageService.noiseReduction(ciImage: testCIImage, noiseLevel: 0.08, sharpness: 0.2)
 
         XCTAssertNotNil(denoised)
@@ -103,7 +103,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Pixellate Tests
 
-    func testPixellate() {
+    func testPixellate() throws {
         let pixelated = coreImageService.pixellate(ciImage: testCIImage, scale: 8)
 
         XCTAssertNotNil(pixelated)
@@ -112,13 +112,13 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(pixelated.extent.height, testCIImage.extent.height)
     }
 
-    func testPixellateMinScale() {
+    func testPixellateMinScale() throws {
         let pixelated = coreImageService.pixellate(ciImage: testCIImage, scale: 1)
 
         XCTAssertNotNil(pixelated)
     }
 
-    func testPixellateLargeScale() {
+    func testPixellateLargeScale() throws {
         let pixelated = coreImageService.pixellate(ciImage: testCIImage, scale: 50)
 
         XCTAssertNotNil(pixelated)
@@ -126,7 +126,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Comic Effect Tests
 
-    func testComicEffect() {
+    func testComicEffect() throws {
         let comic = coreImageService.comicEffect(ciImage: testCIImage)
 
         XCTAssertNotNil(comic)
@@ -137,7 +137,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Halftone Tests
 
-    func testHalftone() {
+    func testHalftone() throws {
         let halftone = coreImageService.halftone(ciImage: testCIImage, width: 6, angle: 0, sharpness: 0.7)
 
         XCTAssertNotNil(halftone)
@@ -146,13 +146,13 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(halftone.extent.height, testCIImage.extent.height)
     }
 
-    func testHalftoneWithAngle() {
+    func testHalftoneWithAngle() throws {
         let halftone = coreImageService.halftone(ciImage: testCIImage, width: 10, angle: 45, sharpness: 0.5)
 
         XCTAssertNotNil(halftone)
     }
 
-    func testHalftoneLargeWidth() {
+    func testHalftoneLargeWidth() throws {
         let halftone = coreImageService.halftone(ciImage: testCIImage, width: 30, angle: 0, sharpness: 0.7)
 
         XCTAssertNotNil(halftone)
@@ -160,7 +160,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Mono Tests
 
-    func testPhotoEffectMono() {
+    func testPhotoEffectMono() throws {
         let mono = coreImageService.photoEffectMono(ciImage: testCIImage)
 
         XCTAssertNotNil(mono)
@@ -170,7 +170,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Chrome Tests
 
-    func testPhotoEffectChrome() {
+    func testPhotoEffectChrome() throws {
         let chrome = coreImageService.photoEffectChrome(ciImage: testCIImage)
 
         XCTAssertNotNil(chrome)
@@ -180,7 +180,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Noir Tests
 
-    func testPhotoEffectNoir() {
+    func testPhotoEffectNoir() throws {
         let noir = coreImageService.photoEffectNoir(ciImage: testCIImage)
 
         XCTAssertNotNil(noir)
@@ -190,7 +190,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Instant Tests
 
-    func testPhotoEffectInstant() {
+    func testPhotoEffectInstant() throws {
         let instant = coreImageService.photoEffectInstant(ciImage: testCIImage)
 
         XCTAssertNotNil(instant)
@@ -200,7 +200,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Fade Tests
 
-    func testPhotoEffectFade() {
+    func testPhotoEffectFade() throws {
         let fade = coreImageService.photoEffectFade(ciImage: testCIImage)
 
         XCTAssertNotNil(fade)
@@ -210,7 +210,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Process Tests
 
-    func testPhotoEffectProcess() {
+    func testPhotoEffectProcess() throws {
         let process = coreImageService.photoEffectProcess(ciImage: testCIImage)
 
         XCTAssertNotNil(process)
@@ -220,7 +220,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Photo Effect Transfer Tests
 
-    func testPhotoEffectTransfer() {
+    func testPhotoEffectTransfer() throws {
         let transfer = coreImageService.photoEffectTransfer(ciImage: testCIImage)
 
         XCTAssertNotNil(transfer)
@@ -230,7 +230,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Vignette Tests
 
-    func testVignette() {
+    func testVignette() throws {
         let vignetted = coreImageService.vignette(ciImage: testCIImage, intensity: 1.0)
 
         XCTAssertNotNil(vignetted)
@@ -238,13 +238,13 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(vignetted.extent.height, testCIImage.extent.height)
     }
 
-    func testVignetteWithRadius() {
+    func testVignetteWithRadius() throws {
         let vignetted = coreImageService.vignette(ciImage: testCIImage, intensity: 0.5, radius: 50)
 
         XCTAssertNotNil(vignetted)
     }
 
-    func testVignetteHighIntensity() {
+    func testVignetteHighIntensity() throws {
         let vignetted = coreImageService.vignette(ciImage: testCIImage, intensity: 2.0)
 
         XCTAssertNotNil(vignetted)
@@ -252,7 +252,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Filter Chain Tests
 
-    func testFilterChainBlurAndMono() {
+    func testFilterChainBlurAndMono() throws {
         var filtered = coreImageService.gaussianBlur(ciImage: testCIImage, radius: 5)
         filtered = coreImageService.photoEffectMono(ciImage: filtered)
 
@@ -260,7 +260,7 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(filtered.extent.width, testCIImage.extent.width)
     }
 
-    func testFilterChainSharpenAndSepia() {
+    func testFilterChainSharpenAndSepia() throws {
         var filtered = coreImageService.sharpen(ciImage: testCIImage, sharpness: 0.5)
         filtered = coreImageService.sepiaTone(ciImage: filtered, intensity: 0.8)
 
@@ -268,7 +268,7 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(filtered.extent.width, testCIImage.extent.width)
     }
 
-    func testFilterChainPixelAndComic() {
+    func testFilterChainPixelAndComic() throws {
         var filtered = coreImageService.pixellate(ciImage: testCIImage, scale: 4)
         filtered = coreImageService.comicEffect(ciImage: filtered)
 
@@ -277,25 +277,25 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Edge Case Tests
 
-    func testNegativeRadius() {
+    func testNegativeRadius() throws {
         // 负值应该被处理为 0
         let blurred = coreImageService.motionBlur(ciImage: testCIImage, radius: -10, angle: 0)
         XCTAssertNotNil(blurred)
     }
 
-    func testZeroPixelScale() {
+    func testZeroPixelScale() throws {
         // 0 会被处理为 1
         let pixelated = coreImageService.pixellate(ciImage: testCIImage, scale: 0)
         XCTAssertNotNil(pixelated)
     }
 
-    func testExtremeNoiseLevel() {
+    func testExtremeNoiseLevel() throws {
         // 超出范围的值应该被正常处理
         let denoised = coreImageService.noiseReduction(ciImage: testCIImage, noiseLevel: 1.0, sharpness: 10)
         XCTAssertNotNil(denoised)
     }
 
-    func testNegativeHalftoneAngle() {
+    func testNegativeHalftoneAngle() throws {
         // 负角度应该正常工作
         let halftone = coreImageService.halftone(ciImage: testCIImage, width: 6, angle: -45, sharpness: 0.7)
         XCTAssertNotNil(halftone)
@@ -303,7 +303,7 @@ final class FilterCommandTests: XCTestCase {
 
     // MARK: - Render Tests
 
-    func testRenderAfterMotionBlur() {
+    func testRenderAfterMotionBlur() throws {
         let blurred = coreImageService.motionBlur(ciImage: testCIImage, radius: 10, angle: 45)
         let cgImage = coreImageService.render(ciImage: blurred)
 
@@ -311,14 +311,14 @@ final class FilterCommandTests: XCTestCase {
         XCTAssertEqual(cgImage?.width, Int(testCIImage.extent.width))
     }
 
-    func testRenderAfterComicEffect() {
+    func testRenderAfterComicEffect() throws {
         let comic = coreImageService.comicEffect(ciImage: testCIImage)
         let cgImage = coreImageService.render(ciImage: comic)
 
         XCTAssertNotNil(cgImage)
     }
 
-    func testRenderAfterMultipleFilters() {
+    func testRenderAfterMultipleFilters() throws {
         var filtered = coreImageService.gaussianBlur(ciImage: testCIImage, radius: 3)
         filtered = coreImageService.photoEffectChrome(ciImage: filtered)
         filtered = coreImageService.vignette(ciImage: filtered, intensity: 0.5)

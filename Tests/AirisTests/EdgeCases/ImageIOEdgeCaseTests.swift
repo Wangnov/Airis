@@ -37,7 +37,7 @@ final class ImageIOEdgeCaseTests: XCTestCase {
     // MARK: - 无效文件测试
 
     /// 测试加载不存在的文件
-    func testLoadNonExistentFile() {
+    func testLoadNonExistentFile() throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.png")
 
         XCTAssertThrowsError(try service.loadImage(at: nonExistentURL)) { error in
@@ -62,7 +62,7 @@ final class ImageIOEdgeCaseTests: XCTestCase {
     }
 
     /// 测试读取不存在文件的元数据
-    func testLoadMetadataNonExistent() {
+    func testLoadMetadataNonExistent() throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.png")
 
         XCTAssertThrowsError(try service.loadImageMetadata(at: nonExistentURL)) { error in
@@ -172,7 +172,7 @@ final class ImageIOEdgeCaseTests: XCTestCase {
     // MARK: - 格式检测边界测试
 
     /// 测试获取不存在文件的格式
-    func testGetFormatNonExistent() {
+    func testGetFormatNonExistent() throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.png")
 
         XCTAssertThrowsError(try service.getImageFormat(at: nonExistentURL)) { error in
@@ -196,7 +196,7 @@ final class ImageIOEdgeCaseTests: XCTestCase {
     // MARK: - 帧数检测边界测试
 
     /// 测试获取不存在文件的帧数
-    func testGetFrameCountNonExistent() {
+    func testGetFrameCountNonExistent() throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.gif")
 
         XCTAssertThrowsError(try service.getImageFrameCount(at: nonExistentURL)) { error in
@@ -221,7 +221,7 @@ final class ImageIOEdgeCaseTests: XCTestCase {
     // MARK: - 图像信息边界测试
 
     /// 测试获取不存在文件的信息
-    func testGetImageInfoNonExistent() {
+    func testGetImageInfoNonExistent() throws {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.png")
 
         XCTAssertThrowsError(try service.getImageInfo(at: nonExistentURL)) { error in

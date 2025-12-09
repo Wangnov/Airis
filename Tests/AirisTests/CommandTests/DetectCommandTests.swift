@@ -5,16 +5,16 @@ final class DetectCommandTests: XCTestCase {
 
     // MARK: - DetectCommand Configuration Tests
 
-    func testDetectCommandHasSubcommands() {
+    func testDetectCommandHasSubcommands() throws {
         XCTAssertEqual(DetectCommand.configuration.subcommands.count, 7)
         XCTAssertEqual(DetectCommand.configuration.commandName, "detect")
     }
 
-    func testDetectCommandAbstract() {
+    func testDetectCommandAbstract() throws {
         XCTAssertTrue(DetectCommand.configuration.abstract.contains("Detect"))
     }
 
-    func testDetectCommandDiscussionContainsQuickStart() {
+    func testDetectCommandDiscussionContainsQuickStart() throws {
         let discussion = DetectCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("AVAILABLE DETECTORS"))
@@ -22,12 +22,12 @@ final class DetectCommandTests: XCTestCase {
 
     // MARK: - BarcodeCommand Configuration Tests
 
-    func testBarcodeCommandConfiguration() {
+    func testBarcodeCommandConfiguration() throws {
         XCTAssertEqual(BarcodeCommand.configuration.commandName, "barcode")
         XCTAssertTrue(BarcodeCommand.configuration.abstract.contains("barcode"))
     }
 
-    func testBarcodeCommandDiscussion() {
+    func testBarcodeCommandDiscussion() throws {
         let discussion = BarcodeCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("SUPPORTED BARCODE TYPES"))
@@ -36,7 +36,7 @@ final class DetectCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("EAN-13"))
     }
 
-    func testBarcodeCommandDiscussionContainsOptions() {
+    func testBarcodeCommandDiscussionContainsOptions() throws {
         let discussion = BarcodeCommand.configuration.discussion
         // OPTIONS section should list type and format options
         XCTAssertTrue(discussion.contains("--type"))
@@ -45,19 +45,19 @@ final class DetectCommandTests: XCTestCase {
 
     // MARK: - FaceCommand Configuration Tests
 
-    func testFaceCommandConfiguration() {
+    func testFaceCommandConfiguration() throws {
         XCTAssertEqual(FaceCommand.configuration.commandName, "face")
         XCTAssertTrue(FaceCommand.configuration.abstract.contains("face"))
     }
 
-    func testFaceCommandDiscussion() {
+    func testFaceCommandDiscussion() throws {
         let discussion = FaceCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("DETECTION MODES"))
         XCTAssertTrue(discussion.contains("landmarks"))
     }
 
-    func testFaceCommandDiscussionContainsOptions() {
+    func testFaceCommandDiscussionContainsOptions() throws {
         let discussion = FaceCommand.configuration.discussion
         // OPTIONS section should list fast, threshold, format options
         XCTAssertTrue(discussion.contains("--fast"))
@@ -67,12 +67,12 @@ final class DetectCommandTests: XCTestCase {
 
     // MARK: - AnimalCommand Configuration Tests
 
-    func testAnimalCommandConfiguration() {
+    func testAnimalCommandConfiguration() throws {
         XCTAssertEqual(AnimalCommand.configuration.commandName, "animal")
         XCTAssertTrue(AnimalCommand.configuration.abstract.contains("animal"))
     }
 
-    func testAnimalCommandDiscussion() {
+    func testAnimalCommandDiscussion() throws {
         let discussion = AnimalCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("SUPPORTED ANIMALS"))
@@ -80,7 +80,7 @@ final class DetectCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("Dog"))
     }
 
-    func testAnimalCommandDiscussionContainsOptions() {
+    func testAnimalCommandDiscussionContainsOptions() throws {
         let discussion = AnimalCommand.configuration.discussion
         // OPTIONS section should list type, threshold, format options
         XCTAssertTrue(discussion.contains("--type"))
@@ -90,19 +90,19 @@ final class DetectCommandTests: XCTestCase {
 
     // MARK: - VisionService Integration Tests
 
-    func testVisionServiceExists() {
+    func testVisionServiceExists() throws {
         let service = ServiceContainer.shared.visionService
         XCTAssertNotNil(service)
     }
 
-    func testVisionServiceCanBeCreated() {
+    func testVisionServiceCanBeCreated() throws {
         let service = VisionService()
         XCTAssertNotNil(service)
     }
 
     // MARK: - FileUtils Tests for Detect Commands
 
-    func testValidateImageFileThrowsForNonexistent() {
+    func testValidateImageFileThrowsForNonexistent() throws {
         XCTAssertThrowsError(try FileUtils.validateImageFile(at: "/nonexistent/file.jpg")) { error in
             if case AirisError.fileNotFound = error {
                 // Expected
@@ -112,7 +112,7 @@ final class DetectCommandTests: XCTestCase {
         }
     }
 
-    func testValidateImageFileThrowsForUnsupportedFormat() {
+    func testValidateImageFileThrowsForUnsupportedFormat() throws {
         // 创建临时文件
         let tempDir = FileManager.default.temporaryDirectory
         let tempFile = tempDir.appendingPathComponent("test.txt")
@@ -135,13 +135,13 @@ final class DetectCommandTests: XCTestCase {
     // Note: Default values are tested through configuration, not instance creation,
     // because @Argument and @Option properties require parsing to be initialized.
 
-    func testBarcodeCommandFormatDefaultInConfiguration() {
+    func testBarcodeCommandFormatDefaultInConfiguration() throws {
         // Default format is "table" - verified through discussion text
         let discussion = BarcodeCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("table (default)"))
     }
 
-    func testFaceCommandDefaultsInConfiguration() {
+    func testFaceCommandDefaultsInConfiguration() throws {
         let discussion = FaceCommand.configuration.discussion
         // Default format is table
         XCTAssertTrue(discussion.contains("table (default)"))
@@ -149,7 +149,7 @@ final class DetectCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("0.0-1.0"))
     }
 
-    func testAnimalCommandDefaultsInConfiguration() {
+    func testAnimalCommandDefaultsInConfiguration() throws {
         let discussion = AnimalCommand.configuration.discussion
         // Default format is table
         XCTAssertTrue(discussion.contains("table (default)"))

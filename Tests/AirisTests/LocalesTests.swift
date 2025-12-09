@@ -11,12 +11,12 @@ final class LocalesTests: XCTestCase {
 
     // MARK: - Language Tests
 
-    func testLanguageResolutionWithExplicit() {
+    func testLanguageResolutionWithExplicit() throws {
         XCTAssertEqual(Language.resolve(explicit: .en), .en)
         XCTAssertEqual(Language.resolve(explicit: .cn), .cn)
     }
 
-    func testLanguageResolutionWithEnvironment() {
+    func testLanguageResolutionWithEnvironment() throws {
         // 设置环境变量
         setenv("AIRIS_LANG", "cn", 1)
         XCTAssertEqual(Language.resolve(explicit: nil), .cn)
@@ -28,13 +28,13 @@ final class LocalesTests: XCTestCase {
         unsetenv("AIRIS_LANG")
     }
 
-    func testLanguageFromSystem() {
+    func testLanguageFromSystem() throws {
         // 仅验证不崩溃，因为依赖系统设置
         let systemLang = Language.fromSystem
         XCTAssertTrue([Language.en, Language.cn].contains(systemLang))
     }
 
-    func testExplicitOverridesEnvironment() {
+    func testExplicitOverridesEnvironment() throws {
         setenv("AIRIS_LANG", "cn", 1)
         XCTAssertEqual(Language.resolve(explicit: .en), .en)
         unsetenv("AIRIS_LANG")
@@ -42,7 +42,7 @@ final class LocalesTests: XCTestCase {
 
     // MARK: - Strings Tests
 
-    func testStringsGetEnglish() {
+    func testStringsGetEnglish() throws {
         Language.current = .en
         XCTAssertEqual(
             Strings.get("error.file_not_found", "/test.jpg"),
@@ -50,7 +50,7 @@ final class LocalesTests: XCTestCase {
         )
     }
 
-    func testStringsGetChinese() {
+    func testStringsGetChinese() throws {
         Language.current = .cn
         XCTAssertEqual(
             Strings.get("error.file_not_found", "/test.jpg"),
@@ -58,19 +58,19 @@ final class LocalesTests: XCTestCase {
         )
     }
 
-    func testStringsGetMultipleArgs() {
+    func testStringsGetMultipleArgs() throws {
         Language.current = .en
         let result = Strings.get("info.dimension", 1920, 1080)
         XCTAssertEqual(result, "Dimensions: 1920 × 1080 px")
     }
 
-    func testStringsGetUnknownKey() {
+    func testStringsGetUnknownKey() throws {
         // 未知 key 应返回 key 本身
         let unknownKey = "unknown.key.test"
         XCTAssertEqual(Strings.get(unknownKey), unknownKey)
     }
 
-    func testStringsLanguageSwitching() {
+    func testStringsLanguageSwitching() throws {
         Language.current = .en
         let enResult = Strings.get("info.success")
         XCTAssertEqual(enResult, "Success")

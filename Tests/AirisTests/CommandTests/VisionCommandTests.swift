@@ -5,16 +5,16 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - VisionCommand Configuration Tests
 
-    func testVisionCommandHasSubcommands() {
+    func testVisionCommandHasSubcommands() throws {
         XCTAssertEqual(VisionCommand.configuration.subcommands.count, 4)
         XCTAssertEqual(VisionCommand.configuration.commandName, "vision")
     }
 
-    func testVisionCommandAbstract() {
+    func testVisionCommandAbstract() throws {
         XCTAssertTrue(VisionCommand.configuration.abstract.contains("vision"))
     }
 
-    func testVisionCommandDiscussionContainsQuickStart() {
+    func testVisionCommandDiscussionContainsQuickStart() throws {
         let discussion = VisionCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("SUBCOMMANDS"))
@@ -22,12 +22,12 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - FlowCommand Configuration Tests
 
-    func testFlowCommandConfiguration() {
+    func testFlowCommandConfiguration() throws {
         XCTAssertEqual(FlowCommand.configuration.commandName, "flow")
         XCTAssertTrue(FlowCommand.configuration.abstract.contains("optical flow"))
     }
 
-    func testFlowCommandDiscussion() {
+    func testFlowCommandDiscussion() throws {
         let discussion = FlowCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("ACCURACY LEVELS"))
@@ -38,7 +38,7 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("veryHigh"))
     }
 
-    func testFlowCommandDiscussionContainsOptions() {
+    func testFlowCommandDiscussionContainsOptions() throws {
         let discussion = FlowCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("--accuracy"))
         XCTAssertTrue(discussion.contains("--format"))
@@ -46,13 +46,13 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - AlignCommand Configuration Tests
 
-    func testAlignCommandConfiguration() {
+    func testAlignCommandConfiguration() throws {
         XCTAssertEqual(AlignCommand.configuration.commandName, "align")
         XCTAssertTrue(AlignCommand.configuration.abstract.contains("alignment") ||
                      AlignCommand.configuration.abstract.contains("registration"))
     }
 
-    func testAlignCommandDiscussion() {
+    func testAlignCommandDiscussion() throws {
         let discussion = AlignCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -60,20 +60,20 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("floating"))
     }
 
-    func testAlignCommandDiscussionContainsOptions() {
+    func testAlignCommandDiscussionContainsOptions() throws {
         let discussion = AlignCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("--format"))
     }
 
     // MARK: - SaliencyCommand Configuration Tests
 
-    func testSaliencyCommandConfiguration() {
+    func testSaliencyCommandConfiguration() throws {
         XCTAssertEqual(SaliencyCommand.configuration.commandName, "saliency")
         XCTAssertTrue(SaliencyCommand.configuration.abstract.contains("saliency") ||
                      SaliencyCommand.configuration.abstract.contains("attention"))
     }
 
-    func testSaliencyCommandDiscussion() {
+    func testSaliencyCommandDiscussion() throws {
         let discussion = SaliencyCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("SALIENCY TYPES"))
@@ -82,7 +82,7 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("objectness"))
     }
 
-    func testSaliencyCommandDiscussionContainsOptions() {
+    func testSaliencyCommandDiscussionContainsOptions() throws {
         let discussion = SaliencyCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("--type"))
         XCTAssertTrue(discussion.contains("--format"))
@@ -90,13 +90,13 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - PersonsCommand Configuration Tests
 
-    func testPersonsCommandConfiguration() {
+    func testPersonsCommandConfiguration() throws {
         XCTAssertEqual(PersonsCommand.configuration.commandName, "persons")
         XCTAssertTrue(PersonsCommand.configuration.abstract.contains("person") ||
                      PersonsCommand.configuration.abstract.contains("segmentation"))
     }
 
-    func testPersonsCommandDiscussion() {
+    func testPersonsCommandDiscussion() throws {
         let discussion = PersonsCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("QUALITY LEVELS"))
@@ -106,13 +106,13 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("accurate"))
     }
 
-    func testPersonsCommandDiscussionContainsOptions() {
+    func testPersonsCommandDiscussionContainsOptions() throws {
         let discussion = PersonsCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("--quality"))
         XCTAssertTrue(discussion.contains("--format"))
     }
 
-    func testPersonsCommandDiscussionContainsOutputInfo() {
+    func testPersonsCommandDiscussionContainsOutputInfo() throws {
         let discussion = PersonsCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("OUTPUT FORMATS"))
         XCTAssertTrue(discussion.contains("mask"))
@@ -121,19 +121,19 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - VisionService Tests
 
-    func testVisionServiceExists() {
+    func testVisionServiceExists() throws {
         let service = ServiceContainer.shared.visionService
         XCTAssertNotNil(service)
     }
 
-    func testVisionServiceCanBeCreated() {
+    func testVisionServiceCanBeCreated() throws {
         let service = VisionService()
         XCTAssertNotNil(service)
     }
 
     // MARK: - VisionService Enum Tests
 
-    func testOpticalFlowAccuracyAllCases() {
+    func testOpticalFlowAccuracyAllCases() throws {
         let allCases = VisionService.OpticalFlowAccuracy.allCases
         XCTAssertEqual(allCases.count, 4)
         XCTAssertTrue(allCases.contains(.low))
@@ -142,14 +142,14 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(allCases.contains(.veryHigh))
     }
 
-    func testSaliencyTypeAllCases() {
+    func testSaliencyTypeAllCases() throws {
         let allCases = VisionService.SaliencyType.allCases
         XCTAssertEqual(allCases.count, 2)
         XCTAssertTrue(allCases.contains(.attention))
         XCTAssertTrue(allCases.contains(.objectness))
     }
 
-    func testPersonSegmentationQualityAllCases() {
+    func testPersonSegmentationQualityAllCases() throws {
         let allCases = VisionService.PersonSegmentationQuality.allCases
         XCTAssertEqual(allCases.count, 3)
         XCTAssertTrue(allCases.contains(.fast))
@@ -159,7 +159,7 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - FileUtils Tests for Vision Commands
 
-    func testValidateImageFileThrowsForNonexistent() {
+    func testValidateImageFileThrowsForNonexistent() throws {
         XCTAssertThrowsError(try FileUtils.validateImageFile(at: "/nonexistent/file.jpg")) { error in
             if case AirisError.fileNotFound = error {
                 // Expected
@@ -169,7 +169,7 @@ final class VisionCommandTests: XCTestCase {
         }
     }
 
-    func testValidateImageFileThrowsForUnsupportedFormat() {
+    func testValidateImageFileThrowsForUnsupportedFormat() throws {
         let tempDir = FileManager.default.temporaryDirectory
         let tempFile = tempDir.appendingPathComponent("test-\(UUID().uuidString).txt")
         try? "test content".write(to: tempFile, atomically: true, encoding: .utf8)
@@ -189,7 +189,7 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - Default Values Tests
 
-    func testFlowCommandDefaultsInConfiguration() {
+    func testFlowCommandDefaultsInConfiguration() throws {
         let discussion = FlowCommand.configuration.discussion
         // Default accuracy is medium (shown in accuracy levels)
         XCTAssertTrue(discussion.contains("medium"))
@@ -197,13 +197,13 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("json"))
     }
 
-    func testSaliencyCommandDefaultsInConfiguration() {
+    func testSaliencyCommandDefaultsInConfiguration() throws {
         let discussion = SaliencyCommand.configuration.discussion
         // Default type is attention
         XCTAssertTrue(discussion.contains("attention"))
     }
 
-    func testPersonsCommandDefaultsInConfiguration() {
+    func testPersonsCommandDefaultsInConfiguration() throws {
         let discussion = PersonsCommand.configuration.discussion
         // Default quality is balanced
         XCTAssertTrue(discussion.contains("balanced"))
@@ -213,7 +213,7 @@ final class VisionCommandTests: XCTestCase {
 
     // MARK: - Help Documentation Quality Tests
 
-    func testFlowCommandHelpQuality() {
+    func testFlowCommandHelpQuality() throws {
         let discussion = FlowCommand.configuration.discussion
         // Check for comprehensive documentation
         XCTAssertTrue(discussion.contains("QUICK START"))
@@ -222,7 +222,7 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("NOTE"))
     }
 
-    func testAlignCommandHelpQuality() {
+    func testAlignCommandHelpQuality() throws {
         let discussion = AlignCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -230,7 +230,7 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("REQUIREMENTS"))
     }
 
-    func testSaliencyCommandHelpQuality() {
+    func testSaliencyCommandHelpQuality() throws {
         let discussion = SaliencyCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
@@ -238,7 +238,7 @@ final class VisionCommandTests: XCTestCase {
         XCTAssertTrue(discussion.contains("USE CASES"))
     }
 
-    func testPersonsCommandHelpQuality() {
+    func testPersonsCommandHelpQuality() throws {
         let discussion = PersonsCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))

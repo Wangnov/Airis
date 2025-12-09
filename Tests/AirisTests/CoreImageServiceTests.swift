@@ -25,16 +25,16 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Service Initialization Tests
 
-    func testServiceInitialization() {
+    func testServiceInitialization() throws {
         XCTAssertNotNil(service)
     }
 
-    func testServiceContainerAccess() {
+    func testServiceContainerAccess() throws {
         let containerService = ServiceContainer.shared.coreImageService
         XCTAssertNotNil(containerService)
     }
 
-    func testMetalAccelerationAvailable() {
+    func testMetalAccelerationAvailable() throws {
         // Metal 在 macOS 上应该可用
         #if os(macOS)
         XCTAssertTrue(service.isUsingMetalAcceleration)
@@ -43,7 +43,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Resize Tests
 
-    func testResizeImageByWidth() {
+    func testResizeImageByWidth() throws {
         let resized = service.resize(ciImage: testCIImage, width: 50)
 
         XCTAssertNotNil(resized)
@@ -52,7 +52,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(resized.extent.height, 50, accuracy: 1)  // 保持宽高比
     }
 
-    func testResizeImageByHeight() {
+    func testResizeImageByHeight() throws {
         let resized = service.resize(ciImage: testCIImage, height: 25)
 
         XCTAssertNotNil(resized)
@@ -60,7 +60,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(resized.extent.height, 25, accuracy: 1)
     }
 
-    func testResizeImageByBothDimensions() {
+    func testResizeImageByBothDimensions() throws {
         let resized = service.resize(ciImage: testCIImage, width: 80, height: 40, maintainAspectRatio: false)
 
         XCTAssertNotNil(resized)
@@ -69,7 +69,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertGreaterThan(resized.extent.height, 0)
     }
 
-    func testResizeNoChange() {
+    func testResizeNoChange() throws {
         // 不指定尺寸时应返回原图
         let resized = service.resize(ciImage: testCIImage)
 
@@ -79,7 +79,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Crop Tests
 
-    func testCropImage() {
+    func testCropImage() throws {
         let cropRect = CGRect(x: 10, y: 10, width: 50, height: 50)
         let cropped = service.crop(ciImage: testCIImage, rect: cropRect)
 
@@ -87,7 +87,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(cropped.extent.height, 50)
     }
 
-    func testCropImageOutOfBounds() {
+    func testCropImageOutOfBounds() throws {
         // 裁剪区域超出图像边界时，应该裁剪到交集
         let cropRect = CGRect(x: 80, y: 80, width: 50, height: 50)
         let cropped = service.crop(ciImage: testCIImage, rect: cropRect)
@@ -97,7 +97,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(cropped.extent.height, 20)
     }
 
-    func testCropNormalizedCoordinates() {
+    func testCropNormalizedCoordinates() throws {
         // 使用标准化坐标（左上角原点）
         let normalizedRect = CGRect(x: 0.1, y: 0.1, width: 0.5, height: 0.5)
         let cropped = service.cropNormalized(ciImage: testCIImage, normalizedRect: normalizedRect)
@@ -108,7 +108,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Rotation Tests
 
-    func testRotateImage90Degrees() {
+    func testRotateImage90Degrees() throws {
         let rotated = service.rotate(ciImage: testCIImage, degrees: 90)
 
         XCTAssertNotNil(rotated)
@@ -117,7 +117,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(rotated.extent.height, 100, accuracy: 1)
     }
 
-    func testRotateImageAroundCenter() {
+    func testRotateImageAroundCenter() throws {
         let rotated = service.rotateAroundCenter(ciImage: testCIImage, degrees: 45)
 
         XCTAssertNotNil(rotated)
@@ -128,7 +128,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Flip Tests
 
-    func testFlipHorizontal() {
+    func testFlipHorizontal() throws {
         let flipped = service.flip(ciImage: testCIImage, horizontal: true)
 
         XCTAssertNotNil(flipped)
@@ -136,7 +136,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(flipped.extent.height, testCIImage.extent.height)
     }
 
-    func testFlipVertical() {
+    func testFlipVertical() throws {
         let flipped = service.flip(ciImage: testCIImage, vertical: true)
 
         XCTAssertNotNil(flipped)
@@ -144,7 +144,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(flipped.extent.height, testCIImage.extent.height)
     }
 
-    func testFlipBoth() {
+    func testFlipBoth() throws {
         let flipped = service.flip(ciImage: testCIImage, horizontal: true, vertical: true)
 
         XCTAssertNotNil(flipped)
@@ -152,7 +152,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(flipped.extent.height, testCIImage.extent.height)
     }
 
-    func testFlipNone() {
+    func testFlipNone() throws {
         // 不翻转时应返回原图
         let flipped = service.flip(ciImage: testCIImage, horizontal: false, vertical: false)
 
@@ -161,7 +161,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Filter Tests
 
-    func testGaussianBlur() {
+    func testGaussianBlur() throws {
         let blurred = service.gaussianBlur(ciImage: testCIImage, radius: 10)
 
         XCTAssertNotNil(blurred)
@@ -170,7 +170,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(blurred.extent.height, testCIImage.extent.height)
     }
 
-    func testSharpen() {
+    func testSharpen() throws {
         let sharpened = service.sharpen(ciImage: testCIImage, sharpness: 0.5)
 
         XCTAssertNotNil(sharpened)
@@ -178,28 +178,28 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(sharpened.extent.height, testCIImage.extent.height)
     }
 
-    func testAdjustBrightness() {
+    func testAdjustBrightness() throws {
         let adjusted = service.adjustBrightness(ciImage: testCIImage, brightness: 0.5)
 
         XCTAssertNotNil(adjusted)
         XCTAssertEqual(adjusted.extent.width, testCIImage.extent.width)
     }
 
-    func testAdjustContrast() {
+    func testAdjustContrast() throws {
         let adjusted = service.adjustContrast(ciImage: testCIImage, contrast: 1.5)
 
         XCTAssertNotNil(adjusted)
         XCTAssertEqual(adjusted.extent.width, testCIImage.extent.width)
     }
 
-    func testAdjustSaturation() {
+    func testAdjustSaturation() throws {
         let adjusted = service.adjustSaturation(ciImage: testCIImage, saturation: 0.5)
 
         XCTAssertNotNil(adjusted)
         XCTAssertEqual(adjusted.extent.width, testCIImage.extent.width)
     }
 
-    func testAdjustColors() {
+    func testAdjustColors() throws {
         let adjusted = service.adjustColors(
             ciImage: testCIImage,
             brightness: 0.1,
@@ -211,21 +211,21 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(adjusted.extent.width, testCIImage.extent.width)
     }
 
-    func testGrayscale() {
+    func testGrayscale() throws {
         let grayscaled = service.grayscale(ciImage: testCIImage)
 
         XCTAssertNotNil(grayscaled)
         XCTAssertEqual(grayscaled.extent.width, testCIImage.extent.width)
     }
 
-    func testInvert() {
+    func testInvert() throws {
         let inverted = service.invert(ciImage: testCIImage)
 
         XCTAssertNotNil(inverted)
         XCTAssertEqual(inverted.extent.width, testCIImage.extent.width)
     }
 
-    func testSepiaTone() {
+    func testSepiaTone() throws {
         let sepia = service.sepiaTone(ciImage: testCIImage, intensity: 0.8)
 
         XCTAssertNotNil(sepia)
@@ -234,7 +234,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Render Tests
 
-    func testRenderToCGImage() {
+    func testRenderToCGImage() throws {
         let cgImage = service.render(ciImage: testCIImage)
 
         XCTAssertNotNil(cgImage)
@@ -242,7 +242,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(cgImage?.height, Int(testCIImage.extent.height))
     }
 
-    func testRenderWithFormat() {
+    func testRenderWithFormat() throws {
         let cgImage = service.render(
             ciImage: testCIImage,
             format: .RGBA8,
@@ -254,7 +254,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Apply Filters Chain Tests
 
-    func testApplyFiltersChain() {
+    func testApplyFiltersChain() throws {
         // 创建一个简单的 CGImage 用于测试
         guard let inputCGImage = service.render(ciImage: testCIImage) else {
             XCTFail("Failed to create input CGImage")
@@ -272,7 +272,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Utility Tests
 
-    func testMaxImageSize() {
+    func testMaxImageSize() throws {
         let maxInput = service.maxInputImageSize()
         let maxOutput = service.maxOutputImageSize()
 
@@ -283,7 +283,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertGreaterThan(maxOutput.height, 0)
     }
 
-    func testClearCaches() {
+    func testClearCaches() throws {
         // 清理缓存不应该崩溃
         service.clearCaches()
         XCTAssertTrue(true)
@@ -291,7 +291,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Coordinate Conversion Tests
 
-    func testConvertVisionToCI() {
+    func testConvertVisionToCI() throws {
         let visionRect = CGRect(x: 0.1, y: 0.2, width: 0.5, height: 0.3)
         let imageHeight: CGFloat = 100
 
@@ -303,7 +303,7 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertEqual(ciRect.height, 0.3)
     }
 
-    func testConvertCIToVision() {
+    func testConvertCIToVision() throws {
         let ciRect = CGRect(x: 10, y: 50, width: 30, height: 20)
         let imageHeight: CGFloat = 100
 
@@ -317,19 +317,19 @@ final class CoreImageServiceTests: XCTestCase {
 
     // MARK: - Edge Case Tests
 
-    func testZeroBlurRadius() {
+    func testZeroBlurRadius() throws {
         // 0 模糊半径应该不会崩溃
         let blurred = service.gaussianBlur(ciImage: testCIImage, radius: 0)
         XCTAssertNotNil(blurred)
     }
 
-    func testNegativeBlurRadius() {
+    func testNegativeBlurRadius() throws {
         // 负模糊半径应该被处理（取 0）
         let blurred = service.gaussianBlur(ciImage: testCIImage, radius: -5)
         XCTAssertNotNil(blurred)
     }
 
-    func testExtremeColorAdjustments() {
+    func testExtremeColorAdjustments() throws {
         // 极端值应该被裁剪到有效范围
         let adjusted = service.adjustColors(
             ciImage: testCIImage,

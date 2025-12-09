@@ -26,7 +26,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Perspective Correction Tests
 
-    func testPerspectiveCorrectionReturnsImage() {
+    func testPerspectiveCorrectionReturnsImage() throws {
         // 测试透视校正能返回图像
         let corrected = coreImageService.perspectiveCorrection(
             ciImage: testCIImage,
@@ -41,7 +41,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertGreaterThan(corrected?.extent.height ?? 0, 0)
     }
 
-    func testPerspectiveCorrectionNormalized() {
+    func testPerspectiveCorrectionNormalized() throws {
         // 测试归一化坐标的透视校正
         let corrected = coreImageService.perspectiveCorrectionNormalized(
             ciImage: testCIImage,
@@ -56,20 +56,20 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Edge Detection Tests
 
-    func testEdgeWorkReturnsImage() {
+    func testEdgeWorkReturnsImage() throws {
         let edges = coreImageService.edgeWork(ciImage: testCIImage, radius: 3.0)
 
         XCTAssertNotNil(edges)
         // 注意：CIEdgeWork 在 macOS 上可能返回与输入尺寸相同的图像
     }
 
-    func testEdgesReturnsImage() {
+    func testEdgesReturnsImage() throws {
         let edges = coreImageService.edges(ciImage: testCIImage, intensity: 1.0)
 
         XCTAssertNotNil(edges)
     }
 
-    func testLineOverlayReturnsImage() {
+    func testLineOverlayReturnsImage() throws {
         let overlay = coreImageService.lineOverlay(
             ciImage: testCIImage,
             edgeIntensity: 1.0
@@ -80,7 +80,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Defringe Tests
 
-    func testDefringeReturnsImage() {
+    func testDefringeReturnsImage() throws {
         let defringed = coreImageService.defringe(ciImage: testCIImage, amount: 0.5)
 
         XCTAssertNotNil(defringed)
@@ -88,14 +88,14 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertEqual(defringed.extent.height, testCIImage.extent.height)
     }
 
-    func testDefringeWithZeroAmount() {
+    func testDefringeWithZeroAmount() throws {
         let defringed = coreImageService.defringe(ciImage: testCIImage, amount: 0)
 
         XCTAssertNotNil(defringed)
         // 0 强度应该基本不改变图像
     }
 
-    func testDefringeWithFullAmount() {
+    func testDefringeWithFullAmount() throws {
         let defringed = coreImageService.defringe(ciImage: testCIImage, amount: 1.0)
 
         XCTAssertNotNil(defringed)
@@ -103,7 +103,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Rotation Tests
 
-    func testRotateAroundCenter() {
+    func testRotateAroundCenter() throws {
         let rotated = coreImageService.rotateAroundCenter(ciImage: testCIImage, degrees: 45)
 
         XCTAssertNotNil(rotated)
@@ -112,7 +112,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertGreaterThan(rotated.extent.height, testCIImage.extent.height * 0.9)
     }
 
-    func testRotate90Degrees() {
+    func testRotate90Degrees() throws {
         let rotated = coreImageService.rotateAroundCenter(ciImage: testCIImage, degrees: 90)
 
         XCTAssertNotNil(rotated)
@@ -121,7 +121,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertEqual(Int(rotated.extent.height), 200, accuracy: 2)
     }
 
-    func testRotateZeroDegrees() {
+    func testRotateZeroDegrees() throws {
         let rotated = coreImageService.rotateAroundCenter(ciImage: testCIImage, degrees: 0)
 
         XCTAssertNotNil(rotated)
@@ -131,7 +131,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Command Configuration Tests
 
-    func testScanCommandConfiguration() {
+    func testScanCommandConfiguration() throws {
         let config = ScanCommand.configuration
 
         XCTAssertEqual(config.commandName, "scan")
@@ -139,7 +139,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testStraightenCommandConfiguration() {
+    func testStraightenCommandConfiguration() throws {
         let config = StraightenCommand.configuration
 
         XCTAssertEqual(config.commandName, "straighten")
@@ -147,7 +147,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testTraceCommandConfiguration() {
+    func testTraceCommandConfiguration() throws {
         let config = TraceCommand.configuration
 
         XCTAssertEqual(config.commandName, "trace")
@@ -155,7 +155,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testDefringeCommandConfiguration() {
+    func testDefringeCommandConfiguration() throws {
         let config = DefringeCommand.configuration
 
         XCTAssertEqual(config.commandName, "defringe")
@@ -163,7 +163,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testFormatCommandConfiguration() {
+    func testFormatCommandConfiguration() throws {
         let config = FormatCommand.configuration
 
         XCTAssertEqual(config.commandName, "fmt")
@@ -171,7 +171,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testThumbCommandConfiguration() {
+    func testThumbCommandConfiguration() throws {
         let config = ThumbCommand.configuration
 
         XCTAssertEqual(config.commandName, "thumb")
@@ -181,7 +181,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - EditCommand Subcommands Test
 
-    func testEditCommandHasAllBatch2Subcommands() {
+    func testEditCommandHasAllBatch2Subcommands() throws {
         let config = EditCommand.configuration
         let subcommands = config.subcommands
 
@@ -204,7 +204,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Localization Tests
 
-    func testBatch2LocalizationStrings() {
+    func testBatch2LocalizationStrings() throws {
         // 测试本地化字符串是否存在
         let scanTitle = Strings.get("edit.scan.title")
         let straightenTitle = Strings.get("edit.straighten.title")
@@ -224,7 +224,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - VisionService Rectangle Detection Tests
 
-    func testRectangleObservationStructure() {
+    func testRectangleObservationStructure() throws {
         // 测试 RectangleObservation 结构体
         let observation = VisionService.RectangleObservation(
             topLeft: CGPoint(x: 0.1, y: 0.9),
@@ -239,7 +239,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertEqual(observation.confidence, 0.95, accuracy: 0.001)
     }
 
-    func testHorizonObservationStructure() {
+    func testHorizonObservationStructure() throws {
         // 测试 HorizonObservation 结构体
         let observation = VisionService.HorizonObservation(
             angleInRadians: 0.1,
@@ -254,29 +254,29 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - Edge Cases
 
-    func testEdgeWorkWithSmallRadius() {
+    func testEdgeWorkWithSmallRadius() throws {
         let edges = coreImageService.edgeWork(ciImage: testCIImage, radius: 1.0)
         XCTAssertNotNil(edges)
     }
 
-    func testEdgeWorkWithLargeRadius() {
+    func testEdgeWorkWithLargeRadius() throws {
         let edges = coreImageService.edgeWork(ciImage: testCIImage, radius: 10.0)
         XCTAssertNotNil(edges)
     }
 
-    func testEdgesWithLowIntensity() {
+    func testEdgesWithLowIntensity() throws {
         let edges = coreImageService.edges(ciImage: testCIImage, intensity: 0.1)
         XCTAssertNotNil(edges)
     }
 
-    func testEdgesWithHighIntensity() {
+    func testEdgesWithHighIntensity() throws {
         let edges = coreImageService.edges(ciImage: testCIImage, intensity: 5.0)
         XCTAssertNotNil(edges)
     }
 
     // MARK: - Service Container Tests
 
-    func testServicesFromContainer() {
+    func testServicesFromContainer() throws {
         let coreImage = ServiceContainer.shared.coreImageService
         let vision = ServiceContainer.shared.visionService
         let imageIO = ServiceContainer.shared.imageIOService
@@ -288,7 +288,7 @@ final class EditBatch2Tests: XCTestCase {
 
     // MARK: - File Utils Tests for Format Command
 
-    func testSupportedImageFormats() {
+    func testSupportedImageFormats() throws {
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.jpg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.jpeg"))
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.png"))
@@ -297,7 +297,7 @@ final class EditBatch2Tests: XCTestCase {
         XCTAssertTrue(FileUtils.isSupportedImageFormat("/path/to/image.tif"))
     }
 
-    func testUnsupportedImageFormat() {
+    func testUnsupportedImageFormat() throws {
         XCTAssertFalse(FileUtils.isSupportedImageFormat("/path/to/file.txt"))
         XCTAssertFalse(FileUtils.isSupportedImageFormat("/path/to/file.pdf"))
     }

@@ -11,18 +11,18 @@ final class VisionServiceTests: XCTestCase {
 
     // MARK: - Service Creation Tests
 
-    func testServiceInitialization() {
+    func testServiceInitialization() throws {
         XCTAssertNotNil(service)
     }
 
-    func testServiceContainerAccess() {
+    func testServiceContainerAccess() throws {
         let containerService = ServiceContainer.shared.visionService
         XCTAssertNotNil(containerService)
     }
 
     // MARK: - Comprehensive Analysis Tests
 
-    func testComprehensiveAnalysisStructure() {
+    func testComprehensiveAnalysisStructure() throws {
         let analysis = VisionService.ComprehensiveAnalysis(
             classifications: [],
             texts: [],

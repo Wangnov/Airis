@@ -23,7 +23,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Auto Enhance Tests
 
-    func testAutoEnhanceReturnsImage() {
+    func testAutoEnhanceReturnsImage() throws {
         let enhanced = coreImageService.autoEnhance(ciImage: testCIImage)
 
         XCTAssertNotNil(enhanced)
@@ -31,14 +31,14 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(enhanced.extent.height, testCIImage.extent.height)
     }
 
-    func testAutoEnhanceWithRedEyeDisabled() {
+    func testAutoEnhanceWithRedEyeDisabled() throws {
         let enhanced = coreImageService.autoEnhance(ciImage: testCIImage, enableRedEye: false)
 
         XCTAssertNotNil(enhanced)
         XCTAssertEqual(enhanced.extent.width, testCIImage.extent.width)
     }
 
-    func testGetAutoEnhanceFilters() {
+    func testGetAutoEnhanceFilters() throws {
         let filters = coreImageService.getAutoEnhanceFilters(for: testCIImage)
 
         // 验证返回非 nil 的数组即可
@@ -47,7 +47,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Resize Command Tests
 
-    func testResizeWithWidthOnly() {
+    func testResizeWithWidthOnly() throws {
         let resized = coreImageService.resize(ciImage: testCIImage, width: 100)
 
         XCTAssertNotNil(resized)
@@ -56,7 +56,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(resized.extent.height, 75, accuracy: 1)
     }
 
-    func testResizeWithHeightOnly() {
+    func testResizeWithHeightOnly() throws {
         let resized = coreImageService.resize(ciImage: testCIImage, height: 75)
 
         XCTAssertNotNil(resized)
@@ -65,7 +65,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(resized.extent.height, 75, accuracy: 1)
     }
 
-    func testResizeWithBothMaintainAspectRatio() {
+    func testResizeWithBothMaintainAspectRatio() throws {
         // 200x150 图像，目标 100x100，保持宽高比
         // 应该缩放到 100x75（以宽度为准）或 133x100（以高度为准）
         // 取较小的缩放比，应该是 100x75
@@ -83,7 +83,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(resized.extent.height, 150 * expectedScale, accuracy: 2)
     }
 
-    func testResizeWithStretch() {
+    func testResizeWithStretch() throws {
         let resized = coreImageService.resize(
             ciImage: testCIImage,
             width: 100,
@@ -99,7 +99,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Crop Command Tests
 
-    func testCropValidRegion() {
+    func testCropValidRegion() throws {
         let cropRect = CGRect(x: 10, y: 10, width: 100, height: 80)
         let cropped = coreImageService.crop(ciImage: testCIImage, rect: cropRect)
 
@@ -107,7 +107,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(cropped.extent.height, 80)
     }
 
-    func testCropAtOrigin() {
+    func testCropAtOrigin() throws {
         let cropRect = CGRect(x: 0, y: 0, width: 50, height: 50)
         let cropped = coreImageService.crop(ciImage: testCIImage, rect: cropRect)
 
@@ -115,7 +115,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(cropped.extent.height, 50)
     }
 
-    func testCropPartiallyOutOfBounds() {
+    func testCropPartiallyOutOfBounds() throws {
         // 裁剪区域部分超出边界
         let cropRect = CGRect(x: 150, y: 100, width: 100, height: 100)
         let cropped = coreImageService.crop(ciImage: testCIImage, rect: cropRect)
@@ -127,7 +127,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Coordinate System Tests
 
-    func testCoordinateConversionForCrop() {
+    func testCoordinateConversionForCrop() throws {
         // 测试从用户坐标（顶部原点）到 CoreImage 坐标（底部原点）的转换
         // 用户输入: y=10（从顶部算）, height=50
         // 图像高度: 150
@@ -144,14 +144,14 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Service Container Integration Tests
 
-    func testCoreImageServiceFromContainer() {
+    func testCoreImageServiceFromContainer() throws {
         let service = ServiceContainer.shared.coreImageService
 
         XCTAssertNotNil(service)
         XCTAssertTrue(service.isUsingMetalAcceleration)
     }
 
-    func testVisionServiceFromContainer() {
+    func testVisionServiceFromContainer() throws {
         let service = ServiceContainer.shared.visionService
 
         XCTAssertNotNil(service)
@@ -159,7 +159,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Render Tests
 
-    func testRenderEnhancedImage() {
+    func testRenderEnhancedImage() throws {
         let enhanced = coreImageService.autoEnhance(ciImage: testCIImage)
         let cgImage = coreImageService.render(ciImage: enhanced)
 
@@ -170,7 +170,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Localization Tests
 
-    func testEditLocalizationStrings() {
+    func testEditLocalizationStrings() throws {
         // 测试本地化字符串是否存在
         let cutTitle = Strings.get("edit.cut.title")
         let resizeTitle = Strings.get("edit.resize.title")
@@ -184,7 +184,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertNotEqual(enhanceTitle, "edit.enhance.title")
     }
 
-    func testInputOutputStrings() {
+    func testInputOutputStrings() throws {
         let input = Strings.get("edit.input")
         let output = Strings.get("edit.output")
 
@@ -194,7 +194,7 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - File Utilities Tests
 
-    func testFileUtilsValidateExtension() {
+    func testFileUtilsValidateExtension() throws {
         let pngExt = FileUtils.getExtension(from: "/path/to/image.png")
         let jpgExt = FileUtils.getExtension(from: "/path/to/image.JPG")
         let heicExt = FileUtils.getExtension(from: "/path/to/image.heic")
@@ -204,7 +204,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(heicExt, "heic")
     }
 
-    func testFileUtilsGenerateOutputPath() {
+    func testFileUtilsGenerateOutputPath() throws {
         let inputPath = "/path/to/image.jpg"
         let outputPath = FileUtils.generateOutputPath(from: inputPath, suffix: "_enhanced")
 
@@ -212,7 +212,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertTrue(outputPath.hasSuffix(".jpg"))
     }
 
-    func testFileUtilsGenerateOutputPathWithNewExtension() {
+    func testFileUtilsGenerateOutputPathWithNewExtension() throws {
         let inputPath = "/path/to/image.jpg"
         let outputPath = FileUtils.generateOutputPath(from: inputPath, suffix: "_cutout", extension: "png")
 
@@ -222,9 +222,9 @@ final class EditBatch1Tests: XCTestCase {
 
     // MARK: - Edge Cases
 
-    func testAutoEnhanceMultipleTimes() {
+    func testAutoEnhanceMultipleTimes() throws {
         // 多次增强应该不会崩溃
-        var enhanced = testCIImage!
+        var enhanced = try XCTUnwrap(testCIImage)
         for _ in 0..<3 {
             enhanced = coreImageService.autoEnhance(ciImage: enhanced)
         }
@@ -233,7 +233,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(enhanced.extent.width, testCIImage.extent.width)
     }
 
-    func testCropFullImage() {
+    func testCropFullImage() throws {
         // 裁剪整个图像
         let cropRect = testCIImage.extent
         let cropped = coreImageService.crop(ciImage: testCIImage, rect: cropRect)
@@ -242,7 +242,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertEqual(cropped.extent.height, testCIImage.extent.height)
     }
 
-    func testResizeToVerySmall() {
+    func testResizeToVerySmall() throws {
         let resized = coreImageService.resize(ciImage: testCIImage, width: 10, height: 10)
 
         XCTAssertNotNil(resized)
@@ -250,7 +250,7 @@ final class EditBatch1Tests: XCTestCase {
         XCTAssertGreaterThan(resized.extent.height, 0)
     }
 
-    func testResizeToVeryLarge() {
+    func testResizeToVeryLarge() throws {
         let resized = coreImageService.resize(ciImage: testCIImage, width: 2000, height: 1500)
 
         XCTAssertNotNil(resized)
@@ -262,7 +262,7 @@ final class EditBatch1Tests: XCTestCase {
 // MARK: - Command Help Text Tests
 
 extension EditBatch1Tests {
-    func testCutCommandConfiguration() {
+    func testCutCommandConfiguration() throws {
         let config = CutCommand.configuration
 
         XCTAssertEqual(config.commandName, "cut")
@@ -270,7 +270,7 @@ extension EditBatch1Tests {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testResizeCommandConfiguration() {
+    func testResizeCommandConfiguration() throws {
         let config = ResizeCommand.configuration
 
         XCTAssertEqual(config.commandName, "resize")
@@ -278,7 +278,7 @@ extension EditBatch1Tests {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testCropCommandConfiguration() {
+    func testCropCommandConfiguration() throws {
         let config = CropCommand.configuration
 
         XCTAssertEqual(config.commandName, "crop")
@@ -286,7 +286,7 @@ extension EditBatch1Tests {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testEnhanceCommandConfiguration() {
+    func testEnhanceCommandConfiguration() throws {
         let config = EnhanceCommand.configuration
 
         XCTAssertEqual(config.commandName, "enhance")
@@ -294,7 +294,7 @@ extension EditBatch1Tests {
         XCTAssertNotNil(config.discussion)
     }
 
-    func testEditCommandHasSubcommands() {
+    func testEditCommandHasSubcommands() throws {
         let config = EditCommand.configuration
         let subcommands = config.subcommands
 

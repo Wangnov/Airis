@@ -11,18 +11,18 @@ final class ImageIOServiceTests: XCTestCase {
 
     // MARK: - Service Creation Tests
 
-    func testServiceInitialization() {
+    func testServiceInitialization() throws {
         XCTAssertNotNil(service)
     }
 
-    func testServiceContainerAccess() {
+    func testServiceContainerAccess() throws {
         let containerService = ServiceContainer.shared.imageIOService
         XCTAssertNotNil(containerService)
     }
 
     // MARK: - Image Info Structure Tests
 
-    func testImageInfoStructure() {
+    func testImageInfoStructure() throws {
         let info = ImageIOService.ImageInfo(
             width: 1920,
             height: 1080,
