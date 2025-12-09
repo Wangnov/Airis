@@ -8,6 +8,10 @@ import XCTest
 /// - 测试无效输入处理
 /// - 测试极端情况
 final class VisionEdgeCaseTests: XCTestCase {
+
+    // ✅ Apple 最佳实践：类级别共享服务
+    nonisolated(unsafe) static let sharedVisionService = VisionService()
+
     var service: VisionService!
 
     // 测试资产目录

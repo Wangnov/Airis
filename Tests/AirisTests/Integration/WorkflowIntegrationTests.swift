@@ -6,6 +6,12 @@ import CoreImage
 /// 工作流集成测试 - 验证多命令组合和真实工作流
 final class WorkflowIntegrationTests: XCTestCase {
 
+    // ✅ Apple 最佳实践：类级别共享服务
+    nonisolated(unsafe) static let sharedVisionService = VisionService()
+    nonisolated(unsafe) static let sharedCoreImageService = CoreImageService()
+    nonisolated(unsafe) static let sharedImageIOService = ImageIOService()
+
+
     // MARK: - Properties
 
     var visionService: VisionService!
@@ -21,9 +27,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        visionService = VisionService()
-        coreImageService = CoreImageService()
-        imageIOService = ImageIOService()
+        visionService = Self.sharedVisionService
+        coreImageService = Self.sharedCoreImageService
+        imageIOService = Self.sharedImageIOService
 
         // 创建临时目录用于测试输出
         tempDir = FileManager.default.temporaryDirectory

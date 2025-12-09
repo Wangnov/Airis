@@ -6,6 +6,12 @@ import CoreImage
 /// 命令功能完整性集成测试 - 确保所有命令底层服务都被测试覆盖
 final class CommandCoverageIntegrationTests: XCTestCase {
 
+    // ✅ Apple 最佳实践：类级别共享服务
+    nonisolated(unsafe) static let sharedVisionService = VisionService()
+    nonisolated(unsafe) static let sharedCoreImageService = CoreImageService()
+    nonisolated(unsafe) static let sharedImageIOService = ImageIOService()
+
+
     // MARK: - Properties
 
     var visionService: VisionService!
@@ -20,9 +26,9 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        visionService = VisionService()
-        coreImageService = CoreImageService()
-        imageIOService = ImageIOService()
+        visionService = Self.sharedVisionService
+        coreImageService = Self.sharedCoreImageService
+        imageIOService = Self.sharedImageIOService
 
         tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("airis_coverage_test_\(UUID().uuidString)")

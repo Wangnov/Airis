@@ -10,6 +10,10 @@ import CoreImage
 /// - 测试空/无效输入
 /// - 测试边界条件
 final class CoreImageEdgeCaseTests: XCTestCase {
+
+    // ✅ Apple 最佳实践：类级别共享服务
+    nonisolated(unsafe) static let sharedCoreImageService = CoreImageService()
+
     var service: CoreImageService!
 
     override func setUp() {
