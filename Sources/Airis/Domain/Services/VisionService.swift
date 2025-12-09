@@ -288,7 +288,9 @@ final class VisionService: Sendable {
         to targetURL: URL,
         accuracy: OpticalFlowAccuracy = .medium
     ) async throws -> OpticalFlowResult {
-        let targetImage = CIImage(contentsOf: targetURL)!
+        guard let targetImage = CIImage(contentsOf: targetURL) else {
+            throw AirisError.imageDecodeFailed
+        }
 
         let request = VNGenerateOpticalFlowRequest(targetedCIImage: targetImage, options: [:])
         request.computationAccuracy = accuracy.vnAccuracy
@@ -333,7 +335,9 @@ final class VisionService: Sendable {
         referenceURL: URL,
         floatingURL: URL
     ) async throws -> ImageAlignmentResult {
-        let floatingImage = CIImage(contentsOf: floatingURL)!
+        guard let floatingImage = CIImage(contentsOf: floatingURL) else {
+            throw AirisError.imageDecodeFailed
+        }
 
         let request = VNTranslationalImageRegistrationRequest(targetedCIImage: floatingImage, options: [:])
         let handler = VNImageRequestHandler(url: referenceURL, options: [:])
