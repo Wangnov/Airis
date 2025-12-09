@@ -3,8 +3,7 @@ import ArgumentParser
 struct AnalyzeCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "analyze",
-        abstract: "Analyze image properties and content",
-        discussion: """
+        abstract: "Analyze image properties and content",        discussion: """
             Provides comprehensive image analysis including:
             - Basic info (dimensions, DPI, color space)
             - Content recognition (tags, objects)
@@ -26,6 +25,7 @@ struct AnalyzeCommand: AsyncParsableCommand {
             PaletteCommand.self,
             SimilarCommand.self,
             MetaCommand.self,
-        ]
+        ],
+        aliases: ["a"]
     )
 }

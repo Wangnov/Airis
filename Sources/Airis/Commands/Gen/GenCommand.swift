@@ -3,8 +3,7 @@ import ArgumentParser
 struct GenCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "gen",
-        abstract: "Generate images using AI providers",
-        discussion: """
+        abstract: "Generate images using AI providers",        discussion: """
             Connect to AI image generation services like Gemini Image API.
 
             QUICK START (First Time Setup):
@@ -57,6 +56,7 @@ struct GenCommand: AsyncParsableCommand {
         subcommands: [
             DrawCommand.self,
             ConfigCommand.self
-        ]
+        ],
+        aliases: ["g"]
     )
 }

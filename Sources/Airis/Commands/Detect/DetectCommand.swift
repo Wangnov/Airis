@@ -3,8 +3,7 @@ import ArgumentParser
 struct DetectCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "detect",
-        abstract: "Detect objects and features in images",
-        discussion: """
+        abstract: "Detect objects and features in images",        discussion: """
             Detect specific objects using Apple's Vision framework.
 
             QUICK START:
@@ -63,6 +62,7 @@ struct DetectCommand: AsyncParsableCommand {
             Pose3DCommand.self,
             HandCommand.self,
             PetPoseCommand.self,
-        ]
+        ],
+        aliases: ["d"]
     )
 }

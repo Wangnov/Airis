@@ -31,6 +31,7 @@ struct VisionCommand: AsyncParsableCommand {
             AlignCommand.self,
             SaliencyCommand.self,
             PersonsCommand.self,
-        ]
+        ],
+        aliases: ["v"]
     )
 }

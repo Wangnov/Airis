@@ -124,13 +124,13 @@ let imageIO = ServiceContainer.shared.imageIOService
 ```bash
 # 1. 创建 worktrees
 cd ~/Airis
-git worktree add ~/airis-worktrees/task-X.Y-name -b feature/task-X.Y
+git worktree add ~/Airis/worktrees/task-X.Y-name -b feature/task-X.Y
 
 # 2. 查看所有 worktrees
 git worktree list
 
 # 3. 副 Agent 在 worktree 中开发
-cd ~/airis-worktrees/task-X.Y-name
+cd ~/Airis/worktrees/task-X.Y-name
 swift build
 swift test
 
@@ -145,7 +145,7 @@ git commit -m "feat(module): 实现 Task X.Y"
 cd ~/Airis
 
 # 1. 验收
-cd ~/airis-worktrees/task-X.Y-name
+cd ~/Airis/worktrees/task-X.Y-name
 swift test  # 必须通过
 
 # 2. 合并
@@ -156,7 +156,7 @@ git merge --no-ff feature/task-X.Y -m "Merge Task X.Y: 描述"
 swift test --parallel
 
 # 4. 清理
-git worktree remove ~/airis-worktrees/task-X.Y-name
+git worktree remove ~/Airis/worktrees/task-X.Y-name
 git branch -d feature/task-X.Y
 ```
 
@@ -164,10 +164,10 @@ git branch -d feature/task-X.Y
 
 ```bash
 # 测试资产位置
-~/airis-worktrees/test-assets/task-X.Y/
+~/Airis/worktrees/test-assets/task-X.Y/
 
 # ⚠️ 重要：生成测试资产使用主仓库的稳定版
-~/.local/bin/airis gen draw "prompt" -o ~/airis-worktrees/test-assets/task-X.Y/test.png
+~/.local/bin/airis gen draw "prompt" -o ~/Airis/worktrees/test-assets/task-X.Y/test.png
 
 # ❌ 不要使用 worktree 中的开发版
 .build/debug/airis gen draw "prompt"  # 可能不稳定
@@ -406,7 +406,7 @@ for item in items where condition { ... }
 
 ### 测试资产依赖
 
-⚠️ **当前问题**: 12 个测试文件依赖外部路径 `~/airis-worktrees/test-assets/`
+⚠️ **当前问题**: 12 个测试文件依赖外部路径 `~/Airis/worktrees/test-assets/`
 
 **影响**: 在干净环境会跳过部分测试
 
@@ -563,7 +563,7 @@ swift test --filter VisionServiceTests
 git worktree list
 
 # 删除 worktree
-git worktree remove ~/airis-worktrees/task-X.Y
+git worktree remove ~/Airis/worktrees/task-X.Y
 
 # 删除分支
 git branch -d feature/task-X.Y
@@ -682,7 +682,7 @@ final class NewCommandTests: XCTestCase {
 
 ```bash
 # 检查测试资产是否存在
-ls -la ~/airis-worktrees/test-assets/
+ls -la ~/Airis/worktrees/test-assets/
 
 # 跳过需要资产的测试
 make test-unit
