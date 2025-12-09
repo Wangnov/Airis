@@ -1,7 +1,7 @@
 import Foundation
 
 /// Gemini 兼容 API 图像生成 Provider（支持多个兼容端点）
-final class GeminiProvider {
+final class GeminiProvider: Sendable {
     private let httpClient: HTTPClient
     private let keychainManager: KeychainManager
     private let configManager: ConfigManager
