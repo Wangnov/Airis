@@ -209,7 +209,7 @@ struct MetaCommand: AsyncParsableCommand {
             print("  光圈: f/\(fNumber)")
         }
         if let exposureTime = exif[kCGImagePropertyExifExposureTime as String] as? Double {
-            let shutterStr = exposureTime < 1 ? "1/\(Int(1/exposureTime))s" : "\(exposureTime)s"
+            let shutterStr = exposureTime < 1 ? "1/\(Int(1 / exposureTime))s" : "\(exposureTime)s"
             print("  快门: \(shutterStr)")
         }
         if let iso = exif[kCGImagePropertyExifISOSpeedRatings as String] as? [Int], let isoValue = iso.first {
@@ -281,6 +281,8 @@ struct MetaCommand: AsyncParsableCommand {
             print("  创作者: \(creator)")
         }
     }
+
+
 
     private func printMetadataJSON(properties: [String: Any]) {
         var output: [String: Any] = [:]

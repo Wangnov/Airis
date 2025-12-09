@@ -48,7 +48,7 @@ final class ImageIOPerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
-            let _ = try? service.loadImage(at: testImageURL)
+            _ = try? service.loadImage(at: testImageURL)
         }
     }
 
@@ -58,7 +58,7 @@ final class ImageIOPerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            let _ = try? service.loadImage(at: testImageURL, maxDimension: 512)
+            _ = try? service.loadImage(at: testImageURL, maxDimension: 512)
         }
     }
 
@@ -68,7 +68,7 @@ final class ImageIOPerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = try? service.loadImage(at: testImageURL, maxDimension: 1024)
+            _ = try? service.loadImage(at: testImageURL, maxDimension: 1024)
         }
     }
 
@@ -80,7 +80,7 @@ final class ImageIOPerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
-            let _ = try? service.loadImageMetadata(at: testImageURL)
+            _ = try? service.loadImageMetadata(at: testImageURL)
         }
     }
 
@@ -90,7 +90,7 @@ final class ImageIOPerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = try? service.getImageInfo(at: testImageURL)
+            _ = try? service.getImageInfo(at: testImageURL)
         }
     }
 
@@ -194,7 +194,7 @@ final class ImageIOPerformanceTests: XCTestCase {
         
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             for size in thumbnailSizes {
-                let _ = try? service.loadImage(at: testImageURL, maxDimension: size)
+                _ = try? service.loadImage(at: testImageURL, maxDimension: size)
             }
         }
     }

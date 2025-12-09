@@ -44,7 +44,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
-            let _ = service.gaussianBlur(ciImage: testCIImage, radius: 10)
+            _ = service.gaussianBlur(ciImage: testCIImage, radius: 10)
         }
     }
 
@@ -54,7 +54,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            let _ = service.gaussianBlur(ciImage: testCIImage, radius: 50)
+            _ = service.gaussianBlur(ciImage: testCIImage, radius: 50)
         }
     }
 
@@ -64,7 +64,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.motionBlur(ciImage: testCIImage, radius: 20, angle: 45)
+            _ = service.motionBlur(ciImage: testCIImage, radius: 20, angle: 45)
         }
     }
 
@@ -74,7 +74,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.zoomBlur(ciImage: testCIImage, amount: 20)
+            _ = service.zoomBlur(ciImage: testCIImage, amount: 20)
         }
     }
 
@@ -86,7 +86,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            let _ = service.resize(ciImage: largeCIImage, width: 1024, height: 576)
+            _ = service.resize(ciImage: largeCIImage, width: 1024, height: 576)
         }
     }
 
@@ -96,7 +96,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.resize(ciImage: testCIImage, width: 512, height: 512)
+            _ = service.resize(ciImage: testCIImage, width: 512, height: 512)
         }
     }
 
@@ -109,7 +109,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.resize(ciImage: smallImage, width: 1024, height: 1024)
+            _ = service.resize(ciImage: smallImage, width: 1024, height: 1024)
         }
     }
 
@@ -121,7 +121,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
-            let _ = service.render(ciImage: testCIImage)
+            _ = service.render(ciImage: testCIImage)
         }
     }
 
@@ -131,7 +131,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            let _ = service.render(ciImage: largeCIImage)
+            _ = service.render(ciImage: largeCIImage)
         }
     }
 
@@ -149,7 +149,7 @@ final class CoreImagePerformanceTests: XCTestCase {
             processed = service.gaussianBlur(ciImage: processed, radius: 5)
             processed = service.sharpen(ciImage: processed, sharpness: 0.5)
             processed = service.adjustColors(ciImage: processed, brightness: 0.1, contrast: 1.2, saturation: 1.1)
-            let _ = service.render(ciImage: processed)
+            _ = service.render(ciImage: processed)
         }
     }
 
@@ -167,7 +167,7 @@ final class CoreImagePerformanceTests: XCTestCase {
             processed = service.adjustColors(ciImage: processed, brightness: 0.05, contrast: 1.1, saturation: 1.05)
             processed = service.vignette(ciImage: processed, intensity: 0.5)
             processed = service.noiseReduction(ciImage: processed, noiseLevel: 0.02)
-            let _ = service.render(ciImage: processed)
+            _ = service.render(ciImage: processed)
         }
     }
 
@@ -179,7 +179,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.adjustColors(
+            _ = service.adjustColors(
                 ciImage: testCIImage,
                 brightness: 0.1,
                 contrast: 1.2,
@@ -194,7 +194,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.adjustTemperatureAndTint(
+            _ = service.adjustTemperatureAndTint(
                 ciImage: testCIImage,
                 temperature: 500,
                 tint: 10
@@ -208,7 +208,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.adjustExposure(ciImage: testCIImage, ev: 1.0)
+            _ = service.adjustExposure(ciImage: testCIImage, ev: 1.0)
         }
     }
 
@@ -220,7 +220,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            let _ = service.comicEffect(ciImage: testCIImage)
+            _ = service.comicEffect(ciImage: testCIImage)
         }
     }
 
@@ -230,7 +230,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.halftone(ciImage: testCIImage, width: 6)
+            _ = service.halftone(ciImage: testCIImage, width: 6)
         }
     }
 
@@ -240,7 +240,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.pixellate(ciImage: testCIImage, scale: 10)
+            _ = service.pixellate(ciImage: testCIImage, scale: 10)
         }
     }
 
@@ -252,7 +252,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.photoEffectMono(ciImage: testCIImage)
+            _ = service.photoEffectMono(ciImage: testCIImage)
         }
     }
 
@@ -262,7 +262,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.sepiaTone(ciImage: testCIImage, intensity: 1.0)
+            _ = service.sepiaTone(ciImage: testCIImage, intensity: 1.0)
         }
     }
 
@@ -272,7 +272,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.photoEffectNoir(ciImage: testCIImage)
+            _ = service.photoEffectNoir(ciImage: testCIImage)
         }
     }
 
@@ -284,7 +284,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.rotateAroundCenter(ciImage: testCIImage, degrees: 45)
+            _ = service.rotateAroundCenter(ciImage: testCIImage, degrees: 45)
         }
     }
 
@@ -294,7 +294,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.flip(ciImage: testCIImage, horizontal: true, vertical: true)
+            _ = service.flip(ciImage: testCIImage, horizontal: true, vertical: true)
         }
     }
 
@@ -304,7 +304,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric()], options: options) {
-            let _ = service.crop(ciImage: testCIImage, rect: CGRect(x: 100, y: 100, width: 1000, height: 1000))
+            _ = service.crop(ciImage: testCIImage, rect: CGRect(x: 100, y: 100, width: 1000, height: 1000))
         }
     }
 
@@ -316,7 +316,7 @@ final class CoreImagePerformanceTests: XCTestCase {
         options.iterationCount = 3
         
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
-            let _ = service.autoEnhance(ciImage: testCIImage, enableRedEye: false)
+            _ = service.autoEnhance(ciImage: testCIImage, enableRedEye: false)
         }
     }
 }

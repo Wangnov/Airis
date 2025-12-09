@@ -42,6 +42,7 @@ disabled_rules:
   - function_body_length       # CLI 的 run() 方法可能较长
   - file_length                # CLI 主文件自然会较长
   - type_body_length           # 命令配置可能有长 discussion
+  - cyclomatic_complexity      # CLI 命令的 run() 和格式化函数可能复杂度高
 
   # --- 开发灵活性 ---
   - todo                       # 允许 TODO 注释
@@ -73,8 +74,8 @@ excluded:
 # 规则配置
 # ------------------------------------------------------------------------------
 line_length:
-  warning: 120
-  error: 160
+  warning: 150  # 从 120 提高到 150
+  error: 200
   ignores_comments: true
   ignores_urls: true
 
@@ -99,6 +100,9 @@ identifier_name:
     - r   # RGB red
     - g   # RGB green
     - b   # RGB blue
+    - w   # width
+    - h   # height
+    - z   # 3D coordinate
 
 # ------------------------------------------------------------------------------
 # 严格错误规则（CLI 安全性）

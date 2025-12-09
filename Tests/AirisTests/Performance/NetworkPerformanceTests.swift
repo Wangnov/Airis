@@ -30,7 +30,7 @@ final class NetworkPerformanceTests: XCTestCase {
                 waitsForConnectivity: false,
                 maxRetries: 3
             )
-            let _ = HTTPClient(configuration: config)
+            _ = HTTPClient(configuration: config)
         }
     }
 
@@ -39,7 +39,7 @@ final class NetworkPerformanceTests: XCTestCase {
         measure {
             for _ in 0..<10 {
                 let config = HTTPClientConfiguration()
-                let _ = HTTPClient(configuration: config)
+                _ = HTTPClient(configuration: config)
             }
         }
     }
@@ -53,7 +53,7 @@ final class NetworkPerformanceTests: XCTestCase {
                 waitsForConnectivity: false,
                 maxRetries: 0
             )
-            let _ = HTTPClient(configuration: config)
+            _ = HTTPClient(configuration: config)
         }
     }
 

@@ -33,7 +33,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
         let nonExistentURL = URL(fileURLWithPath: "/nonexistent/path/image.jpg")
 
         do {
-            let _ = try await visionService.classifyImage(at: nonExistentURL)
+            _ = try await visionService.classifyImage(at: nonExistentURL)
             XCTFail("Should throw error for non-existent file")
         } catch {
             // 预期会抛出错误
@@ -105,7 +105,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
         try? "{}".write(to: jsonFileURL, atomically: true, encoding: .utf8)
 
         // 尝试作为图像加载
-        XCTAssertThrowsError(try imageIOService.loadImage(at: jsonFileURL)) { error in
+        XCTAssertThrowsError(try imageIOService.loadImage(at: jsonFileURL)) { _ in
             // 可能是 fileNotFound 或 unsupportedFormat
             XCTAssertTrue(true, "Correctly rejected non-image file")
         }
@@ -195,7 +195,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
 
         do {
             // 尝试请求一个需要延迟的端点（会超时）
-            let _ = try await client.get(url: try XCTUnwrap(URL(string: "https://httpbin.org/delay/10")))
+            _ = try await client.get(url: try XCTUnwrap(URL(string: "https://httpbin.org/delay/10")))
             XCTFail("Should timeout")
         } catch {
             // 预期超时错误
@@ -211,7 +211,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
         let invalidURL = try XCTUnwrap(URL(string: "https://this-domain-does-not-exist-\(UUID().uuidString).com"))
 
         do {
-            let _ = try await client.get(url: invalidURL)
+            _ = try await client.get(url: invalidURL)
             XCTFail("Should fail for invalid domain")
         } catch {
             // 预期网络错误
@@ -439,7 +439,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
             // 多个并发分类请求
             for _ in 0..<5 {
                 group.addTask {
-                    let _ = try await visionService.classifyImage(at: testImageURL)
+                    _ = try await visionService.classifyImage(at: testImageURL)
                 }
             }
 

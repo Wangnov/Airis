@@ -171,6 +171,8 @@ struct FaceCommand: AsyncParsableCommand {
         }
     }
 
+
+
     private func printJSON(results: [VNFaceObservation], file: String, hasLandmarks: Bool) {
         let items = results.map { face -> [String: Any] in
             var item: [String: Any] = [
