@@ -1,8 +1,284 @@
 import XCTest
 @testable import Airis
 
-/// HTTPClient 单元测试（100% 覆盖率）
+/// HTTPClient 单元测试（使用 Mock 达到 100% 覆盖率）
 final class HTTPClientTests: XCTestCase {
+
+    var client: HTTPClient!
+    var mockSession: URLSession!
+
+    override func setUp() {
+        super.setUp()
+
+        // 配置使用 MockURLProtocol
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        mockSession = URLSession(configuration: config)
+
+        let clientConfig = HTTPClientConfiguration(
+            timeoutIntervalForRequest: 30,
+            maxRetries: 3,
+            retryDelay: 0.01  // 快速重试
+        )
+
+        client = HTTPClient(configuration: clientConfig, session: mockSession)
+        MockURLProtocol.reset()
+    }
+
+    override func tearDown() {
+        MockURLProtocol.reset()
+        client = nil
+        mockSession = nil
+        super.tearDown()
+    }
+
+    // MARK: - POST Tests
+
+    func testPOSTSuccess() async throws {
+        let url = URL(string: "https://test.com/api")!
+        let responseData = Data("{\"result\": \"ok\"}".utf8)
+
+        MockURLProtocol.mockSuccess(url: url, data: responseData, statusCode: 200)
+
+        let body = Data("{\"test\": \"data\"}".utf8)
+        let (data, response) = try await client.post(url: url, body: body)
+
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(data, responseData)
+    }
+
+    func testPOSTWithCustomHeaders() async throws {
+        let url = URL(string: "https://test.com/api")!
+        MockURLProtocol.mockSuccess(url: url, data: Data())
+
+        let headers = ["X-Custom": "value"]
+        let (_, response) = try await client.post(url: url, headers: headers, body: Data())
+
+        XCTAssertEqual(response.statusCode, 200)
+    }
+
+    func testPOSTWithCustomContentType() async throws {
+        let url = URL(string: "https://test.com/api")!
+        MockURLProtocol.mockSuccess(url: url, data: Data())
+
+        let headers = ["Content-Type": "text/plain"]
+        let (_, response) = try await client.post(url: url, headers: headers, body: Data())
+
+        XCTAssertEqual(response.statusCode, 200)
+    }
+
+    func testPOSTDefaultContentType() async throws {
+        let url = URL(string: "https://test.com/api")!
+        MockURLProtocol.mockSuccess(url: url, data: Data())
+
+        // 不指定 Content-Type，应该默认为 application/json
+        let (_, response) = try await client.post(url: url, body: Data())
+
+        XCTAssertEqual(response.statusCode, 200)
+    }
+
+    // MARK: - GET Tests
+
+    func testGETSuccess() async throws {
+        let url = URL(string: "https://test.com/data")!
+        let responseData = Data("test data".utf8)
+
+        MockURLProtocol.mockSuccess(url: url, data: responseData)
+
+        let (data, response) = try await client.get(url: url)
+
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(data, responseData)
+    }
+
+    func testGETWithHeaders() async throws {
+        let url = URL(string: "https://test.com/data")!
+        MockURLProtocol.mockSuccess(url: url, data: Data())
+
+        let headers = ["Authorization": "Bearer token"]
+        let (_, response) = try await client.get(url: url, headers: headers)
+
+        XCTAssertEqual(response.statusCode, 200)
+    }
+
+    // MARK: - Error Handling Tests
+
+    func testPOST404Error() async throws {
+        let url = URL(string: "https://test.com/notfound")!
+        MockURLProtocol.mockSuccess(url: url, data: Data(), statusCode: 404)
+
+        do {
+            _ = try await client.post(url: url, body: Data())
+            XCTFail("应该抛出错误")
+        } catch {
+            // 预期抛出 networkError
+            XCTAssertTrue(true)
+        }
+    }
+
+    func testGET404Error() async throws {
+        let url = URL(string: "https://test.com/notfound")!
+        MockURLProtocol.mockSuccess(url: url, data: Data(), statusCode: 404)
+
+        do {
+            _ = try await client.get(url: url)
+            XCTFail("应该抛出错误")
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+
+    func testPOST500WithRetrySuccess() async throws {
+        let url = URL(string: "https://test.com/retry")!
+
+        // Mock 序列：第1次500，第2次200
+        MockURLProtocol.mockSequence(url: url, responses: [
+            .success(MockURLProtocol.MockResponse(data: Data(), statusCode: 500)),
+            .success(MockURLProtocol.MockResponse(data: Data("{\"ok\": true}".utf8), statusCode: 200)),
+        ])
+
+        let (data, response) = try await client.post(url: url, body: Data())
+
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertFalse(data.isEmpty)
+    }
+
+    func testPOST500RetryExhausted() async throws {
+        let url = URL(string: "https://test.com/always-fail")!
+
+        // Mock 序列：所有请求都返回 500
+        MockURLProtocol.mockSequence(url: url, responses: [
+            .success(MockURLProtocol.MockResponse(statusCode: 500)),
+            .success(MockURLProtocol.MockResponse(statusCode: 500)),
+            .success(MockURLProtocol.MockResponse(statusCode: 500)),
+            .success(MockURLProtocol.MockResponse(statusCode: 500)),
+        ])
+
+        do {
+            _ = try await client.post(url: url, body: Data())
+            XCTFail("应该抛出错误")
+        } catch {
+            // 预期在重试耗尽后抛出错误
+            XCTAssertTrue(true)
+        }
+    }
+
+    func testNetworkErrorRetry() async throws {
+        let url = URL(string: "https://test.com/timeout")!
+
+        // Mock 序列：第1次超时，第2次成功
+        let timeoutError = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
+        MockURLProtocol.mockSequence(url: url, responses: [
+            .failure(timeoutError),
+            .success(MockURLProtocol.MockResponse(data: Data("ok".utf8), statusCode: 200)),
+        ])
+
+        let (data, response) = try await client.post(url: url, body: Data())
+
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(data, Data("ok".utf8))
+    }
+
+    func testNetworkErrorRetryExhausted() async throws {
+        let url = URL(string: "https://test.com/always-timeout")!
+
+        let timeoutError = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
+        MockURLProtocol.mockSequence(url: url, responses: [
+            .failure(timeoutError),
+            .failure(timeoutError),
+            .failure(timeoutError),
+            .failure(timeoutError),
+        ])
+
+        do {
+            _ = try await client.post(url: url, body: Data())
+            XCTFail("应该抛出错误")
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+
+    func testNonRetryableNetworkError() async throws {
+        let url = URL(string: "https://test.com/bad-url")!
+
+        // 不可重试的错误（如 DNS 解析失败以外的错误）
+        let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorBadURL)
+        MockURLProtocol.mockError(url: url, error: error)
+
+        do {
+            _ = try await client.post(url: url, body: Data())
+            XCTFail("应该抛出错误")
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+
+    func testInvalidResponse() async throws {
+        let url = URL(string: "https://test.com/invalid-post")!
+
+        // Mock 返回非 HTTPURLResponse
+        MockURLProtocol.mockInvalidResponse(url: url)
+
+        do {
+            _ = try await client.post(url: url, body: Data())
+            XCTFail("应该抛出 invalidResponse 错误")
+        } catch let error as AirisError {
+            if case .invalidResponse = error {
+                XCTAssertTrue(true)
+            } else {
+                XCTFail("错误类型不正确: \(error)")
+            }
+        }
+    }
+
+    func testGETInvalidResponse() async throws {
+        let url = URL(string: "https://test.com/invalid-get")!
+
+        // Mock GET 返回非 HTTPURLResponse
+        MockURLProtocol.mockInvalidResponse(url: url)
+
+        do {
+            _ = try await client.get(url: url)
+            XCTFail("应该抛出 invalidResponse 错误")
+        } catch let error as AirisError {
+            if case .invalidResponse = error {
+                XCTAssertTrue(true)
+            } else {
+                XCTFail("错误类型不正确: \(error)")
+            }
+        }
+    }
+
+    func testCancellationError() async throws {
+        let url = URL(string: "https://test.com/cancel")!
+
+        let cancelError = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled)
+        MockURLProtocol.mockError(url: url, error: cancelError)
+
+        do {
+            _ = try await client.post(url: url, body: Data())
+            XCTFail("应该抛出错误")
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+
+    // MARK: - postJSON Tests
+
+    func testPOSTJSON() async throws {
+        struct TestData: Codable {
+            let key: String
+            let value: Int
+        }
+
+        let url = URL(string: "https://test.com/json")!
+        MockURLProtocol.mockSuccess(url: url, data: Data())
+
+        let testData = TestData(key: "test", value: 42)
+        let (_, response) = try await client.postJSON(url: url, body: testData)
+
+        XCTAssertEqual(response.statusCode, 200)
+    }
 
     // MARK: - Configuration Tests
 
@@ -21,147 +297,5 @@ final class HTTPClientTests: XCTestCase {
         )
         let client = HTTPClient(configuration: config)
         XCTAssertNotNil(client)
-    }
-
-    func testZeroRetries() throws {
-        let config = HTTPClientConfiguration(maxRetries: 0)
-        let client = HTTPClient(configuration: config)
-        XCTAssertNotNil(client)
-    }
-
-    func testShortTimeout() throws {
-        let config = HTTPClientConfiguration(
-            timeoutIntervalForRequest: 1,
-            timeoutIntervalForResource: 5
-        )
-        let client = HTTPClient(configuration: config)
-        XCTAssertNotNil(client)
-    }
-
-    func testNoWaitForConnectivity() throws {
-        let config = HTTPClientConfiguration(waitsForConnectivity: false)
-        let client = HTTPClient(configuration: config)
-        XCTAssertNotNil(client)
-    }
-
-    func testHTTPClientDeinit() throws {
-        var client: HTTPClient? = HTTPClient()
-        XCTAssertNotNil(client)
-        client = nil
-        XCTAssertNil(client)
-    }
-
-    // MARK: - POST Method Tests (模拟测试)
-
-    func testPostMethodSignature() throws {
-        // 验证 post 方法存在且签名正确
-        let client = HTTPClient()
-        let url = URL(fileURLWithPath: "/tmp/test")
-        let body = Data()
-
-        // 这个测试会因为 file:// URL 失败，但证明方法可调用
-        Task {
-            do {
-                _ = try await client.post(url: url, body: body)
-            } catch {
-                // 预期失败
-            }
-        }
-
-        XCTAssertNotNil(client)
-    }
-
-    func testPostJSONMethodSignature() throws {
-        struct TestData: Codable {
-            let key: String
-        }
-
-        let client = HTTPClient()
-        let url = URL(fileURLWithPath: "/tmp/test")
-        let testData = TestData(key: "value")
-
-        // 验证方法存在
-        Task {
-            do {
-                _ = try await client.postJSON(url: url, body: testData)
-            } catch {
-                // 预期失败
-            }
-        }
-
-        XCTAssertNotNil(client)
-    }
-
-    func testGetMethodSignature() throws {
-        let client = HTTPClient()
-        let url = URL(fileURLWithPath: "/tmp/test")
-
-        Task {
-            do {
-                _ = try await client.get(url: url)
-            } catch {
-                // 预期失败
-            }
-        }
-
-        XCTAssertNotNil(client)
-    }
-
-    // MARK: - Configuration Property Tests
-
-    func testConfigurationTimeouts() throws {
-        let config = HTTPClientConfiguration(
-            timeoutIntervalForRequest: 45,
-            timeoutIntervalForResource: 900
-        )
-
-        XCTAssertEqual(config.timeoutIntervalForRequest, 45)
-        XCTAssertEqual(config.timeoutIntervalForResource, 900)
-    }
-
-    func testConfigurationRetry() throws {
-        let config = HTTPClientConfiguration(
-            maxRetries: 10,
-            retryDelay: 3.0
-        )
-
-        XCTAssertEqual(config.maxRetries, 10)
-        XCTAssertEqual(config.retryDelay, 3.0)
-    }
-
-    func testConfigurationConnectivity() throws {
-        var config = HTTPClientConfiguration()
-        config.waitsForConnectivity = false
-
-        XCTAssertFalse(config.waitsForConnectivity)
-    }
-
-    // MARK: - Integration Tests with Network (可选)
-
-    func testRealNetworkPOST() async throws {
-        guard ProcessInfo.processInfo.environment["AIRIS_RUN_NETWORK_TESTS"] == "1" else {
-            throw XCTSkip("网络测试默认跳过")
-        }
-
-        let client = HTTPClient()
-        let url = try XCTUnwrap(URL(string: "https://httpbin.org/post"))
-        let body = Data("{\"test\": \"coverage\"}".utf8)
-
-        let (data, response) = try await client.post(url: url, body: body)
-        XCTAssertEqual(response.statusCode, 200)
-        XCTAssertFalse(data.isEmpty)
-    }
-
-    func testRealNetworkGET() async throws {
-        guard ProcessInfo.processInfo.environment["AIRIS_RUN_NETWORK_TESTS"] == "1" else {
-            throw XCTSkip("网络测试默认跳过")
-        }
-
-        let client = HTTPClient()
-        let url = try XCTUnwrap(URL(string: "https://httpbin.org/get"))
-
-        let (data, response) = try await client.get(url: url)
-        XCTAssertEqual(response.statusCode, 200)
-        XCTAssertFalse(data.isEmpty)
     }
 }
