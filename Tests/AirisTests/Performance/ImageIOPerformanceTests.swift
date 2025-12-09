@@ -44,21 +44,30 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试 4K 图像加载性能 - 完整加载
     func testLoadImage_4K_Full() throws {
-        measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
             let _ = try? service.loadImage(at: testImageURL)
         }
     }
 
     /// 测试 4K 图像加载性能 - 缩略图模式
     func testLoadImage_4K_Thumbnail() throws {
-        measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             let _ = try? service.loadImage(at: testImageURL, maxDimension: 512)
         }
     }
 
     /// 测试 4K 图像加载性能 - 1K 缩略图
     func testLoadImage_4K_Thumbnail1K() throws {
-        measure(metrics: [XCTCPUMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric()], options: options) {
             let _ = try? service.loadImage(at: testImageURL, maxDimension: 1024)
         }
     }
@@ -67,14 +76,20 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试元数据读取性能（零拷贝）
     func testLoadMetadata() throws {
-        measure(metrics: [XCTCPUMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             let _ = try? service.loadImageMetadata(at: testImageURL)
         }
     }
 
     /// 测试图像信息读取性能
     func testGetImageInfo() throws {
-        measure(metrics: [XCTCPUMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric()], options: options) {
             let _ = try? service.getImageInfo(at: testImageURL)
         }
     }
@@ -86,7 +101,10 @@ final class ImageIOPerformanceTests: XCTestCase {
         let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
         let outputPath = tempDirectory.appendingPathComponent("test_output.png")
 
-        measure(metrics: [XCTCPUMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "png")
         }
 
@@ -99,7 +117,10 @@ final class ImageIOPerformanceTests: XCTestCase {
         let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
         let outputPath = tempDirectory.appendingPathComponent("test_output_hq.jpg")
 
-        measure(metrics: [XCTCPUMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "jpg", quality: 0.95)
         }
 
@@ -111,7 +132,10 @@ final class ImageIOPerformanceTests: XCTestCase {
         let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
         let outputPath = tempDirectory.appendingPathComponent("test_output_lq.jpg")
 
-        measure(metrics: [XCTCPUMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "jpg", quality: 0.5)
         }
 
@@ -123,7 +147,10 @@ final class ImageIOPerformanceTests: XCTestCase {
         let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
         let outputPath = tempDirectory.appendingPathComponent("test_output.heic")
 
-        measure(metrics: [XCTCPUMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "heic", quality: 0.9)
         }
 
@@ -137,7 +164,10 @@ final class ImageIOPerformanceTests: XCTestCase {
         let coreImageService = CoreImageService()
         let outputPath = tempDirectory.appendingPathComponent("processed_output.jpg")
 
-        measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
             // 加载
             guard let cgImage = try? service.loadImage(at: testImageURL, maxDimension: 1024) else { return }
 
@@ -159,7 +189,10 @@ final class ImageIOPerformanceTests: XCTestCase {
     func testBatchThumbnailGeneration() throws {
         let thumbnailSizes = [128, 256, 512, 1024]
 
-        measure(metrics: [XCTCPUMetric(), XCTClockMetric()]) {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        
+        measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             for size in thumbnailSizes {
                 let _ = try? service.loadImage(at: testImageURL, maxDimension: size)
             }
