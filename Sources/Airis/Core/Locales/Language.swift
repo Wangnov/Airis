@@ -11,7 +11,12 @@ enum Language: String, ExpressibleByArgument, CaseIterable, Sendable {
 
     /// 从系统语言环境自动检测
     static var fromSystem: Language {
-        let preferred = Locale.preferredLanguages.first ?? "en"
+        fromSystemLanguages(Locale.preferredLanguages)
+    }
+
+    /// 从语言列表中检测（可测试的内部方法）
+    static func fromSystemLanguages(_ languages: [String]) -> Language {
+        let preferred = languages.first ?? "en"
         return preferred.hasPrefix("zh") ? .cn : .en
     }
 
