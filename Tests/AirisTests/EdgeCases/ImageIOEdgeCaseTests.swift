@@ -8,6 +8,10 @@ import XCTest
 /// - 测试格式边界
 /// - 测试保存边界条件
 final class ImageIOEdgeCaseTests: XCTestCase {
+
+    // ✅ Apple 最佳实践：类级别共享服务
+    nonisolated(unsafe) static let sharedImageIOService = ImageIOService()
+
     var service: ImageIOService!
     var tempDirectory: URL!
 
