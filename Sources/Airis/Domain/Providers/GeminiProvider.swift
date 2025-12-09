@@ -159,15 +159,39 @@ final class GeminiProvider: Sendable {
             throw AirisError.noResultsFound
         }
 
-        // 查找包含图片的 part
+        // 查找包含图片的 part，同时收集文本响应
         var imagePart: GeminiGenerateResponse.Part?
+        var textParts: [String] = []
+
         for part in candidate.content.parts where part.inlineData != nil {
             imagePart = part
             break
         }
 
+        // 收集所有文本部分
+        for part in candidate.content.parts {
+            if let text = part.text, !text.isEmpty {
+                textParts.append(text)
+            }
+        }
+
         guard let foundImagePart = imagePart,
               let inlineData = foundImagePart.inlineData else {
+            // 如果有文本响应，将其作为错误信息提供给用户
+            if !textParts.isEmpty {
+                let reason = textParts.joined(separator: "\n")
+                print("")
+                print("⚠️ API 未返回图片，模型响应：")
+                print("─────────────────────────────")
+                print(reason)
+                print("─────────────────────────────")
+                print("")
+                print("💡 建议：")
+                print("   1. 尝试修改提示词")
+                print("   2. 检查是否违反内容政策")
+                print("   3. 使用 --model 切换模型")
+                print("")
+            }
             throw AirisError.noResultsFound
         }
 

@@ -4,7 +4,7 @@ import CoreGraphics
 import UniformTypeIdentifiers
 
 /// ImageIO 服务层（图像元数据和加载）
-final class ImageIOService {
+final class ImageIOService: Sendable {
 
     // MARK: - 元数据读取
 
