@@ -12,7 +12,7 @@ import CoreImage
 final class CoreImageEdgeCaseTests: XCTestCase {
 
     // ✅ Apple 最佳实践：类级别共享服务
-    nonisolated(unsafe) static let sharedCoreImageService = CoreImageService()
+    static let sharedCoreImageService = CoreImageService()
 
     var service: CoreImageService!
 
