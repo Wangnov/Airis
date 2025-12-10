@@ -2,26 +2,25 @@ import XCTest
 import CoreImage
 @testable import Airis
 
-/// 图像 I/O 性能基准测试
+/// ImageIO 框架性能基准测试
 ///
 /// 测试目标:
-/// - 测试图像加载性能
-/// - 测试图像保存性能（不同格式）
-/// - 测试元数据读取性能
-/// - 测试格式转换性能
+/// - 建立图像 I/O 操作的性能基线
+/// - 监测不同格式和压缩设置的性能
 final class ImageIOPerformanceTests: XCTestCase {
     var service: ImageIOService!
     var testImageURL: URL!
     var tempDirectory: URL!
 
-    // 测试资产目录
-    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
+    // 内置测试资源路径
+    static let resourcePath = "Tests/Resources/images"
 
     override func setUp() async throws {
         try await super.setUp()
         service = ImageIOService()
 
-        testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        // 使用 1024x1024 图片进行性能测试（平衡大小与速度）
+        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/perf_1024x1024.jpg")
 
         // 创建临时目录用于保存测试
         tempDirectory = FileManager.default.temporaryDirectory
@@ -42,33 +41,33 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     // MARK: - 图像加载性能
 
-    /// 测试 4K 图像加载性能 - 完整加载
+    /// 测试 1K 图像加载性能 - 完整加载
     func testLoadImage_4K_Full() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
             _ = try? service.loadImage(at: testImageURL)
         }
     }
 
-    /// 测试 4K 图像加载性能 - 缩略图模式
+    /// 测试 1K 图像加载性能 - 缩略图模式
     func testLoadImage_4K_Thumbnail() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             _ = try? service.loadImage(at: testImageURL, maxDimension: 512)
         }
     }
 
-    /// 测试 4K 图像加载性能 - 1K 缩略图
+    /// 测试 1K 图像加载性能 - 256 缩略图
     func testLoadImage_4K_Thumbnail1K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
-            _ = try? service.loadImage(at: testImageURL, maxDimension: 1024)
+            _ = try? service.loadImage(at: testImageURL, maxDimension: 256)
         }
     }
 
@@ -98,12 +97,12 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试保存为 PNG 性能
     func testSaveImage_PNG() throws {
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
+        let cgImage = try service.loadImage(at: testImageURL)
         let outputPath = tempDirectory.appendingPathComponent("test_output.png")
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "png")
         }
@@ -114,12 +113,12 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试保存为 JPEG 性能 - 高质量
     func testSaveImage_JPEG_HighQuality() throws {
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
+        let cgImage = try service.loadImage(at: testImageURL)
         let outputPath = tempDirectory.appendingPathComponent("test_output_hq.jpg")
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "jpg", quality: 0.95)
         }
@@ -129,12 +128,12 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试保存为 JPEG 性能 - 低质量（压缩更多）
     func testSaveImage_JPEG_LowQuality() throws {
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
+        let cgImage = try service.loadImage(at: testImageURL)
         let outputPath = tempDirectory.appendingPathComponent("test_output_lq.jpg")
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "jpg", quality: 0.5)
         }
@@ -144,12 +143,12 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试保存为 HEIC 性能
     func testSaveImage_HEIC() throws {
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 1024)
+        let cgImage = try service.loadImage(at: testImageURL)
         let outputPath = tempDirectory.appendingPathComponent("test_output.heic")
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             try? service.saveImage(cgImage, to: outputPath, format: "heic", quality: 0.9)
         }
@@ -166,10 +165,10 @@ final class ImageIOPerformanceTests: XCTestCase {
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
             // 加载
-            guard let cgImage = try? service.loadImage(at: testImageURL, maxDimension: 1024) else { return }
+            guard let cgImage = try? service.loadImage(at: testImageURL) else { return }
 
             // 处理
             let ciImage = CIImage(cgImage: cgImage)
@@ -187,11 +186,11 @@ final class ImageIOPerformanceTests: XCTestCase {
 
     /// 测试批量缩略图生成性能
     func testBatchThumbnailGeneration() throws {
-        let thumbnailSizes = [128, 256, 512, 1024]
+        let thumbnailSizes = [128, 256, 512]
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             for size in thumbnailSizes {
                 _ = try? service.loadImage(at: testImageURL, maxDimension: size)
