@@ -4,6 +4,12 @@ import Foundation
 
 /// Vision 框架服务层封装
 final class VisionService: Sendable {
+    nonisolated(unsafe) private let operations: any VisionOperations
+
+    /// 初始化（支持依赖注入）
+    init(operations: any VisionOperations = DefaultVisionOperations()) {
+        self.operations = operations
+    }
 
     // MARK: - 图像分类
 
@@ -14,7 +20,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 let filtered = results.filter { $0.confidence >= threshold }
                 continuation.resume(returning: filtered)
@@ -31,7 +37,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 let filtered = results.filter { $0.confidence >= threshold }
                 continuation.resume(returning: filtered)
@@ -61,7 +67,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -86,7 +92,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -104,7 +110,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -120,7 +126,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -138,7 +144,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -156,7 +162,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -173,7 +179,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -192,7 +198,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -211,7 +217,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
@@ -232,7 +238,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([classifyRequest, textRequest, barcodeRequest])
+                try operations.perform(requests: [classifyRequest, textRequest, barcodeRequest], on: handler)
 
                 let classifications = classifyRequest.results ?? []
                 let texts = textRequest.results ?? []
@@ -299,7 +305,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
                       let observation = results.first else {
                     continuation.resume(throwing: AirisError.noResultsFound)
@@ -344,7 +350,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
                       let observation = results.first else {
                     continuation.resume(throwing: AirisError.noResultsFound)
@@ -396,7 +402,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 guard let results = request.results as? [VNSaliencyImageObservation],
                       let observation = results.first else {
                     continuation.resume(throwing: AirisError.noResultsFound)
@@ -460,7 +466,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
                       let observation = results.first else {
                     continuation.resume(throwing: AirisError.noResultsFound)
@@ -521,7 +527,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 guard let results = request.results, !results.isEmpty else {
                     continuation.resume(returning: [])
                     return
@@ -563,7 +569,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
                       let horizon = results.first else {
                     continuation.resume(returning: nil)
@@ -594,7 +600,7 @@ final class VisionService: Sendable {
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try handler.perform([request])
+                try operations.perform(requests: [request], on: handler)
 
                 guard let observation = request.results?.first else {
                     continuation.resume(throwing: AirisError.noResultsFound)

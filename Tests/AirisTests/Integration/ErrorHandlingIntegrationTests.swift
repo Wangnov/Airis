@@ -205,18 +205,29 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
 
     /// 测试：HTTP 客户端处理无效 URL
     func testHTTPClientInvalidRequest() async throws {
-        let client = HTTPClient()
+        // 使用 MockURLProtocol 即时返回错误（< 0.01秒）
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [MockURLProtocol.self]
+        let mockSession = URLSession(configuration: config)
 
-        // 使用一个不存在的域名
-        let invalidURL = try XCTUnwrap(URL(string: "https://this-domain-does-not-exist-\(UUID().uuidString).com"))
+        var httpConfig = HTTPClientConfiguration()
+        httpConfig.timeoutIntervalForRequest = 1
+        let client = HTTPClient(configuration: httpConfig, session: mockSession)
+
+        // Mock 网络连接失败错误
+        let testURL = URL(string: "https://test.example.com")!
+        MockURLProtocol.mockError(url: testURL, error: URLError(.cannotFindHost))
 
         do {
-            _ = try await client.get(url: invalidURL)
-            XCTFail("Should fail for invalid domain")
+            _ = try await client.get(url: testURL)
+            XCTFail("Should fail for network error")
         } catch {
-            // 预期网络错误
-            XCTAssertTrue(true, "Correctly handled invalid domain")
+            // 预期网络错误（即时返回）
+            XCTAssertTrue(true, "Correctly handled network error")
         }
+
+        // 清理
+        MockURLProtocol.reset()
     }
 
     // MARK: - 图像处理错误测试

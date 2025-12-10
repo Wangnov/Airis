@@ -28,14 +28,19 @@ final class CoreImageService: @unchecked Sendable {
     /// Metal 设备（可选，用于高级渲染）
     private let metalDevice: MTLDevice?
 
+    /// 底层操作（用于依赖注入）
+    nonisolated(unsafe) private let operations: any CoreImageOperations
+
     // MARK: - Initialization
 
-    init() {
+    init(operations: any CoreImageOperations = DefaultCoreImageOperations()) {
+        self.operations = operations
+
         // 尝试获取 Metal 设备进行 GPU 加速
-        self.metalDevice = MTLCreateSystemDefaultDevice()
+        self.metalDevice = operations.getDefaultMetalDevice()
 
         if let device = metalDevice {
-            self.context = CIContext(mtlDevice: device, options: [
+            self.context = operations.createContext(with: device, options: [
                 .workingColorSpace: CGColorSpaceCreateDeviceRGB(),
                 .cacheIntermediates: true,
                 .highQualityDownsample: true,
@@ -43,7 +48,7 @@ final class CoreImageService: @unchecked Sendable {
             ])
         } else {
             // 回退到软件渲染（虚拟机或不支持 Metal 的情况）
-            self.context = CIContext(options: [
+            self.context = operations.createContext(with: nil, options: [
                 .useSoftwareRenderer: true,
                 .workingColorSpace: CGColorSpaceCreateDeviceRGB(),
                 .name: "Airis.CoreImage.Software" as NSString

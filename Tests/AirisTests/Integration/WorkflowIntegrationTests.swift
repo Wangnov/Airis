@@ -143,7 +143,7 @@ final class WorkflowIntegrationTests: XCTestCase {
             throw XCTSkip("Test asset not found: document.png")
         }
 
-        // 1. 识别文字（集成测试用 fast 模式即可）
+        // 1. 识别文字（集成测试用 fast 模式，快速验证流程）
         let textObservations = try await visionService.recognizeText(
             at: documentURL,
             languages: ["en", "zh-Hans"],

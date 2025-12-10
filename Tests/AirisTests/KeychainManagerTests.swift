@@ -107,4 +107,45 @@ final class KeychainManagerTests: XCTestCase {
         let retrieved = try keychain.getAPIKey(for: testProvider)
         XCTAssertEqual(retrieved, longKey)
     }
+
+    // MARK: - Mock Tests (Error Path Coverage)
+
+    /// 测试字符串转 Data 失败
+    func testSaveAPIKey_StringToDataFails() throws {
+        let mockOps = MockKeychainOperations(shouldFailStringToData: true)
+        let mockKeychain = KeychainManager(operations: mockOps)
+
+        XCTAssertThrowsError(try mockKeychain.saveAPIKey("test", for: "provider")) { error in
+            guard case AirisError.keychainError(errSecParam) = error else {
+                XCTFail("应该抛出 keychainError(errSecParam)")
+                return
+            }
+        }
+    }
+
+    /// 测试 SecItemAdd 失败
+    func testSaveAPIKey_AddFails() throws {
+        let mockOps = MockKeychainOperations(shouldFailAdd: true, addErrorCode: errSecIO)
+        let mockKeychain = KeychainManager(operations: mockOps)
+
+        XCTAssertThrowsError(try mockKeychain.saveAPIKey("test", for: "provider")) { error in
+            guard case AirisError.keychainError(errSecIO) = error else {
+                XCTFail("应该抛出 keychainError(errSecIO)")
+                return
+            }
+        }
+    }
+
+    /// 测试 SecItemUpdate 失败
+    func testSaveAPIKey_UpdateFails() throws {
+        let mockOps = MockKeychainOperations(shouldFailUpdate: true)
+        let mockKeychain = KeychainManager(operations: mockOps)
+
+        XCTAssertThrowsError(try mockKeychain.saveAPIKey("test", for: "provider")) { error in
+            guard case AirisError.keychainError(errSecIO) = error else {
+                XCTFail("应该抛出 keychainError(errSecIO)")
+                return
+            }
+        }
+    }
 }

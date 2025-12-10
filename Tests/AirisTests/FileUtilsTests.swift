@@ -132,6 +132,19 @@ final class FileUtilsTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: newDir.path))
     }
 
+    /// 测试确保目录存在 - 创建失败（只读路径）
+    func testEnsureDirectoryCreationFails() throws {
+        // 尝试在系统只读路径下创建目录（/dev/null/test.png 的父目录是 /dev）
+        let readOnlyPath = "/dev/null/subdir/test.png"
+
+        XCTAssertThrowsError(try FileUtils.ensureDirectory(for: readOnlyPath)) { error in
+            guard case AirisError.fileWriteError = error else {
+                XCTFail("应该抛出 fileWriteError，实际为: \(error)")
+                return
+            }
+        }
+    }
+
     // MARK: - getFormattedFileSize Tests
 
     /// 测试获取格式化文件大小
