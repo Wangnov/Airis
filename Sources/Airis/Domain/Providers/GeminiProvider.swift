@@ -40,6 +40,9 @@ final class GeminiProvider: Sendable {
         // 确定模型（参数 > 配置 > 默认）
         let actualModel = model ?? providerConfig.model ?? Self.defaultModel
 
+        // 标准化 imageSize（支持 1k/2k/4k 等小写输入）
+        let normalizedImageSize = imageSize.uppercased()
+
         // 构建 API 端点（v1beta 固定在代码中）
         let baseURL = providerConfig.baseURL ?? "https://generativelanguage.googleapis.com"
         let endpoint = "\(baseURL)/v1beta/models/\(actualModel):generateContent"
@@ -62,8 +65,8 @@ final class GeminiProvider: Sendable {
             print("📏 分辨率: 1024px 级别 (\(resolution))")
         } else {
             // Pro 模型可变分辨率
-            let resolution = getResolutionForPro(aspectRatio: aspectRatio, size: imageSize)
-            print("📏 分辨率: \(imageSize) (\(resolution))")
+            let resolution = getResolutionForPro(aspectRatio: aspectRatio, size: normalizedImageSize)
+            print("📏 分辨率: \(normalizedImageSize) (\(resolution))")
         }
 
         if !references.isEmpty {
@@ -118,10 +121,10 @@ final class GeminiProvider: Sendable {
                 imageSize: nil
             )
         } else {
-            // Pro 模型支持 aspectRatio 和 imageSize
+            // Pro 模型支持 aspectRatio 和 imageSize（使用标准化后的值）
             imageConfig = GeminiGenerateRequest.ImageConfig(
                 aspectRatio: aspectRatio,
-                imageSize: imageSize
+                imageSize: normalizedImageSize
             )
         }
 
@@ -236,6 +239,9 @@ final class GeminiProvider: Sendable {
 
     /// 获取 Pro 模型的实际分辨率
     private func getResolutionForPro(aspectRatio: String, size: String) -> String {
+        // 容错处理：将 size 转为大写（支持 1k、2k、4k 等小写输入）
+        let normalizedSize = size.uppercased()
+
         let resolutions: [String: [String: String]] = [
             "1K": [
                 "1:1": "1024×1024",
@@ -275,6 +281,6 @@ final class GeminiProvider: Sendable {
             ]
         ]
 
-        return resolutions[size]?[aspectRatio] ?? "Unknown"
+        return resolutions[normalizedSize]?[aspectRatio] ?? "Unknown"
     }
 }
