@@ -5,10 +5,16 @@ import Security
 /// 使用文件型 Keychain（CLI 工具推荐方式，无需 entitlements）
 final class KeychainManager: Sendable {
     private let service = "live.airis.cli"
+    nonisolated(unsafe) private let operations: any KeychainOperations
+
+    /// 初始化（支持依赖注入）
+    init(operations: any KeychainOperations = DefaultKeychainOperations()) {
+        self.operations = operations
+    }
 
     /// 保存 API Key（使用 SecItemUpdate 优先策略）
     func saveAPIKey(_ key: String, for provider: String) throws {
-        guard let data = key.data(using: .utf8) else {
+        guard let data = operations.stringToData(key) else {
             throw AirisError.keychainError(errSecParam)
         }
 
@@ -23,7 +29,7 @@ final class KeychainManager: Sendable {
         ]
 
         // 先尝试更新现有项
-        let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        let updateStatus = operations.itemUpdate(query: query as CFDictionary, attributesToUpdate: attributes as CFDictionary)
 
         if updateStatus == errSecItemNotFound {
             // 不存在则添加新项
@@ -32,7 +38,7 @@ final class KeychainManager: Sendable {
             addQuery[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlock
             addQuery[kSecAttrSynchronizable] = false  // API Key 不应同步到 iCloud
 
-            let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+            let addStatus = operations.itemAdd(attributes: addQuery as CFDictionary, result: nil)
             guard addStatus == errSecSuccess else {
                 throw AirisError.keychainError(addStatus)
             }
@@ -52,11 +58,11 @@ final class KeychainManager: Sendable {
         ]
 
         var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        let status = operations.itemCopyMatching(query: query as CFDictionary, result: &result)
 
         guard status == errSecSuccess,
               let data = result as? Data,
-              let key = String(data: data, encoding: .utf8) else {
+              let key = operations.dataToString(data) else {
             throw AirisError.apiKeyNotFound(provider: provider)
         }
 
@@ -71,7 +77,7 @@ final class KeychainManager: Sendable {
             kSecAttrAccount: provider
         ]
 
-        let status = SecItemDelete(query as CFDictionary)
+        let status = operations.itemDelete(query: query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw AirisError.keychainError(status)
         }
@@ -86,7 +92,7 @@ final class KeychainManager: Sendable {
             kSecReturnData: false
         ]
 
-        let status = SecItemCopyMatching(query as CFDictionary, nil)
+        let status = operations.itemCopyMatching(query: query as CFDictionary, result: nil)
         return status == errSecSuccess
     }
 }

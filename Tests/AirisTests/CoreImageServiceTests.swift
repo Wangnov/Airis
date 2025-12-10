@@ -339,4 +339,31 @@ final class CoreImageServiceTests: XCTestCase {
         )
         XCTAssertNotNil(adjusted)
     }
+
+    // MARK: - Mock Tests (Error Path Coverage)
+
+    /// 测试 Metal 不可用的场景（软件渲染回退）
+    func testInitWithoutMetal() throws {
+        let mockOps = MockCoreImageOperations(shouldReturnNilMetalDevice: true)
+        let mockService = CoreImageService(operations: mockOps)
+
+        // 服务应该成功初始化（使用软件渲染）
+        XCTAssertNotNil(mockService)
+
+        // 验证仍然可以正常使用
+        let blurred = mockService.gaussianBlur(ciImage: testCIImage, radius: 5)
+        XCTAssertNotNil(blurred)
+    }
+
+    /// 测试 DefaultCoreImageOperations 的 createContext else 分支
+    func testDefaultCoreImageOperations_CreateContextWithoutDevice() throws {
+        let ops = DefaultCoreImageOperations()
+
+        // 调用 createContext 的 else 分支（device 为 nil）
+        let context = ops.createContext(with: nil, options: [
+            .useSoftwareRenderer: true
+        ])
+
+        XCTAssertNotNil(context)
+    }
 }
