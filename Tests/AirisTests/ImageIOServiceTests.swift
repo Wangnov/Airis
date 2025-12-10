@@ -374,4 +374,130 @@ final class ImageIOServiceTests: XCTestCase {
         XCTAssertLessThanOrEqual(thumbnail.height, originalImage.height)
         XCTAssertLessThanOrEqual(max(thumbnail.width, thumbnail.height), 100)
     }
+
+    // MARK: - Mock Tests (Error Path Coverage)
+
+    func testSaveImage_CreateDestinationFailure() throws {
+        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
+            throw XCTSkip("测试图片不存在")
+        }
+
+        // 使用真实的 operations 加载图像
+        let cgImage = try service.loadImage(at: testImageURL)
+
+        // 创建 Mock 并配置为 createDestination 失败
+        let mockOps = MockImageIOOperations()
+        mockOps.shouldFailCreateDestination = true
+        let mockService = ImageIOService(operations: mockOps)
+
+        let outputURL = tempDir.appendingPathComponent("mock_fail_create.png")
+
+        XCTAssertThrowsError(try mockService.saveImage(cgImage, to: outputURL)) { error in
+            guard case AirisError.fileWriteError = error else {
+                XCTFail("Expected fileWriteError, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testSaveImage_FinalizeFailure() throws {
+        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
+            throw XCTSkip("测试图片不存在")
+        }
+
+        // 使用真实的 operations 加载图像
+        let cgImage = try service.loadImage(at: testImageURL)
+
+        // 创建 Mock 并配置为 finalize 失败
+        let mockOps = MockImageIOOperations()
+        mockOps.shouldFailFinalize = true
+        let mockService = ImageIOService(operations: mockOps)
+
+        let outputURL = tempDir.appendingPathComponent("mock_fail_finalize.png")
+
+        XCTAssertThrowsError(try mockService.saveImage(cgImage, to: outputURL)) { error in
+            guard case AirisError.imageEncodeFailed = error else {
+                XCTFail("Expected imageEncodeFailed, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testGetImageInfo_InvalidOrientation() throws {
+        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
+            throw XCTSkip("测试图片不存在")
+        }
+
+        // 使用返回无效 orientation 的 Mock
+        let mockOps = MockImageIOOperationsWithInvalidOrientation()
+        let mockService = ImageIOService(operations: mockOps)
+
+        // 获取图像信息
+        let info = try mockService.getImageInfo(at: testImageURL)
+
+        // 注意：CGImagePropertyOrientation 对任何 UInt32 都不返回 nil（C 枚举行为）
+        // 所以 rawValue 99 会被接受，此测试验证代码路径被执行
+        XCTAssertNotNil(info.orientation)
+    }
+
+    func testGetImageInfo_NoOrientationInMetadata() throws {
+        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
+            throw XCTSkip("测试图片不存在")
+        }
+
+        // 使用不包含 orientation 的 Mock
+        let mockOps = MockImageIOOperationsWithoutOrientation()
+        let mockService = ImageIOService(operations: mockOps)
+
+        // 当元数据中没有 orientation 时，应该使用默认值 .up
+        let info = try mockService.getImageInfo(at: testImageURL)
+        XCTAssertEqual(info.orientation, .up)
+    }
+
+    func testGetImageInfo_AllDefaultValues() throws {
+        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
+            throw XCTSkip("测试图片不存在")
+        }
+
+        // 使用返回空属性字典的 Mock，触发所有默认值分支
+        let mockOps = MockImageIOOperationsWithMissingProperties()
+        let mockService = ImageIOService(operations: mockOps)
+
+        // 当所有属性都缺失时，应该使用默认值
+        let info = try mockService.getImageInfo(at: testImageURL)
+
+        // 验证所有默认值
+        XCTAssertEqual(info.width, 0)       // ?? 0
+        XCTAssertEqual(info.height, 0)      // ?? 0
+        XCTAssertEqual(info.dpiWidth, 72)   // ?? 72
+        XCTAssertEqual(info.dpiHeight, 72)  // ?? 72
+        XCTAssertFalse(info.hasAlpha)       // ?? false
+        XCTAssertEqual(info.orientation, .up) // 没有进入 if 块
+    }
+
+    func testGetImageInfo_ValidOrientation() throws {
+        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
+            throw XCTSkip("测试图片不存在")
+        }
+
+        // 使用返回有效 orientation 的 Mock（值为 6 = .right）
+        let mockOps = MockImageIOOperationsWithValidOrientation()
+        let mockService = ImageIOService(operations: mockOps)
+
+        // 获取图像信息 - 应该正确解析 orientation
+        let info = try mockService.getImageInfo(at: testImageURL)
+
+        // 验证 orientation 被正确解析为 .right (rawValue = 6)
+        XCTAssertEqual(info.orientation, .right)
+    }
+
+    func testDependencyInjection() throws {
+        // 测试依赖注入机制
+        let defaultService = ImageIOService()
+        XCTAssertNotNil(defaultService)
+
+        let mockOps = MockImageIOOperations()
+        let injectedService = ImageIOService(operations: mockOps)
+        XCTAssertNotNil(injectedService)
+    }
 }

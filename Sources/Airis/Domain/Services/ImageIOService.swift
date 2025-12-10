@@ -5,16 +5,22 @@ import UniformTypeIdentifiers
 
 /// ImageIO 服务层（图像元数据和加载）
 final class ImageIOService: Sendable {
+    /// 底层操作实现（支持依赖注入，用于测试 Mock）
+    private let operations: ImageIOOperations
+
+    init(operations: ImageIOOperations = RealImageIOOperations()) {
+        self.operations = operations
+    }
 
     // MARK: - 元数据读取
 
     /// 读取图像元数据（零拷贝）
     func loadImageMetadata(at url: URL) throws -> [CFString: Any] {
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+        guard let source = operations.createImageSource(at: url) else {
             throw AirisError.fileNotFound(url.path)
         }
 
-        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] else {
+        guard let properties = operations.getProperties(from: source, at: 0) else {
             throw AirisError.unsupportedFormat(url.pathExtension)
         }
 
@@ -25,7 +31,7 @@ final class ImageIOService: Sendable {
 
     /// 加载图像（支持缩略图优化）
     func loadImage(at url: URL, maxDimension: Int? = nil) throws -> CGImage {
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+        guard let source = operations.createImageSource(at: url) else {
             throw AirisError.fileNotFound(url.path)
         }
 
@@ -40,7 +46,7 @@ final class ImageIOService: Sendable {
             options[kCGImageSourceCreateThumbnailWithTransform] = true
         }
 
-        guard let image = CGImageSourceCreateImageAtIndex(source, 0, options as CFDictionary) else {
+        guard let image = operations.createImage(from: source, at: 0, options: options as CFDictionary) else {
             throw AirisError.imageDecodeFailed
         }
 
@@ -73,10 +79,12 @@ final class ImageIOService: Sendable {
         let depth = properties[kCGImagePropertyDepth] as? Int
         let hasAlpha = (properties[kCGImagePropertyHasAlpha] as? Bool) ?? false
 
-        // 读取 EXIF 方向
+        // 读取 EXIF 方向（有效值范围 1-8）
         var orientation: CGImagePropertyOrientation = .up
-        if let orientationNum = properties[kCGImagePropertyOrientation] as? UInt32 {
-            orientation = CGImagePropertyOrientation(rawValue: orientationNum) ?? .up
+        if let orientationNum = properties[kCGImagePropertyOrientation] as? UInt32,
+           (1...8).contains(orientationNum),
+           let validOrientation = CGImagePropertyOrientation(rawValue: orientationNum) {
+            orientation = validOrientation
         }
 
         return ImageInfo(
@@ -114,7 +122,7 @@ final class ImageIOService: Sendable {
             utType = .png
         }
 
-        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, utType.identifier as CFString, 1, nil) else {
+        guard let destination = operations.createImageDestination(at: url, type: utType) else {
             throw AirisError.fileWriteError(url.path, NSError(domain: "ImageIO", code: -1))
         }
 
@@ -122,9 +130,9 @@ final class ImageIOService: Sendable {
             kCGImageDestinationLossyCompressionQuality: quality
         ]
 
-        CGImageDestinationAddImage(destination, cgImage, options as CFDictionary)
+        operations.addImage(to: destination, image: cgImage, properties: options as CFDictionary)
 
-        guard CGImageDestinationFinalize(destination) else {
+        guard operations.finalize(destination: destination) else {
             throw AirisError.imageEncodeFailed
         }
     }
@@ -133,23 +141,23 @@ final class ImageIOService: Sendable {
 
     /// 获取图像格式
     func getImageFormat(at url: URL) throws -> String {
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+        guard let source = operations.createImageSource(at: url) else {
             throw AirisError.fileNotFound(url.path)
         }
 
-        guard let type = CGImageSourceGetType(source) else {
+        guard let type = operations.getType(from: source) else {
             throw AirisError.unsupportedFormat(url.pathExtension)
         }
 
-        return type as String
+        return type
     }
 
     /// 获取图像帧数（用于 GIF 等多帧格式）
     func getImageFrameCount(at url: URL) throws -> Int {
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+        guard let source = operations.createImageSource(at: url) else {
             throw AirisError.fileNotFound(url.path)
         }
 
-        return CGImageSourceGetCount(source)
+        return operations.getCount(from: source)
     }
 }
