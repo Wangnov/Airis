@@ -15,7 +15,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNClassificationObservation]) ?? []
+                let results = request.results ?? []
                 let filtered = results.filter { $0.confidence >= threshold }
                 continuation.resume(returning: filtered)
             } catch {
@@ -32,7 +32,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNClassificationObservation]) ?? []
+                let results = request.results ?? []
                 let filtered = results.filter { $0.confidence >= threshold }
                 continuation.resume(returning: filtered)
             } catch {
@@ -62,7 +62,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNRecognizedTextObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -87,7 +87,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNBarcodeObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -105,7 +105,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNFaceObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -121,7 +121,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNFaceObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -139,7 +139,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNRecognizedObjectObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -157,7 +157,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNHumanBodyPoseObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -174,7 +174,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNHumanBodyPose3DObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -193,7 +193,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNHumanHandPoseObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -212,7 +212,7 @@ final class VisionService: Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             do {
                 try handler.perform([request])
-                let results = (request.results as? [VNAnimalBodyPoseObservation]) ?? []
+                let results = request.results ?? []
                 continuation.resume(returning: results)
             } catch {
                 continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
@@ -234,9 +234,9 @@ final class VisionService: Sendable {
             do {
                 try handler.perform([classifyRequest, textRequest, barcodeRequest])
 
-                let classifications = (classifyRequest.results as? [VNClassificationObservation]) ?? []
-                let texts = (textRequest.results as? [VNRecognizedTextObservation]) ?? []
-                let barcodes = (barcodeRequest.results as? [VNBarcodeObservation]) ?? []
+                let classifications = classifyRequest.results ?? []
+                let texts = textRequest.results ?? []
+                let barcodes = barcodeRequest.results ?? []
 
                 continuation.resume(returning: ComprehensiveAnalysis(
                     classifications: classifications,
@@ -346,7 +346,7 @@ final class VisionService: Sendable {
             do {
                 try handler.perform([request])
                 guard let results = request.results,
-                      let observation = results.first as? VNImageTranslationAlignmentObservation else {
+                      let observation = results.first else {
                     continuation.resume(throwing: AirisError.noResultsFound)
                     return
                 }
