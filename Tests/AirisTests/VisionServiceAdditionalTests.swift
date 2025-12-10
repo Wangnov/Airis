@@ -8,12 +8,15 @@ final class VisionServiceAdditionalTests: XCTestCase {
     var service: VisionService!
     var testImageURL: URL!
 
-    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
+    // 测试资源路径（相对于项目根目录）
+    static let resourcePath = "Tests/Resources/images"
 
     override func setUp() async throws {
         try await super.setUp()
         service = VisionService()
-        testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+
+        // 使用内置的 512x512 中等尺寸图片，避免光流等计算密集操作耗时过长
+        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/medium_512x512.jpg")
 
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
             throw XCTSkip("测试资产不存在: \(testImageURL.path)")
@@ -162,19 +165,22 @@ final class VisionServiceAdditionalTests: XCTestCase {
 
     /// 测试矩形检测不同参数
     func testDetectRectanglesWithParameters() async throws {
-        let documentURL = URL(fileURLWithPath: Self.testAssetsPath + "/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("文档测试图片不存在")
+        // 使用包含矩形（文档）的测试图片
+        let rectangleURL = URL(fileURLWithPath: Self.resourcePath + "/assets/rectangle_512x512.png")
+        guard FileManager.default.fileExists(atPath: rectangleURL.path) else {
+            throw XCTSkip("矩形测试图片不存在")
         }
 
         let results = try await service.detectRectangles(
-            at: documentURL,
+            at: rectangleURL,
             minimumConfidence: 0.3,
             minimumSize: 0.05,
             maximumObservations: 5
         )
 
         XCTAssertNotNil(results)
+        // 文档图片应该检测到矩形
+        XCTAssertFalse(results.isEmpty, "应该检测到至少一个矩形")
         // 验证结果结构
         for rect in results {
             XCTAssertGreaterThanOrEqual(rect.confidence, 0.3)

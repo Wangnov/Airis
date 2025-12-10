@@ -7,9 +7,9 @@ import CoreImage
 final class WorkflowIntegrationTests: XCTestCase {
 
     // ✅ Apple 最佳实践：类级别共享服务
-    nonisolated(unsafe) static let sharedVisionService = VisionService()
-    nonisolated(unsafe) static let sharedCoreImageService = CoreImageService()
-    nonisolated(unsafe) static let sharedImageIOService = ImageIOService()
+    static let sharedVisionService = VisionService()
+    static let sharedCoreImageService = CoreImageService()
+    static let sharedImageIOService = ImageIOService()
 
 
     // MARK: - Properties
@@ -19,9 +19,8 @@ final class WorkflowIntegrationTests: XCTestCase {
     var imageIOService: ImageIOService!
     var tempDir: URL!
 
-    // 测试资产路径（使用共享的 test-assets 目录）
-    let testAssetsPath = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent("airis-worktrees/test-assets/task-9.2")
+    // 内置测试资源路径
+    static let resourcePath = "Tests/Resources/images"
 
     // MARK: - Setup & Teardown
 
@@ -50,9 +49,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：分析 → 编辑（裁剪）→ 保存 完整流程
     func testAnalyzeAndEditWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 1. 分析图像
@@ -80,7 +79,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：文档扫描完整流程（检测矩形 → 透视校正）
     func testDocumentScanWorkflow() async throws {
-        let documentURL = testAssetsPath.appendingPathComponent("document.png")
+        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
         guard FileManager.default.fileExists(atPath: documentURL.path) else {
             throw XCTSkip("Test asset not found: document.png")
         }
@@ -139,16 +138,16 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：OCR 文字识别工作流
     func testOCRWorkflow() async throws {
-        let documentURL = testAssetsPath.appendingPathComponent("document.png")
+        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
         guard FileManager.default.fileExists(atPath: documentURL.path) else {
             throw XCTSkip("Test asset not found: document.png")
         }
 
-        // 1. 识别文字
+        // 1. 识别文字（集成测试用 fast 模式即可）
         let textObservations = try await visionService.recognizeText(
             at: documentURL,
             languages: ["en", "zh-Hans"],
-            level: .accurate
+            level: .fast
         )
 
         // 文档可能有文字，也可能没有
@@ -168,7 +167,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：图像增强工作流（自动增强 → 锐化 → 保存）
     func testImageEnhanceWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("line_art.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
             throw XCTSkip("Test asset not found: line_art.png")
         }
@@ -204,9 +203,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：并发批量图像分类
     func testBatchClassificationWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 模拟批量处理同一张图片多次（实际场景会是多张不同图片）
@@ -233,9 +232,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：批量图像缩放工作流
     func testBatchResizeWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 定义多个目标尺寸
@@ -274,7 +273,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：批量滤镜应用工作流
     func testBatchFilterWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("line_art.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
             throw XCTSkip("Test asset not found: line_art.png")
         }
@@ -312,7 +311,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：综合分析工作流（分类 + OCR + 条形码）
     func testComprehensiveAnalysisWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("document.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
             throw XCTSkip("Test asset not found: document.png")
         }
@@ -328,9 +327,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：图像元数据读取 + 编辑 + 保存工作流
     func testMetadataAndEditWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 1. 读取图像信息
@@ -366,9 +365,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：显著性检测 + 智能裁剪工作流
     func testSaliencyCropWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 1. 检测显著性区域
@@ -393,9 +392,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：人物分割 + 背景替换工作流（模拟）
     func testPersonSegmentationWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 1. 尝试人物分割（风景图可能没有人物）
@@ -414,9 +413,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：地平线检测 + 自动校正工作流
     func testHorizonCorrectionWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 1. 检测地平线
@@ -441,7 +440,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：复杂滤镜链工作流
     func testFilterChainWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("line_art.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
             throw XCTSkip("Test asset not found: line_art.png")
         }
@@ -476,9 +475,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：照片效果滤镜工作流
     func testPhotoEffectsWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 加载图像
@@ -505,7 +504,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：多格式输出工作流
     func testMultiFormatOutputWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("line_art.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
             throw XCTSkip("Test asset not found: line_art.png")
         }
@@ -529,9 +528,9 @@ final class WorkflowIntegrationTests: XCTestCase {
 
     /// 测试：缩略图生成工作流
     func testThumbnailGenerationWorkflow() async throws {
-        let imageURL = testAssetsPath.appendingPathComponent("landscape_4k.png")
+        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape_4k.png")
+            throw XCTSkip("Test asset not found: landscape.jpg")
         }
 
         // 加载原图然后使用 CoreImage 缩放

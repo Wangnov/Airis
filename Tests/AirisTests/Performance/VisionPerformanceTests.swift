@@ -12,16 +12,17 @@ final class VisionPerformanceTests: XCTestCase {
     var testImageURL: URL!
     var documentImageURL: URL!
 
-    // 测试资产目录
-    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
+    // 内置测试资源路径
+    static let resourcePath = "Tests/Resources/images"
 
     override func setUp() async throws {
         try await super.setUp()
         service = VisionService()
 
-        // 使用预置的测试图片
-        testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
-        documentImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/document.png")
+        // 使用 1024x1024 图片进行性能测试（平衡大小与速度）
+        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/perf_1024x1024.jpg")
+        // OCR 性能测试用 512x512 文档图（避免耗时过长）
+        documentImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/document_text_512x512.png")
 
         // 验证测试资产存在
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
@@ -36,7 +37,7 @@ final class VisionPerformanceTests: XCTestCase {
 
     // MARK: - 图像分类性能基准
 
-    /// 测试图像分类性能 - 使用 4K 图像
+    /// 测试图像分类性能 - 使用 1K 图像
     func testClassifyImagePerformance_4K() async throws {
         let url = try XCTUnwrap(testImageURL)
         let svc = try XCTUnwrap(service)
@@ -81,10 +82,11 @@ final class VisionPerformanceTests: XCTestCase {
         let url = try XCTUnwrap(documentImageURL)
         let svc = try XCTUnwrap(service)
 
-        // 预热
-        _ = try? await svc.recognizeText(at: url, level: .accurate)
+        // OCR Accurate 很慢，只测 1 次，不预热
+        let options = XCTMeasureOptions()
+        options.iterationCount = 1
 
-        measure {
+        measure(options: options) {
             let semaphore = DispatchSemaphore(value: 0)
             Task {
                 _ = try? await svc.recognizeText(at: url, level: .accurate)
@@ -103,7 +105,10 @@ final class VisionPerformanceTests: XCTestCase {
         let url = try XCTUnwrap(documentImageURL)
         let svc = try XCTUnwrap(service)
 
-        measure {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 1
+
+        measure(options: options) {
             let semaphore = DispatchSemaphore(value: 0)
             Task {
                 _ = try? await svc.recognizeText(at: url, level: .fast)

@@ -10,17 +10,17 @@ import XCTest
 final class ImageIOEdgeCaseTests: XCTestCase {
 
     // ✅ Apple 最佳实践：类级别共享服务
-    nonisolated(unsafe) static let sharedImageIOService = ImageIOService()
+    static let sharedImageIOService = ImageIOService()
 
     var service: ImageIOService!
     var tempDirectory: URL!
 
-    // 测试资产目录
-    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
+    // 内置测试资源路径
+    static let resourcePath = "Tests/Resources/images"
 
     override func setUp() async throws {
         try await super.setUp()
-        service = ImageIOService()
+        service = Self.sharedImageIOService
 
         // 创建临时目录
         tempDirectory = FileManager.default.temporaryDirectory
@@ -75,52 +75,55 @@ final class ImageIOEdgeCaseTests: XCTestCase {
 
     // MARK: - 缩略图边界测试
 
-    /// 测试零尺寸缩略图
+    /// 测试零尺寸缩略图 - 应返回原图
     func testLoadThumbnailZeroSize() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/small_100x100.png")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
-        // 零尺寸应该被忽略或处理
+        // 零尺寸应该返回原图尺寸（系统行为）
         let image = try service.loadImage(at: testImageURL, maxDimension: 0)
-        XCTAssertNotNil(image)
+        XCTAssertEqual(image.width, 100, "零尺寸应返回原图尺寸")
+        XCTAssertEqual(image.height, 100, "零尺寸应返回原图尺寸")
     }
 
-    /// 测试负尺寸缩略图
+    /// 测试负尺寸缩略图 - 应返回原图或被系统处理
     func testLoadThumbnailNegativeSize() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/small_100x100.png")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
-        // 负尺寸应该被处理
+        // 负尺寸应该被系统 API 处理（行为由 ImageIO 决定）
         let image = try service.loadImage(at: testImageURL, maxDimension: -100)
         XCTAssertNotNil(image)
+        XCTAssertGreaterThan(image.width, 0)
     }
 
-    /// 测试极大缩略图尺寸
+    /// 测试极大缩略图尺寸 - 不应超过原图
     func testLoadThumbnailHugeSize() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/small_100x100.png")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
-        // 比原图大的尺寸
+        // 比原图大的尺寸 - 系统不会放大，最多返回原图
         let image = try service.loadImage(at: testImageURL, maxDimension: 100000)
-        XCTAssertNotNil(image)
+        XCTAssertLessThanOrEqual(image.width, 100, "不应超过原图尺寸")
+        XCTAssertLessThanOrEqual(image.height, 100, "不应超过原图尺寸")
     }
 
     // MARK: - 保存边界测试
 
     /// 测试保存到无效路径
     func testSaveToInvalidPath() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/small_100x100.png")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 100)
+        let cgImage = try service.loadImage(at: testImageURL)
         let invalidPath = URL(fileURLWithPath: "/nonexistent/directory/output.png")
 
         XCTAssertThrowsError(try service.saveImage(cgImage, to: invalidPath)) { error in
@@ -129,41 +132,55 @@ final class ImageIOEdgeCaseTests: XCTestCase {
         }
     }
 
-    /// 测试保存使用未知格式
+    /// 测试保存使用未知格式 - 应回退到 PNG
     func testSaveUnknownFormat() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/small_100x100.png")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 100)
+        let cgImage = try service.loadImage(at: testImageURL)
         let outputPath = tempDirectory.appendingPathComponent("output.xyz")
 
         // 未知格式应该回退到 PNG
         try service.saveImage(cgImage, to: outputPath, format: "xyz")
         XCTAssertTrue(FileManager.default.fileExists(atPath: outputPath.path))
+
+        // 验证实际格式为 PNG（返回 UTType identifier）
+        let actualFormat = try service.getImageFormat(at: outputPath)
+        XCTAssertTrue(actualFormat.contains("png"), "未知格式应回退到 PNG，实际为: \(actualFormat)")
     }
 
-    /// 测试保存使用极端质量值
+    /// 测试保存使用极端质量值 - 验证系统容错
     func testSaveExtremeQuality() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/small_100x100.png")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
-        let cgImage = try service.loadImage(at: testImageURL, maxDimension: 100)
+        let cgImage = try service.loadImage(at: testImageURL)
 
-        // 质量为 0
+        // 质量为 0（最低质量，最小文件）
         let zeroQualityPath = tempDirectory.appendingPathComponent("zero_quality.jpg")
         try service.saveImage(cgImage, to: zeroQualityPath, format: "jpg", quality: 0)
         XCTAssertTrue(FileManager.default.fileExists(atPath: zeroQualityPath.path))
 
-        // 质量超过 1.0
+        // 质量为 1.0（最高质量，最大文件）
+        let highQualityPath = tempDirectory.appendingPathComponent("high_quality.jpg")
+        try service.saveImage(cgImage, to: highQualityPath, format: "jpg", quality: 1.0)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: highQualityPath.path))
+
+        // 验证文件大小关系：低质量 < 高质量
+        let zeroSize = try XCTUnwrap(FileUtils.getFileSize(at: zeroQualityPath.path))
+        let highSize = try XCTUnwrap(FileUtils.getFileSize(at: highQualityPath.path))
+        XCTAssertLessThan(zeroSize, highSize, "低质量文件应小于高质量文件")
+
+        // 质量超过 1.0（应被限制为 1.0）
         let overQualityPath = tempDirectory.appendingPathComponent("over_quality.jpg")
         try service.saveImage(cgImage, to: overQualityPath, format: "jpg", quality: 2.0)
         XCTAssertTrue(FileManager.default.fileExists(atPath: overQualityPath.path))
 
-        // 负质量值
+        // 负质量值（应被系统处理）
         let negativeQualityPath = tempDirectory.appendingPathComponent("negative_quality.jpg")
         try service.saveImage(cgImage, to: negativeQualityPath, format: "jpg", quality: -1.0)
         XCTAssertTrue(FileManager.default.fileExists(atPath: negativeQualityPath.path))
@@ -209,13 +226,13 @@ final class ImageIOEdgeCaseTests: XCTestCase {
 
     /// 测试单帧图像的帧数
     func testGetFrameCountSingleFrame() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/medium_512x512.jpg")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
         let frameCount = try service.getImageFrameCount(at: testImageURL)
-        XCTAssertEqual(frameCount, 1)
+        XCTAssertEqual(frameCount, 1, "单帧 JPEG 应返回帧数 1")
     }
 
     // MARK: - 图像信息边界测试
@@ -234,15 +251,15 @@ final class ImageIOEdgeCaseTests: XCTestCase {
 
     /// 测试获取图像信息 - 验证属性
     func testGetImageInfoValidProperties() throws {
-        let testImageURL = URL(fileURLWithPath: Self.testAssetsPath + "/benchmark_4k.png")
+        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/medium_512x512.jpg")
         guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
         }
 
         let info = try service.getImageInfo(at: testImageURL)
-        XCTAssertGreaterThan(info.width, 0)
-        XCTAssertGreaterThan(info.height, 0)
-        XCTAssertGreaterThan(info.dpiWidth, 0)
-        XCTAssertGreaterThan(info.dpiHeight, 0)
+        XCTAssertEqual(info.width, 512, "应读取到正确的宽度")
+        XCTAssertEqual(info.height, 512, "应读取到正确的高度")
+        XCTAssertGreaterThan(info.dpiWidth, 0, "DPI 应为正数")
+        XCTAssertGreaterThan(info.dpiHeight, 0, "DPI 应为正数")
     }
 }

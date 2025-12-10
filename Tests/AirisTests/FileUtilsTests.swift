@@ -5,7 +5,8 @@ final class FileUtilsTests: XCTestCase {
 
     var tempDirectory: URL!
 
-    static let testAssetsPath = URL(fileURLWithPath: "worktrees/test-assets/task-9.1", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)).path
+    // 内置测试资源路径
+    static let resourcePath = "Tests/Resources/images"
 
     override func setUp() {
         super.setUp()
@@ -135,13 +136,13 @@ final class FileUtilsTests: XCTestCase {
 
     /// 测试获取格式化文件大小
     func testGetFormattedFileSize() throws {
-        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        let testImagePath = Self.resourcePath + "/assets/medium_512x512.jpg"
         guard FileManager.default.fileExists(atPath: testImagePath) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImagePath)")
         }
 
         let formattedSize = FileUtils.getFormattedFileSize(at: testImagePath)
-        XCTAssertNotNil(formattedSize)
+        XCTAssertNotNil(formattedSize, "应返回格式化的文件大小")
     }
 
     /// 测试获取不存在文件的大小
@@ -154,14 +155,14 @@ final class FileUtilsTests: XCTestCase {
 
     /// 测试获取文件大小（字节）
     func testGetFileSize() throws {
-        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        let testImagePath = Self.resourcePath + "/assets/medium_512x512.jpg"
         guard FileManager.default.fileExists(atPath: testImagePath) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImagePath)")
         }
 
         let size = FileUtils.getFileSize(at: testImagePath)
         XCTAssertNotNil(size)
-        XCTAssertGreaterThan(try XCTUnwrap(size), 0)
+        XCTAssertGreaterThan(try XCTUnwrap(size), 0, "文件大小应大于 0")
     }
 
     /// 测试获取不存在文件的大小
@@ -174,26 +175,26 @@ final class FileUtilsTests: XCTestCase {
 
     /// 测试验证存在的文件
     func testValidateExistingFile() throws {
-        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        let testImagePath = Self.resourcePath + "/assets/medium_512x512.jpg"
         guard FileManager.default.fileExists(atPath: testImagePath) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImagePath)")
         }
 
         let url = try FileUtils.validateFile(at: testImagePath)
-        XCTAssertEqual(url.path, testImagePath)
+        XCTAssertTrue(url.path.hasSuffix(testImagePath), "应返回正确的文件路径")
     }
 
     // MARK: - validateImageFile Tests
 
     /// 测试验证存在的图像文件
     func testValidateExistingImageFile() throws {
-        let testImagePath = Self.testAssetsPath + "/benchmark_4k.png"
+        let testImagePath = Self.resourcePath + "/assets/medium_512x512.jpg"
         guard FileManager.default.fileExists(atPath: testImagePath) else {
-            throw XCTSkip("测试资产不存在")
+            throw XCTSkip("测试资产不存在: \(testImagePath)")
         }
 
         let url = try FileUtils.validateImageFile(at: testImagePath)
-        XCTAssertEqual(url.path, testImagePath)
+        XCTAssertTrue(url.path.hasSuffix(testImagePath), "应返回正确的文件路径")
     }
 
     // MARK: - supportedImageFormats Tests
