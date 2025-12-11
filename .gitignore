@@ -10,3 +10,5 @@ docs/
 
 # Worktrees 和测试资产（项目内）
 worktrees/
+
+.vscode/

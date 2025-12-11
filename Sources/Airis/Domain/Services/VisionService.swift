@@ -620,10 +620,13 @@ final class VisionService: Sendable {
                 let maskedImage = CIImage(cvPixelBuffer: maskedBuffer)
 
                 continuation.resume(returning: maskedImage)
-            } catch let error as AirisError {
-                continuation.resume(throwing: error)
             } catch {
-                continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+                // generateMaskedImage 或 operations.perform 可能抛出错误
+                if let airisError = error as? AirisError {
+                    continuation.resume(throwing: airisError)
+                } else {
+                    continuation.resume(throwing: AirisError.visionRequestFailed(error.localizedDescription))
+                }
             }
         }
     }
