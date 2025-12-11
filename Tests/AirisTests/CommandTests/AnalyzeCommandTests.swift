@@ -22,7 +22,7 @@ final class AnalyzeCommandTests: XCTestCase {
     }
 
     func testInfoCommandDiscussionContainsQuickStart() throws {
-        let discussion = InfoCommand.configuration.discussion ?? ""
+        let discussion = InfoCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("OUTPUT FORMAT"))
@@ -36,7 +36,7 @@ final class AnalyzeCommandTests: XCTestCase {
     }
 
     func testTagCommandDiscussionContainsExamples() throws {
-        let discussion = TagCommand.configuration.discussion ?? ""
+        let discussion = TagCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("OPTIONS"))
@@ -50,7 +50,7 @@ final class AnalyzeCommandTests: XCTestCase {
     }
 
     func testScoreCommandDiscussionContainsRequirements() throws {
-        let discussion = ScoreCommand.configuration.discussion ?? ""
+        let discussion = ScoreCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("macOS 15.0"))
         XCTAssertTrue(discussion.contains("SCORE INTERPRETATION"))
     }
@@ -63,7 +63,7 @@ final class AnalyzeCommandTests: XCTestCase {
     }
 
     func testOCRCommandDiscussionContainsLanguages() throws {
-        let discussion = OCRCommand.configuration.discussion ?? ""
+        let discussion = OCRCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("SUPPORTED LANGUAGES"))
         XCTAssertTrue(discussion.contains("zh-Hans"))
         XCTAssertTrue(discussion.contains("en"))

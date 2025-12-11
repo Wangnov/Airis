@@ -1,4 +1,5 @@
 import XCTest
+import Vision
 @testable import Airis
 
 /// VisionService 补充测试
@@ -110,6 +111,17 @@ final class VisionServiceAdditionalTests: XCTestCase {
         }
     }
 
+    /// 使用清晰地平线图片，期望命中成功分支
+    func testDetectHorizonWithClearLine() async throws {
+        let url = URL(fileURLWithPath: Self.resourcePath + "/assets/horizon_clear_512x512.jpg")
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw XCTSkip("清晰地平线测试图片不存在")
+        }
+
+        let result = try await service.detectHorizon(at: url)
+        XCTAssertNotNil(result, "清晰地平线图片应检测到地平线")
+    }
+
     // MARK: - 前景分割
 
     /// 测试前景遮罩生成 (macOS 14.0+)
@@ -121,6 +133,42 @@ final class VisionServiceAdditionalTests: XCTestCase {
         } catch AirisError.noResultsFound {
             // 风景图可能没有前景对象
             XCTAssertTrue(true)
+        }
+    }
+
+    /// 使用单人沙滩照片，期望生成前景遮罩
+    @available(macOS 14.0, *)
+    func testGenerateForegroundMaskWithForegroundSubject() async throws {
+        let url = URL(fileURLWithPath: Self.resourcePath + "/assets/foreground_person_beach_512x512.jpg")
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw XCTSkip("前景人物测试图片不存在")
+        }
+
+        let result = try await service.generateForegroundMask(at: url)
+        XCTAssertGreaterThan(result.extent.width, 0)
+        XCTAssertGreaterThan(result.extent.height, 0)
+    }
+
+    /// 覆盖 AirisError 分支
+    @available(macOS 14.0, *)
+    func testGenerateForegroundMaskAirisErrorBranch() async throws {
+        final class AirisErrorOps: VisionOperations {
+            func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws {
+                throw AirisError.noResultsFound
+            }
+        }
+
+        let service = VisionService(operations: AirisErrorOps())
+        let url = URL(fileURLWithPath: Self.resourcePath + "/assets/foreground_person_indoor_512x512.jpg")
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw XCTSkip("前景人物室内测试图片不存在")
+        }
+
+        do {
+            _ = try await service.generateForegroundMask(at: url)
+            XCTFail("应抛出 AirisError.noResultsFound")
+        } catch AirisError.noResultsFound {
+            // 预期路径，命中 catch 分支
         }
     }
 

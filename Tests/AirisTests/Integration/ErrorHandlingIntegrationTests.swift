@@ -369,7 +369,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
         try imageIOService.saveImage(cgImage, to: tinyImageURL)
 
         // 尝试分类（可能返回空结果，但不应崩溃）
-        let classifications = try await visionService.classifyImage(at: tinyImageURL, threshold: 0.0)
+        _ = try await visionService.classifyImage(at: tinyImageURL, threshold: 0.0)
         // 1x1 图像可能没有分类结果
         XCTAssertTrue(true, "Vision service handled tiny image without crashing")
     }

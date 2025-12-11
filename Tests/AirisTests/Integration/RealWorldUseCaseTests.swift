@@ -181,7 +181,7 @@ final class RealWorldUseCaseTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: outputURL.path))
 
         // 6. OCR 提取文字（集成测试用 fast 模式）
-        let textObservations = try await visionService.recognizeText(at: documentURL, level: .fast)
+        _ = try await visionService.recognizeText(at: documentURL, level: .fast)
         // 文档中可能有文字，流程应该完成
         XCTAssertTrue(true, "Document scanning workflow completed")
     }
@@ -525,7 +525,7 @@ final class RealWorldUseCaseTests: XCTestCase {
         XCTAssertGreaterThan(imageInfo.height, 0)
 
         // 步骤 2: 用户请求分析图片内容
-        let classifications = try await visionService.classifyImage(at: imageURL, threshold: 0.3)
+        _ = try await visionService.classifyImage(at: imageURL, threshold: 0.3)
         // 用户看到分类结果
 
         // 步骤 3: 用户加载图片进行编辑
