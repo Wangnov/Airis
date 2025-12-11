@@ -13,7 +13,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testSafeCommandDiscussionContainsRequirements() throws {
-        let discussion = SafeCommand.configuration.discussion ?? ""
+        let discussion = SafeCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("REQUIREMENTS"))
@@ -22,7 +22,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testSafeCommandDiscussionContainsPrivacyNotes() throws {
-        let discussion = SafeCommand.configuration.discussion ?? ""
+        let discussion = SafeCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("PRIVACY"))
         XCTAssertTrue(discussion.contains("locally"))
     }
@@ -35,7 +35,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testPaletteCommandDiscussionContainsExamples() throws {
-        let discussion = PaletteCommand.configuration.discussion ?? ""
+        let discussion = PaletteCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("OUTPUT FORMAT"))
@@ -43,7 +43,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testPaletteCommandDiscussionContainsAlgorithmInfo() throws {
-        let discussion = PaletteCommand.configuration.discussion ?? ""
+        let discussion = PaletteCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("K-means"))
         XCTAssertTrue(discussion.contains("CIKMeans"))
     }
@@ -83,7 +83,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testSimilarCommandDiscussionContainsExamples() throws {
-        let discussion = SimilarCommand.configuration.discussion ?? ""
+        let discussion = SimilarCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("OUTPUT FORMAT"))
@@ -91,7 +91,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testSimilarCommandDiscussionContainsAlgorithmInfo() throws {
-        let discussion = SimilarCommand.configuration.discussion ?? ""
+        let discussion = SimilarCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("VNGenerateImageFeaturePrintRequest"))
         XCTAssertTrue(discussion.contains("fingerprint"))
     }
@@ -144,7 +144,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testMetaCommandDiscussionContainsExamples() throws {
-        let discussion = MetaCommand.configuration.discussion ?? ""
+        let discussion = MetaCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("QUICK START"))
         XCTAssertTrue(discussion.contains("EXAMPLES"))
         XCTAssertTrue(discussion.contains("OUTPUT FORMAT"))
@@ -152,7 +152,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testMetaCommandDiscussionContainsCategories() throws {
-        let discussion = MetaCommand.configuration.discussion ?? ""
+        let discussion = MetaCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("exif"))
         XCTAssertTrue(discussion.contains("gps"))
         XCTAssertTrue(discussion.contains("tiff"))
@@ -160,7 +160,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testMetaCommandDiscussionContainsWriteOperations() throws {
-        let discussion = MetaCommand.configuration.discussion ?? ""
+        let discussion = MetaCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("WRITE OPERATIONS"))
         XCTAssertTrue(discussion.contains("--set-comment"))
         XCTAssertTrue(discussion.contains("--clear-gps"))
@@ -219,7 +219,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     // MARK: - Help Quality Tests
 
     func testSafeCommandHelpQuality() throws {
-        let discussion = SafeCommand.configuration.discussion ?? ""
+        let discussion = SafeCommand.configuration.discussion
 
         // 检查 Help 文档质量指标
         var score = 0
@@ -234,7 +234,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testPaletteCommandHelpQuality() throws {
-        let discussion = PaletteCommand.configuration.discussion ?? ""
+        let discussion = PaletteCommand.configuration.discussion
 
         var score = 0
 
@@ -248,7 +248,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testSimilarCommandHelpQuality() throws {
-        let discussion = SimilarCommand.configuration.discussion ?? ""
+        let discussion = SimilarCommand.configuration.discussion
 
         var score = 0
 
@@ -262,7 +262,7 @@ final class AnalyzeBatch2Tests: XCTestCase {
     }
 
     func testMetaCommandHelpQuality() throws {
-        let discussion = MetaCommand.configuration.discussion ?? ""
+        let discussion = MetaCommand.configuration.discussion
 
         var score = 0
 
