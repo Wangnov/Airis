@@ -20,6 +20,15 @@ import Metal
 /// - CIFilter 是可变对象，每次调用都会创建新实例
 final class CoreImageService: @unchecked Sendable {
 
+    // MARK: - Factories
+
+    /// 滤镜工厂（可注入，便于测试异常分支）
+    nonisolated(unsafe) private let filterFactory: any CoreImageFilterFactory
+    /// 可选的渲染覆盖（测试注入，用于模拟渲染失败）
+    nonisolated(unsafe) private let rendererOverride: ((CIImage) -> CGImage?)?
+    /// 可选的滤镜输出覆盖（测试注入，用于强制返回特定输出或触发回退分支）
+    nonisolated(unsafe) private let outputOverride: ((CIFilter, CIImage) -> CIImage?)?
+
     // MARK: - Properties
 
     /// 共享的 CIContext（使用 Metal 硬件加速）
@@ -33,8 +42,16 @@ final class CoreImageService: @unchecked Sendable {
 
     // MARK: - Initialization
 
-    init(operations: any CoreImageOperations = DefaultCoreImageOperations()) {
+    init(
+        operations: any CoreImageOperations = DefaultCoreImageOperations(),
+        filterFactory: any CoreImageFilterFactory = DefaultCoreImageFilterFactory(),
+        rendererOverride: ((CIImage) -> CGImage?)? = nil,
+        outputOverride: ((CIFilter, CIImage) -> CIImage?)? = nil
+    ) {
         self.operations = operations
+        self.filterFactory = filterFactory
+        self.rendererOverride = rendererOverride
+        self.outputOverride = outputOverride
 
         // 尝试获取 Metal 设备进行 GPU 加速
         self.metalDevice = operations.getDefaultMetalDevice()
@@ -54,6 +71,17 @@ final class CoreImageService: @unchecked Sendable {
                 .name: "Airis.CoreImage.Software" as NSString
             ])
         }
+    }
+
+    /// 统一处理滤镜输出，支持测试时覆盖结果或触发回退路径
+    private func output(from filter: CIFilter, input: CIImage) -> CIImage {
+        if let override = outputOverride {
+            return override(filter, input) ?? input
+        }
+        guard let outputImage = filter.outputImage else {
+            return input
+        }
+        return outputImage
     }
 
     // MARK: - 图像变换
@@ -107,7 +135,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.scale = Float(scaleY)  // Lanczos 使用 Y 轴缩放作为主缩放
         filter.aspectRatio = Float(scaleX / scaleY)  // 宽高比调整
 
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 裁剪图像
@@ -182,8 +210,8 @@ final class CoreImageService: @unchecked Sendable {
         // 将图像移动到正坐标区域
         let newExtent = rotated.extent
         if newExtent.origin.x < 0 || newExtent.origin.y < 0 {
-            let offsetX = newExtent.origin.x < 0 ? -newExtent.origin.x : 0
-            let offsetY = newExtent.origin.y < 0 ? -newExtent.origin.y : 0
+            let offsetX = max(0, -newExtent.origin.x)
+            let offsetY = max(0, -newExtent.origin.y)
             return rotated.transformed(by: CGAffineTransform(translationX: offsetX, y: offsetY))
         }
 
@@ -227,9 +255,11 @@ final class CoreImageService: @unchecked Sendable {
     ///   - radius: 模糊半径（默认 10，范围建议 0-100）
     /// - Returns: 模糊后的 CIImage
     func gaussianBlur(ciImage: CIImage, radius: Double = 10) -> CIImage {
-        let filter = CIFilter.gaussianBlur()
-        filter.inputImage = ciImage
-        filter.radius = Float(max(0, radius))
+        guard let filter = filterFactory.gaussianBlur() else {
+            return ciImage
+        }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(Float(max(0, radius)), forKey: kCIInputRadiusKey)
 
         guard let output = filter.outputImage else {
             return ciImage
@@ -251,7 +281,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.inputImage = ciImage
         filter.sharpness = Float(max(0, sharpness))
         filter.radius = Float(max(0, radius))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 调整亮度
@@ -266,7 +296,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.brightness = Float(max(-1, min(1, brightness)))
         filter.contrast = 1.0
         filter.saturation = 1.0
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 调整对比度
@@ -281,7 +311,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.brightness = 0
         filter.contrast = Float(max(0.25, min(4, contrast)))
         filter.saturation = 1.0
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 调整饱和度
@@ -296,7 +326,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.brightness = 0
         filter.contrast = 1.0
         filter.saturation = Float(max(0, min(2, saturation)))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 综合颜色调整
@@ -318,7 +348,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.brightness = Float(max(-1, min(1, brightness)))
         filter.contrast = Float(max(0.25, min(4, contrast)))
         filter.saturation = Float(max(0, min(2, saturation)))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 灰度转换
@@ -336,7 +366,7 @@ final class CoreImageService: @unchecked Sendable {
     func invert(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.colorInvert()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 棕褐色效果（怀旧风格）
@@ -349,7 +379,7 @@ final class CoreImageService: @unchecked Sendable {
         let filter = CIFilter.sepiaTone()
         filter.inputImage = ciImage
         filter.intensity = Float(max(0, min(1, intensity)))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     // MARK: - 模糊效果
@@ -362,11 +392,13 @@ final class CoreImageService: @unchecked Sendable {
     ///   - angle: 运动方向角度（默认 0，范围 0-360 度）
     /// - Returns: 运动模糊后的 CIImage
     func motionBlur(ciImage: CIImage, radius: Double = 10, angle: Double = 0) -> CIImage {
-        let filter = CIFilter.motionBlur()
-        filter.inputImage = ciImage
-        filter.radius = Float(max(0, radius))
+        guard let filter = filterFactory.motionBlur() else {
+            return ciImage
+        }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(Float(max(0, radius)), forKey: kCIInputRadiusKey)
         // CIMotionBlur 使用弧度，角度需要转换
-        filter.angle = Float(angle * .pi / 180.0)
+        filter.setValue(Float(angle * .pi / 180.0), forKey: kCIInputAngleKey)
 
         guard let output = filter.outputImage else {
             return ciImage
@@ -384,16 +416,18 @@ final class CoreImageService: @unchecked Sendable {
     ///   - amount: 模糊量（默认 10，范围建议 0-100）
     /// - Returns: 缩放模糊后的 CIImage
     func zoomBlur(ciImage: CIImage, center: CGPoint? = nil, amount: Double = 10) -> CIImage {
-        let filter = CIFilter.zoomBlur()
-        filter.inputImage = ciImage
+        guard let filter = filterFactory.zoomBlur() else {
+            return ciImage
+        }
 
         // 默认使用图像中心
         let blurCenter = center ?? CGPoint(
             x: ciImage.extent.midX,
             y: ciImage.extent.midY
         )
-        filter.center = blurCenter
-        filter.amount = Float(max(0, amount))
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(CIVector(cgPoint: blurCenter), forKey: kCIInputCenterKey)
+        filter.setValue(Float(max(0, amount)), forKey: "inputAmount")
 
         guard let output = filter.outputImage else {
             return ciImage
@@ -417,7 +451,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.inputImage = ciImage
         filter.radius = Float(max(0, radius))
         filter.intensity = Float(max(0, intensity))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 降噪
@@ -432,7 +466,7 @@ final class CoreImageService: @unchecked Sendable {
         filter.inputImage = ciImage
         filter.noiseLevel = Float(max(0, noiseLevel))
         filter.sharpness = Float(max(0, sharpness))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     // MARK: - 像素化效果
@@ -454,7 +488,7 @@ final class CoreImageService: @unchecked Sendable {
             y: ciImage.extent.midY
         )
 
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     // MARK: - 艺术效果
@@ -466,7 +500,7 @@ final class CoreImageService: @unchecked Sendable {
     func comicEffect(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.comicEffect()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 半色调效果（网点印刷风格）
@@ -490,7 +524,7 @@ final class CoreImageService: @unchecked Sendable {
             y: ciImage.extent.midY
         )
 
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     // MARK: - 照片效果滤镜
@@ -502,7 +536,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectMono(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectMono()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 铬黄效果
@@ -512,7 +546,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectChrome(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectChrome()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 黑色电影效果（高对比度黑白）
@@ -522,7 +556,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectNoir(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectNoir()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 即时相机效果（宝丽来风格）
@@ -532,7 +566,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectInstant(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectInstant()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 褪色效果
@@ -542,7 +576,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectFade(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectFade()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 复古冲印效果
@@ -552,7 +586,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectProcess(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectProcess()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 色调转移效果
@@ -562,7 +596,7 @@ final class CoreImageService: @unchecked Sendable {
     func photoEffectTransfer(ciImage: CIImage) -> CIImage {
         let filter = CIFilter.photoEffectTransfer()
         filter.inputImage = ciImage
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 暗角效果
@@ -582,7 +616,7 @@ final class CoreImageService: @unchecked Sendable {
         let defaultRadius = sqrt(extent.width * extent.width + extent.height * extent.height) / 2
         filter.radius = Float(radius ?? Double(defaultRadius))
 
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     // MARK: - 渲染
@@ -592,7 +626,10 @@ final class CoreImageService: @unchecked Sendable {
     /// - Parameter ciImage: 要渲染的 CIImage
     /// - Returns: 渲染后的 CGImage，如果失败返回 nil
     func render(ciImage: CIImage) -> CGImage? {
-        context.createCGImage(ciImage, from: ciImage.extent)
+        if let rendererOverride {
+            return rendererOverride(ciImage)
+        }
+        return context.createCGImage(ciImage, from: ciImage.extent)
     }
 
     /// 渲染 CIImage 到 CGImage（指定格式）
@@ -675,7 +712,7 @@ final class CoreImageService: @unchecked Sendable {
         #if os(iOS) || os(tvOS) || os(visionOS)
         return context.inputImageMaximumSize()
         #else
-        // macOS 上这个 API 不可用，返回一个合理的默认值
+        // macOS 上该 API 不可用，返回合理默认值
         return CGSize(width: 16384, height: 16384)
         #endif
     }
@@ -686,7 +723,7 @@ final class CoreImageService: @unchecked Sendable {
         #if os(iOS) || os(tvOS) || os(visionOS)
         return context.outputImageMaximumSize()
         #else
-        // macOS 上这个 API 不可用，返回一个合理的默认值
+        // macOS 上该 API 不可用，返回合理默认值
         return CGSize(width: 16384, height: 16384)
         #endif
     }
@@ -707,7 +744,7 @@ final class CoreImageService: @unchecked Sendable {
         bottomLeft: CGPoint,
         bottomRight: CGPoint
     ) -> CIImage? {
-        guard let filter = CIFilter(name: "CIPerspectiveCorrection") else {
+        guard let filter = filterFactory.perspectiveCorrection() else {
             return nil
         }
 
@@ -752,17 +789,17 @@ final class CoreImageService: @unchecked Sendable {
         filter.edgeIntensity = Float(edgeIntensity)
         filter.threshold = Float(threshold)
         filter.contrast = Float(contrast)
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 去紫边
     func defringe(ciImage: CIImage, amount: Double = 0.5) -> CIImage {
-        guard let filter = CIFilter(name: "CIHueAdjust") else {
+        guard let filter = filterFactory.hueAdjust() else {
             return ciImage
         }
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(amount * 0.1, forKey: kCIInputAngleKey)
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     // MARK: - 从 Task 8.1 添加的方法
@@ -772,7 +809,7 @@ final class CoreImageService: @unchecked Sendable {
         let filter = CIFilter.exposureAdjust()
         filter.inputImage = ciImage
         filter.ev = Float(max(-10, min(10, ev)))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 色温和色调调整
@@ -787,7 +824,7 @@ final class CoreImageService: @unchecked Sendable {
         let targetTemp = neutralTemp + CGFloat(temperature)
         filter.neutral = CIVector(x: neutralTemp, y: 0)
         filter.targetNeutral = CIVector(x: targetTemp, y: CGFloat(tint))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 色调分离
@@ -795,19 +832,19 @@ final class CoreImageService: @unchecked Sendable {
         let filter = CIFilter.colorPosterize()
         filter.inputImage = ciImage
         filter.levels = Float(max(2, min(30, levels)))
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 阈值化
     func threshold(ciImage: CIImage, threshold: Double = 0.5) -> CIImage {
-        guard let filter = CIFilter(name: "CIColorThreshold") else {
+        guard let filter = filterFactory.colorThreshold() else {
             let grayscale = adjustSaturation(ciImage: ciImage, saturation: 0)
             let posterized = posterize(ciImage: grayscale, levels: 2)
             return posterized
         }
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(max(0, min(1, threshold)), forKey: "inputThreshold")
-        return filter.outputImage ?? ciImage
+        return output(from: filter, input: ciImage)
     }
 
     /// 自动增强图像

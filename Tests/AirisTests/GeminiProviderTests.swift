@@ -342,6 +342,14 @@ final class GeminiProviderTests: XCTestCase {
         }
     }
 
+    func testGetResolutionForFlashMappingAndFallback() {
+        let provider = GeminiProvider(providerName: providerName)
+        // 命中已知纵横比
+        XCTAssertEqual(provider.getResolutionForFlash(aspectRatio: "3:2"), "1248×832")
+        // 未知纵横比走默认分支
+        XCTAssertEqual(provider.getResolutionForFlash(aspectRatio: "weird"), "1024×1024")
+    }
+
     func testGenerateImage_AutoOutputPathGenerated() async throws {
         let keychain = KeychainManager(operations: MockKeychainOperationsWithKey(storedKey: "test-api-key"))
         let configManager = try makeConfigManager(baseURL: nil, model: nil)

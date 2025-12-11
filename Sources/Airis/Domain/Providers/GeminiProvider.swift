@@ -221,20 +221,21 @@ final class GeminiProvider: Sendable {
     // MARK: - Resolution Helpers
 
     /// 获取 Flash 模型的实际分辨率
-    private func getResolutionForFlash(aspectRatio: String) -> String {
-        switch aspectRatio {
-        case "1:1": return "1024×1024"
-        case "2:3": return "832×1248"
-        case "3:2": return "1248×832"
-        case "3:4": return "864×1184"
-        case "4:3": return "1184×864"
-        case "4:5": return "896×1152"
-        case "5:4": return "1152×896"
-        case "9:16": return "768×1344"
-        case "16:9": return "1344×768"
-        case "21:9": return "1536×672"
-        default: return "1024×1024"
-        }
+    /// 公开为 internal 以便测试覆盖到所有纵横比分支
+    func getResolutionForFlash(aspectRatio: String) -> String {
+        let resolutions: [String: String] = [
+            "1:1": "1024×1024",
+            "2:3": "832×1248",
+            "3:2": "1248×832",
+            "3:4": "864×1184",
+            "4:3": "1184×864",
+            "4:5": "896×1152",
+            "5:4": "1152×896",
+            "9:16": "768×1344",
+            "16:9": "1344×768",
+            "21:9": "1536×672"
+        ]
+        return resolutions[aspectRatio] ?? "1024×1024"
     }
 
     /// 获取 Pro 模型的实际分辨率
