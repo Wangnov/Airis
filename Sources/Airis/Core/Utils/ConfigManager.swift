@@ -31,22 +31,34 @@ struct AppConfig: Codable, Sendable {
 
 /// 配置文件管理器（支持依赖注入，测试隔离）
 final class ConfigManager: Sendable {
-    /// 默认配置目录（可通过环境变量 AIRIS_CONFIG_FILE 覆盖，用于测试隔离）
-    static let defaultConfigDirectory: URL = {
-        if let custom = ProcessInfo.processInfo.environment["AIRIS_CONFIG_FILE"] {
+    /// 计算默认配置目录（可通过环境变量 AIRIS_CONFIG_FILE 覆盖，用于测试隔离）。
+    ///
+    /// 之所以提供该方法：避免 static let 初始化时机导致的“不可测分支”。
+    static func computeDefaultConfigDirectory(
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> URL {
+        if let custom = environment["AIRIS_CONFIG_FILE"] {
             return URL(fileURLWithPath: custom).deletingLastPathComponent()
         }
         let home = FileManager.default.homeDirectoryForCurrentUser
         return home.appendingPathComponent(".config/airis")
-    }()
+    }
 
-    /// 默认配置文件路径
-    static let defaultConfigFile: URL = {
-        if let custom = ProcessInfo.processInfo.environment["AIRIS_CONFIG_FILE"] {
+    /// 计算默认配置文件路径
+    static func computeDefaultConfigFile(
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> URL {
+        if let custom = environment["AIRIS_CONFIG_FILE"] {
             return URL(fileURLWithPath: custom)
         }
-        return defaultConfigDirectory.appendingPathComponent("config.json")
-    }()
+        return computeDefaultConfigDirectory(environment: environment).appendingPathComponent("config.json")
+    }
+
+    /// 默认配置目录
+    static let defaultConfigDirectory: URL = computeDefaultConfigDirectory()
+
+    /// 默认配置文件路径
+    static let defaultConfigFile: URL = computeDefaultConfigFile()
 
     /// 默认 Provider 配置
     static let defaultConfigs: [String: ProviderConfig] = [
