@@ -16,7 +16,6 @@ final class CommandLayerBranchTests: XCTestCase {
         unsetenv("AIRIS_FORCE_SCORE_FALLBACK")
         unsetenv("AIRIS_SAFE_POLICY_DISABLED")
         unsetenv("AIRIS_SAFE_FORCE_SENSITIVE")
-        unsetenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH")
         unsetenv("AIRIS_SCORE_UTILITY_FALSE")
         unsetenv("AIRIS_SCORE_TEST_VALUE")
         unsetenv("AIRIS_SIMILAR_TEST_DISTANCE")
@@ -235,8 +234,7 @@ final class CommandLayerBranchTests: XCTestCase {
     func testGenDrawCommandRevealWithRef() async throws {
         let ref = CommandTestHarness.fixture("small_100x100.png").path
         let output = CommandTestHarness.temporaryFile(ext: "png").path
-        // 强制走 provider 分支（依赖 GeminiProvider 测试桩），同时覆盖 ref 校验与 reveal/open 路径
-        setenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH", "1", 1)
+        // 测试模式下使用 GeminiProvider stub（避免网络），同时覆盖 ref 校验与 reveal/open 路径
         try await DrawCommand.parse([
             "test reveal prompt",
             "--ref", ref,
@@ -244,18 +242,15 @@ final class CommandLayerBranchTests: XCTestCase {
             "--output", output
         ]).run()
         CommandTestHarness.cleanup(URL(fileURLWithPath: output))
-        unsetenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH")
     }
 
     func testGenDrawCommandAutoOutputAndOpen() async throws {
         let outputEnv = CommandTestHarness.temporaryFile(ext: "png")
-        setenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH", "1", 1)
         // 不指定 --output 触发自动路径，开启 open 分支
         try await DrawCommand.parse([
             "auto output prompt",
             "--open"
         ]).run()
-        unsetenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH")
         CommandTestHarness.cleanup(outputEnv)
     }
 

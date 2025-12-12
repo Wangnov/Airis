@@ -71,7 +71,6 @@ final class CommandLayerCoverageSprint4Tests: XCTestCase {
     }
 
     func testDrawCommandRevealBranch() async throws {
-        setenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH", "1", 1) // 使用 stub，避免网络
         let out = CommandTestHarness.temporaryFile(ext: "png")
         try await DrawCommand.parse([
             "test prompt",
@@ -79,7 +78,6 @@ final class CommandLayerCoverageSprint4Tests: XCTestCase {
             "-o", out.path,
             "--ref", CommandTestHarness.fixture("small_100x100.png").path
         ]).run()
-        unsetenv("AIRIS_FORCE_DRAW_NETWORK_BRANCH")
         CommandTestHarness.cleanup(out)
     }
 }

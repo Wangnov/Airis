@@ -145,8 +145,6 @@ struct DrawCommand: AsyncParsableCommand {
 
     func run() async throws {
         let isTestMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
-        let forceNetworkBranch = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_NETWORK_BRANCH"] == "1"
-
         // 确定使用的 provider
         let configManager = ConfigManager()
         let config = try configManager.loadConfig()
@@ -192,11 +190,11 @@ struct DrawCommand: AsyncParsableCommand {
         if reveal {
             print("")
             print("📂 正在 Finder 中显示...")
-            openInFinder(outputURL, isTestMode: isTestMode && !forceNetworkBranch)
+            openInFinder(outputURL, isTestMode: isTestMode)
         } else if open {
             print("")
             print("🖼️  正在打开图片...")
-            openWithDefaultApp(outputURL, isTestMode: isTestMode && !forceNetworkBranch)
+            openWithDefaultApp(outputURL, isTestMode: isTestMode)
         }
     }
 

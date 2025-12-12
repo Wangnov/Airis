@@ -7,7 +7,6 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         let envs = [
             "AIRIS_GEN_STUB",
             "AIRIS_TEST_MODE",
-            "AIRIS_FORCE_DRAW_NETWORK_BRANCH",
             "AIRIS_TEST_KEY_STDIN"
         ]
         envs.forEach { unsetenv($0) }
