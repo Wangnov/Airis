@@ -85,8 +85,8 @@ struct Pose3DCommand: AsyncParsableCommand {
         #endif
         // 检查 macOS 版本
         guard #available(macOS 14.0, *), !forceUnsupported else {
-            print("⚠️ 3D pose detection requires macOS 14.0 or later.")
-            print("   Your current system does not support this feature.")
+            print(Strings.get("error.requires_macos", "3D pose detection", "14.0"))
+            print(Strings.get("error.feature_unsupported"))
             return
         }
 

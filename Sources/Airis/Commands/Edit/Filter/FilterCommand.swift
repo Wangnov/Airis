@@ -5,7 +5,11 @@ struct FilterCommand: AsyncParsableCommand {
         commandName: "filter",
         abstract: "Apply artistic filters and effects",
         discussion: """
-            Apply various artistic filters:
+            Apply various artistic filters powered by CoreImage.
+
+            QUICK START:
+              # Apply a sepia tone
+              airis edit filter sepia photo.jpg -o sepia.jpg
 
             BASIC FILTERS:
               blur       Blur effects (gaussian, motion, zoom)
@@ -24,8 +28,7 @@ struct FilterCommand: AsyncParsableCommand {
               noir       High-contrast film noir
               instant    Polaroid/instant camera style
 
-            All filters are powered by CoreImage and optimized for \
-            GPU acceleration.
+            All filters are optimized for GPU acceleration.
             """,
         subcommands: [
             // 基础滤镜

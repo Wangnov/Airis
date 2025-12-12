@@ -7,6 +7,10 @@ struct AdjustCommand: AsyncParsableCommand {
         discussion: """
             Fine-tune image properties with precise control.
 
+            QUICK START:
+              # Adjust brightness and saturation
+              airis edit adjust color photo.jpg --brightness 0.2 --saturation 1.2 -o enhanced.jpg
+
             COLOR ADJUSTMENTS:
               color       - Brightness, contrast, saturation (CIColorControls)
               exposure    - Exposure value adjustment (CIExposureAdjust)

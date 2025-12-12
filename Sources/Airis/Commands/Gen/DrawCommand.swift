@@ -8,6 +8,9 @@ struct DrawCommand: AsyncParsableCommand {
         discussion: """
             Generate images from text prompts, with optional reference images.
 
+            QUICK START:
+              airis gen draw "cyberpunk cat"
+
             BASIC EXAMPLES:
               airis gen draw "cyberpunk cat"
               airis gen draw "sunset landscape" --aspect-ratio 16:9 --image-size 4K

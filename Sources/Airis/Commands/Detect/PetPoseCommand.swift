@@ -92,8 +92,8 @@ struct PetPoseCommand: AsyncParsableCommand {
         // 检查 macOS 版本（测试可通过环境变量强制触发降级分支）
         let forceUnsupported = ProcessInfo.processInfo.environment["AIRIS_FORCE_PETPOSE_UNSUPPORTED"] == "1"
         guard #available(macOS 14.0, *), !forceUnsupported else {
-            print("⚠️ Pet pose detection requires macOS 14.0 or later.")
-            print("   Your current system does not support this feature.")
+            print(Strings.get("error.requires_macos", "Pet pose detection", "14.0"))
+            print(Strings.get("error.feature_unsupported"))
             return
         }
 

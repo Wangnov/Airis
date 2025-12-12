@@ -29,6 +29,18 @@ struct Strings: Sendable {
             .cn: "写入文件失败：%@"
         ],
 
+        "error.requires_macos": [
+            .en: "⚠️ %@ requires macOS %@ or later.",
+            .cn: "⚠️ %@ 需要 macOS %@ 或更高版本。"
+        ],
+
+        "error.feature_unsupported": [
+            .en: "   Your current system does not support this feature.",
+            .cn: "   当前系统不支持该功能。"
+        ],
+
+
+
         // ============ API Key 相关 ============
         "error.api_key_not_found": [
             .en: "API key not found for provider: %@",

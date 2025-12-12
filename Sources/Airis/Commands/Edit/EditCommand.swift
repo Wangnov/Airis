@@ -3,7 +3,8 @@ import ArgumentParser
 struct EditCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "edit",
-        abstract: "Edit and transform images",        discussion: """
+        abstract: "Edit and transform images",
+        discussion: """
             Comprehensive image editing capabilities:
             - Background removal (cut)
             - Resizing and cropping
@@ -18,6 +19,19 @@ struct EditCommand: AsyncParsableCommand {
             - Color adjustments (via 'adjust' subcommand)
 
             Most operations use CoreImage for GPU-accelerated processing.
+
+            QUICK START:
+              # Remove background
+              airis edit cut photo.jpg -o cut.png
+
+              # Resize to 1920px width
+              airis edit resize photo.jpg --width 1920 -o resized.jpg
+
+              # Apply a photo filter
+              airis edit filter sepia photo.jpg -o sepia.jpg
+
+            For detailed usage, run:
+              airis edit <subcommand> --help
             """,
         subcommands: [
             // 基础编辑命令（Task 6.2 实现）
