@@ -146,7 +146,7 @@ cov:
 		.build/debug/AirisPackageTests.xctest/Contents/MacOS/AirisPackageTests \
 		-instr-profile=.build/debug/codecov/default.profdata \
 		2>/dev/null | grep "^Sources/Airis" | grep -v "Commands/" \
-		| awk '{printf "  %-50s %s\n", $$1, $$NF}' | sort -t' ' -k2 -rn || true
+		| awk '{printf "  %-50s %s\n", $$1, $$10}' | sort -t' ' -k2 -rn || true
 	@echo ""
 	@echo "💡 生成 HTML 详细报告: make cov-html"
 
