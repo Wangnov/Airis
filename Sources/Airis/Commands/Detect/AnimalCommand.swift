@@ -89,12 +89,12 @@ struct AnimalCommand: AsyncParsableCommand {
             // 执行检测
             #if DEBUG
             if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_STUB"] == "1" {
-                let stub = Self._testObservations()
+                let stub = Self.testObservations()
                 try await handleResults(stub, url: url)
                 continue
             }
             if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_LOW_LABEL"] == "1" {
-                let stub = Self._testLowConfidenceLabelObservations()
+                let stub = Self.testLowConfidenceLabelObservations()
                 try await handleResults(stub, url: url)
                 continue
             }
@@ -202,7 +202,7 @@ private struct AnimalResult {
 #if DEBUG
 extension AnimalCommand {
     /// 测试辅助：构造可控的识别结果，覆盖类型过滤与空结果分支
-    static func _testObservations() -> [VNRecognizedObjectObservation] {
+    static func testObservations() -> [VNRecognizedObjectObservation] {
         func makeObservation(type: String, confidence: Float, box: CGRect) -> VNRecognizedObjectObservation {
             let obs = VNRecognizedObjectObservation(boundingBox: box)
             let label = VNClassificationObservation()
@@ -220,7 +220,7 @@ extension AnimalCommand {
     }
 
     /// 低标签置信度分支（覆盖 combinedConfidence < threshold）
-    static func _testLowConfidenceLabelObservations() -> [VNRecognizedObjectObservation] {
+    static func testLowConfidenceLabelObservations() -> [VNRecognizedObjectObservation] {
         func makeObservation(type: String, confidence: Float, labelConfidence: Float, box: CGRect) -> VNRecognizedObjectObservation {
             let obs = VNRecognizedObjectObservation(boundingBox: box)
             let label = VNClassificationObservation()

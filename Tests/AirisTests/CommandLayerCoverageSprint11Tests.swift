@@ -68,7 +68,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
     func testBarcodeFormatSymbologyUnknownHelper() {
         setenv("AIRIS_FORCE_BARCODE_UNKNOWN", "1", 1)
         let custom = VNBarcodeSymbology.aztec
-        let display = BarcodeCommand._testFormatSymbology(custom)
+        let display = BarcodeCommand.testFormatSymbology(custom)
         XCTAssertFalse(display.isEmpty)
     }
 

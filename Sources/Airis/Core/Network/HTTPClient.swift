@@ -50,6 +50,8 @@ final class HTTPClient: Sendable {
         // 检查任务是否已取消
         try Task.checkCancellation()
 
+        AirisLog.debug("HTTP POST \(url.absoluteString)")
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = body
@@ -75,7 +77,7 @@ final class HTTPClient: Sendable {
             // 处理 HTTP 状态码
             switch httpResponse.statusCode {
             case 200...299:
-                // 成功
+                AirisLog.debug("HTTP POST response \(httpResponse.statusCode) bytes=\(data.count)")
                 return (data, httpResponse)
 
             case 500...599:
@@ -143,6 +145,8 @@ final class HTTPClient: Sendable {
     ) async throws -> (Data, HTTPURLResponse) {
         try Task.checkCancellation()
 
+        AirisLog.debug("HTTP GET \(url.absoluteString)")
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
 
@@ -168,6 +172,7 @@ final class HTTPClient: Sendable {
             )
         }
 
+        AirisLog.debug("HTTP GET response \(httpResponse.statusCode) bytes=\(data.count)")
         return (data, httpResponse)
     }
 

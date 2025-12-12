@@ -199,7 +199,7 @@ struct PetPoseCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试辅助：覆盖默认分支
-    static func _testJointNameString(_ raw: String) -> String {
+    static func testJointNameString(_ raw: String) -> String {
         let key = VNRecognizedPointKey(rawValue: raw)
         let name = VNAnimalBodyPoseObservation.JointName(rawValue: key)
         return PetPoseCommand().jointNameString(name)

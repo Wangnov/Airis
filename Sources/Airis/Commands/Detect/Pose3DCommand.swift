@@ -171,7 +171,7 @@ struct Pose3DCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试辅助：覆盖默认分支
-    static func _testJointNameString(_ raw: String) -> String {
+    static func testJointNameString(_ raw: String) -> String {
         let key = VNRecognizedPointKey(rawValue: raw)
         let name = VNHumanBodyPose3DObservation.JointName(rawValue: key)
         return Pose3DCommand().jointNameString(name)

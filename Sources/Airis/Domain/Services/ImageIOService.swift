@@ -16,6 +16,7 @@ final class ImageIOService: Sendable {
 
     /// 读取图像元数据（零拷贝）
     func loadImageMetadata(at url: URL) throws -> [CFString: Any] {
+        AirisLog.debug("ImageIO load metadata: \(url.path)")
         guard let source = operations.createImageSource(at: url) else {
             throw AirisError.fileNotFound(url.path)
         }
@@ -31,6 +32,8 @@ final class ImageIOService: Sendable {
 
     /// 加载图像（支持缩略图优化）
     func loadImage(at url: URL, maxDimension: Int? = nil) throws -> CGImage {
+        let dimDescription = maxDimension.map(String.init) ?? "nil"
+        AirisLog.debug("ImageIO load image: \(url.path) maxDimension=\(dimDescription)")
         guard let source = operations.createImageSource(at: url) else {
             throw AirisError.fileNotFound(url.path)
         }
@@ -108,6 +111,7 @@ final class ImageIOService: Sendable {
         format: String = "png",
         quality: Float = 1.0
     ) throws {
+        AirisLog.debug("ImageIO save image: \(url.path) format=\(format) quality=\(quality)")
         let utType: UTType
         switch format.lowercased() {
         case "jpg", "jpeg":

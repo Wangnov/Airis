@@ -73,12 +73,12 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
 
     // MARK: Hand / PetPose helpers
     func testHandChiralityStringHelper() {
-        XCTAssertEqual(HandCommand._testChiralityString(.left), "Left Hand")
-        XCTAssertEqual(HandCommand._testChiralityString(.right), "Right Hand")
+        XCTAssertEqual(HandCommand.testChiralityString(.left), "Left Hand")
+        XCTAssertEqual(HandCommand.testChiralityString(.right), "Right Hand")
     }
 
     func testPetPoseJointNameHelper() {
-        XCTAssertEqual(PetPoseCommand._testJointNameString("unknown_joint"), "unknown")
+        XCTAssertEqual(PetPoseCommand.testJointNameString("unknown_joint"), "unknown")
     }
 }
 

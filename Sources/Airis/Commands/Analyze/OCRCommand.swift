@@ -157,7 +157,7 @@ struct OCRCommand: AsyncParsableCommand {
 
 #if DEBUG
     /// 测试辅助：覆盖 topCandidates 为空的分支
-    static func _testExtractEmptyCandidate() -> [TextResult] {
+    static func testExtractEmptyCandidate() -> [TextResult] {
         let obs = VNRecognizedTextObservation()
         return OCRCommand().extractTextResults(from: [obs])
     }

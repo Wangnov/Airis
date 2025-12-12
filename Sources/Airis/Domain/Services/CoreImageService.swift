@@ -71,6 +71,12 @@ final class CoreImageService: @unchecked Sendable {
                 .name: "Airis.CoreImage.Software" as NSString
             ])
         }
+
+        if let device = metalDevice {
+            AirisLog.debug("CoreImageService using Metal device: \(device.name)")
+        } else {
+            AirisLog.debug("CoreImageService using software renderer")
+        }
     }
 
     /// 统一处理滤镜输出，支持测试时覆盖结果或触发回退路径

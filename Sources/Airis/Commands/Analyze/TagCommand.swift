@@ -85,7 +85,7 @@ struct TagCommand: AsyncParsableCommand {
         // 执行分类
 #if DEBUG
         if ProcessInfo.processInfo.environment["AIRIS_FORCE_TAG_STUB"] == "1" {
-            let stub = Self._testObservations(count: 5)
+            let stub = Self.testObservations(count: 5)
             handleResults(stub)
             return
         }
@@ -154,7 +154,7 @@ struct TagCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试辅助：构造可控的标签列表，便于覆盖总数>显示数的分支
-    static func _testObservations(count: Int) -> [VNClassificationObservation] {
+    static func testObservations(count: Int) -> [VNClassificationObservation] {
         (0..<count).map { idx in
             let obs = VNClassificationObservation()
             obs.setValue("tag_\(idx)", forKey: "identifier")

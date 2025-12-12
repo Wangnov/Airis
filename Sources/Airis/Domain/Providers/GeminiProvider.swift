@@ -82,6 +82,10 @@ final class GeminiProvider: Sendable {
             throw AirisError.invalidPath(endpoint)
         }
 
+        AirisLog.debug("GeminiProvider endpoint: \(endpoint)")
+        AirisLog.debug("GeminiProvider model: \(actualModel), aspectRatio=\(aspectRatio), imageSize=\(normalizedImageSize)")
+        AirisLog.debug("GeminiProvider refs=\(references.count), search=\(enableSearch)")
+
         // 打印进度和参数信息
         print(Strings.get("gen.connecting"))
         print("")

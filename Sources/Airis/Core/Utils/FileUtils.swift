@@ -7,9 +7,10 @@ struct FileUtils {
 
     /// 验证文件是否存在
     static func validateFile(at path: String) throws -> URL {
-        let url = URL(fileURLWithPath: path)
+        let expanded = expandPath(path)
+        let url = URL(fileURLWithPath: expanded)
         guard FileManager.default.fileExists(atPath: url.path) else {
-            throw AirisError.fileNotFound(path)
+            throw AirisError.fileNotFound(expanded)
         }
         return url
     }

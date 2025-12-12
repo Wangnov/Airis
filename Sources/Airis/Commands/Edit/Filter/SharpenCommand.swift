@@ -155,7 +155,7 @@ struct SharpenCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试辅助：无需文件 IO 即可覆盖不同 method 分支
-    static func _testFilter(method: String, intensity: Double = 0.5, radius: Double = 2.0) -> CIImage {
+    static func testFilter(method: String, intensity: Double = 0.5, radius: Double = 2.0) -> CIImage {
         let coreImage = ServiceContainer.shared.coreImageService
         let base = CIImage(color: CIColor(red: 0, green: 0, blue: 0)).cropped(to: CGRect(x: 0, y: 0, width: 1, height: 1))
         return SharpenCommand().applySharpen(ciImage: base, method: method, intensity: intensity, radius: radius, coreImage: coreImage)

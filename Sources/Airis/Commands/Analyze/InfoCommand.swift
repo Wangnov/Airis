@@ -161,7 +161,7 @@ struct InfoCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试辅助
-    static func _testDescribeOrientation(_ orientation: CGImagePropertyOrientation) -> String {
+    static func testDescribeOrientation(_ orientation: CGImagePropertyOrientation) -> String {
         InfoCommand().describeOrientation(orientation)
     }
     #endif

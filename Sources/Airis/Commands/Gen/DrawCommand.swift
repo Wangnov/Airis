@@ -239,12 +239,12 @@ struct DrawCommand: AsyncParsableCommand {
 #if DEBUG
 extension DrawCommand {
     /// 测试辅助：暴露私有打开方法
-    func _testOpenWithDefaultApp(_ url: URL, isTestMode: Bool) throws {
-        try openWithDefaultApp(url, isTestMode: isTestMode)
+    func testOpenWithDefaultApp(_ url: URL, isTestMode: Bool) {
+        openWithDefaultApp(url, isTestMode: isTestMode)
     }
 
-    func _testOpenInFinder(_ url: URL, isTestMode: Bool) throws {
-        try openInFinder(url, isTestMode: isTestMode)
+    func testOpenInFinder(_ url: URL, isTestMode: Bool) {
+        openInFinder(url, isTestMode: isTestMode)
     }
 }
 #endif

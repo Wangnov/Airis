@@ -102,7 +102,7 @@ struct FlowCommand: AsyncParsableCommand {
         let result: VisionService.OpticalFlowResult
         #if DEBUG
         if ProcessInfo.processInfo.environment["AIRIS_TEST_FLOW_FAKE_RESULT"] == "1" {
-            result = Self._testFlowResult()
+            result = Self.testFlowResult()
         } else {
             let vision = ServiceContainer.shared.visionService
             result = try await vision.computeOpticalFlow(
@@ -194,10 +194,12 @@ struct FlowCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试桩：快速生成 2x2 光流结果，避免依赖 Vision 实际计算
-    private static func _testFlowResult() -> VisionService.OpticalFlowResult {
+    private static func testFlowResult() -> VisionService.OpticalFlowResult {
         var pixelBuffer: CVPixelBuffer?
-        CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &pixelBuffer)
-        let buffer = pixelBuffer!
+        let status = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &pixelBuffer)
+        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            fatalError("CVPixelBufferCreate failed in testFlowResult")
+        }
         return VisionService.OpticalFlowResult(pixelBuffer: buffer, width: 2, height: 2)
     }
     #endif

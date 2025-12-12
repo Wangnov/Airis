@@ -15,6 +15,7 @@ final class VisionService: Sendable {
 
     /// 分类图像场景和物体
     func classifyImage(at url: URL, threshold: Float = 0.0) async throws -> [VNClassificationObservation] {
+        AirisLog.debug("Vision classifyImage: \(url.lastPathComponent) threshold=\(threshold)")
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNClassifyImageRequest()
 
@@ -55,6 +56,7 @@ final class VisionService: Sendable {
         languages: [String] = ["en", "zh-Hans"],
         level: VNRequestTextRecognitionLevel = .accurate
     ) async throws -> [VNRecognizedTextObservation] {
+        AirisLog.debug("Vision recognizeText: \(url.lastPathComponent) languages=\(languages) level=\(level)")
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = level
@@ -294,6 +296,8 @@ final class VisionService: Sendable {
         to targetURL: URL,
         accuracy: OpticalFlowAccuracy = .medium
     ) async throws -> OpticalFlowResult {
+        AirisLog.debug("Vision opticalFlow: \(sourceURL.lastPathComponent) -> \(targetURL.lastPathComponent) accuracy=\(accuracy.rawValue)")
+
         // 测试桩支持：MockVisionOperations 注入 shouldReturnEmptyResults 时直接返回空结果错误
         if isMockEmptyResults(operations) {
             throw AirisError.noResultsFound
@@ -360,7 +364,7 @@ final class VisionService: Sendable {
 
 #if DEBUG
     /// 测试辅助：暴露 mock failure 检测逻辑
-    static func _testIsMockFailure(_ ops: VisionOperations) -> Bool {
+    static func testIsMockFailure(_ ops: VisionOperations) -> Bool {
         VisionService().isMockFailure(ops)
     }
 #endif
