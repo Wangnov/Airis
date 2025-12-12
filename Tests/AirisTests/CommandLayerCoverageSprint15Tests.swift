@@ -43,7 +43,7 @@ final class CommandLayerCoverageSprint15Tests: XCTestCase {
     }
 
     func testMetaCommandDefaultFormatHelperCoversFallback() {
-        let uti = MetaCommand._testGetImageFormat(for: "/tmp/example.heif")
+        let uti = MetaCommand.testGetImageFormat(for: "/tmp/example.heif")
         XCTAssertEqual(uti as String, UTType.jpeg.identifier)
     }
 

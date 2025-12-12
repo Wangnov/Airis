@@ -84,7 +84,7 @@ struct AlignCommand: AsyncParsableCommand {
         let result: VisionService.ImageAlignmentResult
         #if DEBUG
         if ProcessInfo.processInfo.environment["AIRIS_TEST_ALIGN_FAKE_RESULT"] == "1" {
-            result = Self._testAlignmentResult()
+            result = Self.testAlignmentResult()
         } else {
             let vision = ServiceContainer.shared.visionService
             result = try await vision.computeImageAlignment(
@@ -197,7 +197,7 @@ struct AlignCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试桩：固定的平移矩阵，避免依赖 Vision 实际计算
-    private static func _testAlignmentResult() -> VisionService.ImageAlignmentResult {
+    private static func testAlignmentResult() -> VisionService.ImageAlignmentResult {
         let transform = CGAffineTransform(translationX: 3, y: -2)
         return VisionService.ImageAlignmentResult(
             transform: transform,

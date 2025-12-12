@@ -20,7 +20,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
 
     // MARK: Analyze
     func testInfoDescribeOrientationUnknown() {
-        let result = InfoCommand._testDescribeOrientation(CGImagePropertyOrientation(rawValue: 999) ?? .up)
+        let result = InfoCommand.testDescribeOrientation(CGImagePropertyOrientation(rawValue: 999) ?? .up)
         XCTAssertEqual(result, "未知")
     }
 
@@ -67,17 +67,17 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
     func testBarcodeFormatSymbologyDefaultBranch() {
         setenv("AIRIS_FORCE_BARCODE_UNKNOWN", "1", 1)
         let custom = VNBarcodeSymbology(rawValue: "custom_unknown")
-        let text = BarcodeCommand._testFormatSymbology(custom)
+        let text = BarcodeCommand.testFormatSymbology(custom)
         XCTAssertEqual(text, "custom_unknown")
     }
 
     func testHandHelperUnknownAndChirality() {
-        let name = HandCommand._testJointNameString("custom_joint")
+        let name = HandCommand.testJointNameString("custom_joint")
         XCTAssertEqual(name, "unknown")
-        let chirality = HandCommand._testChiralityString(.unknown)
+        let chirality = HandCommand.testChiralityString(.unknown)
         XCTAssertEqual(chirality, "Unknown Hand")
 
-        let left = HandCommand._testChiralityString(.left)
+        let left = HandCommand.testChiralityString(.left)
         XCTAssertEqual(left, "Left Hand")
     }
 
@@ -120,7 +120,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
 
     // MARK: Detect PetPose helper
     func testPetPoseJointNameUnknown() {
-        let joint = PetPoseCommand._testJointNameString("custom_pet_joint")
+        let joint = PetPoseCommand.testJointNameString("custom_pet_joint")
         XCTAssertEqual(joint, "unknown")
     }
 }

@@ -486,7 +486,7 @@ struct MetaCommand: AsyncParsableCommand {
 
 #if DEBUG
     /// 测试辅助：直接调用格式解析逻辑，便于覆盖默认分支
-    static func _testGetImageFormat(for path: String) -> CFString {
+    static func testGetImageFormat(for path: String) -> CFString {
         MetaCommand().getImageFormat(for: URL(fileURLWithPath: path))
     }
 #endif

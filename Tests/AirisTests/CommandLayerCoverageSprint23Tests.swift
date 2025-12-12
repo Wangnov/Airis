@@ -59,7 +59,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
     }
 
     func testOCRExtractEmptyCandidateReturnsEmpty() {
-        let results = OCRCommand._testExtractEmptyCandidate()
+        let results = OCRCommand.testExtractEmptyCandidate()
         XCTAssertTrue(results.isEmpty)
     }
 
@@ -92,7 +92,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
     func testBarcodeFormatSymbologyFallbackRawValue() {
         unsetenv("AIRIS_FORCE_BARCODE_UNKNOWN")
         let custom = VNBarcodeSymbology(rawValue: "custom_raw")
-        let display = BarcodeCommand._testFormatSymbology(custom)
+        let display = BarcodeCommand.testFormatSymbology(custom)
         XCTAssertEqual(display, "custom_raw")
     }
 
@@ -248,12 +248,12 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
             let shouldFail = false
         }
         let ops = DummyOps()
-        XCTAssertFalse(VisionService._testIsMockFailure(ops))
+        XCTAssertFalse(VisionService.testIsMockFailure(ops))
     }
 
     func testVisionServiceMockFailureDefaultOpsReturnFalse() {
         let ops = DefaultVisionOperations()
-        XCTAssertFalse(VisionService._testIsMockFailure(ops))
+        XCTAssertFalse(VisionService.testIsMockFailure(ops))
     }
 
     func testVisionServiceMockFailureLoopFalsePath() {
@@ -262,7 +262,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
             func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws { }
         }
         let ops = NoFlagOps()
-        XCTAssertFalse(VisionService._testIsMockFailure(ops))
+        XCTAssertFalse(VisionService.testIsMockFailure(ops))
     }
 
     // MARK: 额外补充：Crop 负坐标分支

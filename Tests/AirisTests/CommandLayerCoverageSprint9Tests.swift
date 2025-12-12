@@ -29,7 +29,7 @@ final class CommandLayerCoverageSprint9Tests: XCTestCase {
     }
 
     func testTagTableShowsLimitedCount() {
-        let observations = TagCommand._testObservations(count: 4)
+        let observations = TagCommand.testObservations(count: 4)
         let limited = Array(observations.prefix(2))
         // 验证打印分支（检测到 total>displayed）
         XCTAssertEqual(limited.count, 2)

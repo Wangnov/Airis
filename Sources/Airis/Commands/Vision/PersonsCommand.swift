@@ -121,7 +121,7 @@ struct PersonsCommand: AsyncParsableCommand {
         let result: VisionService.PersonSegmentationResult
         #if DEBUG
         if forceStub {
-            result = Self._testPersonResult()
+            result = Self.testPersonResult()
         } else {
             result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
         }
@@ -204,10 +204,12 @@ struct PersonsCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试桩：生成 2x2 的人像分割结果
-    private static func _testPersonResult() -> VisionService.PersonSegmentationResult {
+    private static func testPersonResult() -> VisionService.PersonSegmentationResult {
         var pixelBuffer: CVPixelBuffer?
-        CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
-        let buffer = pixelBuffer!
+        let status = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
+        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            fatalError("CVPixelBufferCreate failed in testPersonResult")
+        }
         return VisionService.PersonSegmentationResult(maskBuffer: buffer, width: 2, height: 2)
     }
     #endif

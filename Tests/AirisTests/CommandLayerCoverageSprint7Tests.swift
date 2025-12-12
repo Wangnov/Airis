@@ -250,7 +250,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
     }
 
     func testPose3DUnknownJointHelper() {
-        let name = Pose3DCommand._testJointNameString("custom_pose3d_joint")
+        let name = Pose3DCommand.testJointNameString("custom_pose3d_joint")
         XCTAssertEqual(name, "unknown")
     }
 

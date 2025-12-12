@@ -160,7 +160,7 @@ struct BarcodeCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试辅助：直接调用格式化函数
-    static func _testFormatSymbology(_ symbology: VNBarcodeSymbology) -> String {
+    static func testFormatSymbology(_ symbology: VNBarcodeSymbology) -> String {
         BarcodeCommand().formatSymbology(symbology)
     }
     #endif

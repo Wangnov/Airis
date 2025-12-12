@@ -163,13 +163,13 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
         let outputURL = try CommandTestHarness.copyFixture("small_100x100.png", toExtension: "png")
 
         // 打开失败
-        try await withEnv(["AIRIS_FORCE_DRAW_OPEN_FAIL": "1"]) {
-            try DrawCommand()._testOpenWithDefaultApp(outputURL, isTestMode: false)
+        await withEnv(["AIRIS_FORCE_DRAW_OPEN_FAIL": "1"]) {
+            DrawCommand().testOpenWithDefaultApp(outputURL, isTestMode: false)
         }
 
         // Reveal 失败
-        try await withEnv(["AIRIS_FORCE_DRAW_REVEAL_FAIL": "1"]) {
-            try DrawCommand()._testOpenInFinder(outputURL, isTestMode: false)
+        await withEnv(["AIRIS_FORCE_DRAW_REVEAL_FAIL": "1"]) {
+            DrawCommand().testOpenInFinder(outputURL, isTestMode: false)
         }
 
         CommandTestHarness.cleanup(outputURL)
@@ -199,7 +199,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
     }
 
     func testOCRCommandNilCandidateBranch() {
-        let results = OCRCommand._testExtractEmptyCandidate()
+        let results = OCRCommand.testExtractEmptyCandidate()
         XCTAssertTrue(results.isEmpty)
     }
 
@@ -227,12 +227,12 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
     }
 
     func testBarcodeFormatSymbologyDefault() {
-        let value = BarcodeCommand._testFormatSymbology(.aztec)
+        let value = BarcodeCommand.testFormatSymbology(.aztec)
         XCTAssertEqual(value.lowercased(), "aztec")
     }
 
     func testPoseCommandUnknownJointNameHelper() {
-        let name = PoseCommand._testJointNameString("custom_joint")
+        let name = PoseCommand.testJointNameString("custom_joint")
         XCTAssertEqual(name, "unknown")
     }
 
@@ -334,6 +334,6 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
 
     func testVisionServiceMockFailureDetection() {
         let mock = MockVisionOperations(shouldFail: true)
-        XCTAssertTrue(VisionService._testIsMockFailure(mock))
+        XCTAssertTrue(VisionService.testIsMockFailure(mock))
     }
 }

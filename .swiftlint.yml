@@ -79,10 +79,6 @@ line_length:
   ignores_comments: true
   ignores_urls: true
 
-cyclomatic_complexity:
-  warning: 10
-  error: 20
-
 identifier_name:
   min_length:
     warning: 2

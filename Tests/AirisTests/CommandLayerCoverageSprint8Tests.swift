@@ -115,7 +115,7 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         ]).run()
 
         // default 分支（未知方法 -> fallback sharpen）通过 DEBUG 辅助覆盖
-        let result = SharpenCommand._testFilter(method: "unknown", intensity: 0.4, radius: 2.0)
+        let result = SharpenCommand.testFilter(method: "unknown", intensity: 0.4, radius: 2.0)
         XCTAssertFalse(result.extent.isEmpty)
     }
 }

@@ -103,7 +103,7 @@ struct SaliencyCommand: AsyncParsableCommand {
         let result: VisionService.SaliencyResult
         #if DEBUG
         if ProcessInfo.processInfo.environment["AIRIS_TEST_SALIENCY_FAKE_RESULT"] == "1" {
-            result = Self._testSaliencyResult(type: saliencyType)
+            result = Self.testSaliencyResult(type: saliencyType)
         } else {
             let vision = ServiceContainer.shared.visionService
             result = try await vision.detectSaliency(at: url, type: saliencyType)
@@ -218,10 +218,12 @@ struct SaliencyCommand: AsyncParsableCommand {
 
     #if DEBUG
     /// 测试桩：快速生成带 1 个显著区域的 4x4 热力图
-    private static func _testSaliencyResult(type: VisionService.SaliencyType) -> VisionService.SaliencyResult {
+    private static func testSaliencyResult(type: VisionService.SaliencyType) -> VisionService.SaliencyResult {
         var pixelBuffer: CVPixelBuffer?
-        CVPixelBufferCreate(nil, 4, 4, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
-        let buffer = pixelBuffer!
+        let status = CVPixelBufferCreate(nil, 4, 4, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
+        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            fatalError("CVPixelBufferCreate failed in testSaliencyResult")
+        }
         let bounds: [CGRect]
         if ProcessInfo.processInfo.environment["AIRIS_TEST_SALIENCY_EMPTY"] == "1" {
             bounds = []

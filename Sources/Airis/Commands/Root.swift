@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Darwin
 
 @main
 struct Airis: AsyncParsableCommand {
@@ -96,6 +97,22 @@ struct Airis: AsyncParsableCommand {
     mutating func validate() throws {
         // 设置全局语言
         Language.current = Language.resolve(explicit: globalOptions.lang)
+
+        // 解析全局 verbose/quiet
+        AirisRuntime.isVerbose = globalOptions.verbose
+        AirisRuntime.isQuiet = globalOptions.quiet
+
+        if globalOptions.quiet {
+            redirectStdoutToDevNull()
+        }
+    }
+
+    // quiet 模式：重定向 stdout 到 /dev/null，只保留 stderr（错误）。
+    private func redirectStdoutToDevNull() {
+        let devNull = open("/dev/null", O_WRONLY)
+        guard devNull != -1 else { return }
+        dup2(devNull, STDOUT_FILENO)
+        close(devNull)
     }
 }
 
