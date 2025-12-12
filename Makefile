@@ -57,16 +57,16 @@ install: release
 ## test: 运行完整测试（包含性能测试，~101s）
 test:
 	@echo "🧪 运行完整测试套件（640 tests）..."
-	@echo "⏱️  预计耗时: ~101 秒"
+	@echo "⏱️  预计耗时: ~12-20 秒（串行）"
 	@echo ""
-	swift test --parallel
+	swift test
 
 ## test-quick: 快速测试（跳过性能测试，~30-40s）⚡
 test-quick:
 	@echo "⚡ 运行快速测试（跳过性能测试）..."
-	@echo "⏱️  预计耗时: ~30-40 秒"
+	@echo "⏱️  预计耗时: ~8-12 秒（串行）"
 	@echo ""
-	swift test --parallel \
+	swift test \
 		--skip VisionPerformanceTests \
 		--skip ImageIOPerformanceTests \
 		--skip CoreImagePerformanceTests
@@ -74,7 +74,7 @@ test-quick:
 ## test-perf: 仅运行性能测试
 test-perf:
 	@echo "📊 运行性能测试..."
-	swift test --parallel \
+	swift test \
 		--filter VisionPerformanceTests \
 		--filter ImageIOPerformanceTests \
 		--filter CoreImagePerformanceTests
@@ -82,7 +82,7 @@ test-perf:
 ## test-unit: 仅运行单元测试
 test-unit:
 	@echo "🧪 运行单元测试..."
-	swift test --parallel \
+	swift test \
 		--skip Integration \
 		--skip Performance \
 		--skip EdgeCases
@@ -90,7 +90,7 @@ test-unit:
 ## test-integration: 仅运行集成测试
 test-integration:
 	@echo "🔗 运行集成测试..."
-	swift test --parallel --filter Integration
+	swift test --filter Integration
 
 ## clean: 清理构建产物
 clean:
@@ -132,7 +132,7 @@ check: test format lint
 ## cov: 生成代码覆盖率报告
 cov:
 	@echo "📊 生成代码覆盖率报告..."
-	@swift test --enable-code-coverage --parallel
+	@swift test --enable-code-coverage
 	@echo ""
 	@echo "📈 核心服务覆盖率："
 	@xcrun llvm-cov report \
@@ -146,7 +146,7 @@ cov:
 ## cov-html: 生成 HTML 覆盖率报告并打开
 cov-html:
 	@echo "🌐 生成 HTML 覆盖率报告..."
-	@swift test --enable-code-coverage --parallel
+	@swift test --enable-code-coverage
 	@mkdir -p .build/coverage
 	@xcrun llvm-cov show \
 		.build/debug/AirisPackageTests.xctest/Contents/MacOS/AirisPackageTests \
