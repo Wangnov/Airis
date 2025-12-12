@@ -155,12 +155,8 @@ struct TagCommand: AsyncParsableCommand {
     #if DEBUG
     /// 测试辅助：构造可控的标签列表，便于覆盖总数>显示数的分支
     static func testObservations(count: Int) -> [VNClassificationObservation] {
-        (0..<count).map { idx in
-            let obs = VNClassificationObservation()
-            obs.setValue("tag_\(idx)", forKey: "identifier")
-            obs.setValue(Float(1.0 - Double(idx) * 0.1), forKey: "confidence")
-            return obs
-        }
+        // Vision 的 VNClassificationObservation 无公开 setter，测试仅需可控数量。
+        (0..<count).map { _ in VNClassificationObservation() }
     }
     #endif
 }

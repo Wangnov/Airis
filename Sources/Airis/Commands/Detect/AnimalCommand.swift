@@ -101,33 +101,41 @@ struct AnimalCommand: AsyncParsableCommand {
             #endif
 
             let results = try await vision.recognizeAnimals(at: url)
+            let adapted = results.map { obs -> VisionAnimalObservation in
+                let labels = obs.labels.map { VisionAnimalLabel(identifierValue: $0.identifier, confidenceValue: $0.confidence) }
+                return VisionAnimalObservation(
+                    confidenceValue: obs.confidence,
+                    labelsValue: labels,
+                    boundingBoxValue: obs.boundingBox
+                )
+            }
 
-            try await handleResults(results, url: url)
+            try await handleResults(adapted, url: url)
         }
     }
 
-    private func handleResults(_ results: [VNRecognizedObjectObservation], url: URL) async throws {
+    private func handleResults<T: AnimalObservationLike>(_ results: [T], url: URL) async throws {
         // 解析结果
         var animalResults: [AnimalResult] = []
         for observation in results {
             // 检查整体置信度
-            guard observation.confidence >= threshold else { continue }
+            guard observation.confidenceValue >= threshold else { continue }
 
-            for label in observation.labels {
-                let combinedConfidence = observation.confidence * label.confidence
+            for label in observation.labelsValue {
+                let combinedConfidence = observation.confidenceValue * label.confidenceValue
 
                 // 检查组合置信度
                 guard combinedConfidence >= threshold else { continue }
 
                 // 类型过滤
                 if let typeFilter = type?.lowercased() {
-                    guard label.identifier.lowercased() == typeFilter else { continue }
+                    guard label.identifierValue.lowercased() == typeFilter else { continue }
                 }
 
                 animalResults.append(AnimalResult(
-                    type: label.identifier,
+                    type: label.identifierValue,
                     confidence: combinedConfidence,
-                    boundingBox: observation.boundingBox
+                    boundingBox: observation.boundingBoxValue
                 ))
             }
         }
@@ -199,18 +207,41 @@ private struct AnimalResult {
     let boundingBox: CGRect
 }
 
+// MARK: - Observation Abstraction (avoid KVC in DEBUG stubs)
+
+private protocol AnimalLabelLike {
+    var identifierValue: String { get }
+    var confidenceValue: Float { get }
+}
+
+private protocol AnimalObservationLike {
+    var confidenceValue: Float { get }
+    var labelsValue: [any AnimalLabelLike] { get }
+    var boundingBoxValue: CGRect { get }
+}
+
+private struct VisionAnimalLabel: AnimalLabelLike {
+    let identifierValue: String
+    let confidenceValue: Float
+}
+
+private struct VisionAnimalObservation: AnimalObservationLike {
+    let confidenceValue: Float
+    let labelsValue: [any AnimalLabelLike]
+    let boundingBoxValue: CGRect
+}
+
 #if DEBUG
 extension AnimalCommand {
     /// 测试辅助：构造可控的识别结果，覆盖类型过滤与空结果分支
-    static func testObservations() -> [VNRecognizedObjectObservation] {
-        func makeObservation(type: String, confidence: Float, box: CGRect) -> VNRecognizedObjectObservation {
-            let obs = VNRecognizedObjectObservation(boundingBox: box)
-            let label = VNClassificationObservation()
-            label.setValue(type, forKey: "identifier")
-            label.setValue(confidence, forKey: "confidence")
-            obs.setValue([label], forKey: "labels")
-            obs.setValue(confidence, forKey: "confidence")
-            return obs
+    private static func testObservations() -> [StubAnimalObservation] {
+        func makeObservation(type: String, confidence: Float, box: CGRect) -> StubAnimalObservation {
+            let label = StubAnimalLabel(identifierValue: type, confidenceValue: confidence)
+            return StubAnimalObservation(
+                confidenceValue: confidence,
+                labelsValue: [label],
+                boundingBoxValue: box
+            )
         }
 
         return [
@@ -220,20 +251,30 @@ extension AnimalCommand {
     }
 
     /// 低标签置信度分支（覆盖 combinedConfidence < threshold）
-    static func testLowConfidenceLabelObservations() -> [VNRecognizedObjectObservation] {
-        func makeObservation(type: String, confidence: Float, labelConfidence: Float, box: CGRect) -> VNRecognizedObjectObservation {
-            let obs = VNRecognizedObjectObservation(boundingBox: box)
-            let label = VNClassificationObservation()
-            label.setValue(type, forKey: "identifier")
-            label.setValue(labelConfidence, forKey: "confidence")
-            obs.setValue([label], forKey: "labels")
-            obs.setValue(confidence, forKey: "confidence")
-            return obs
+    private static func testLowConfidenceLabelObservations() -> [StubAnimalObservation] {
+        func makeObservation(type: String, confidence: Float, labelConfidence: Float, box: CGRect) -> StubAnimalObservation {
+            let label = StubAnimalLabel(identifierValue: type, confidenceValue: labelConfidence)
+            return StubAnimalObservation(
+                confidenceValue: confidence,
+                labelsValue: [label],
+                boundingBoxValue: box
+            )
         }
 
         return [
             makeObservation(type: "cat", confidence: 0.98, labelConfidence: 0.4, box: CGRect(x: 0.2, y: 0.2, width: 0.3, height: 0.3))
         ]
     }
+}
+
+private struct StubAnimalLabel: AnimalLabelLike {
+    let identifierValue: String
+    let confidenceValue: Float
+}
+
+private struct StubAnimalObservation: AnimalObservationLike {
+    let confidenceValue: Float
+    let labelsValue: [any AnimalLabelLike]
+    let boundingBoxValue: CGRect
 }
 #endif
