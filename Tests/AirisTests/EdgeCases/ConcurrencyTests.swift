@@ -11,23 +11,17 @@ import Vision
 /// - 测试并发操作的数据一致性
 final class ConcurrencyTests: XCTestCase {
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     var testImageURL: URL!
     var tempDirectory: URL!
 
     override func setUp() async throws {
         try await super.setUp()
-        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/medium_512x512.jpg")
+        testImageURL = TestResources.image("assets/medium_512x512.jpg")
 
         tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("airis_concurrent_test_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
 
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
     }
 
     override func tearDown() async throws {
@@ -52,10 +46,7 @@ final class ConcurrencyTests: XCTestCase {
 
     /// 测试并发 OCR
     func testConcurrentOCR() async throws {
-        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("文档测试图片不存在: \(documentURL.path)")
-        }
+        let documentURL = TestResources.image("vision/document.png")
 
         let visionService = VisionService()
 

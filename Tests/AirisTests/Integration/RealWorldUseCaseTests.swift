@@ -19,9 +19,6 @@ final class RealWorldUseCaseTests: XCTestCase {
     var imageIOService: ImageIOService!
     var tempDir: URL!
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     // MARK: - Setup & Teardown
 
     override func setUp() {
@@ -48,10 +45,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：电商产品照片标准化处理流程
     /// 流程：加载 → 缩放到标准尺寸 → 增强 → 压缩保存
     func testProductPhotoStandardization() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 1. 加载原始产品照片
         let cgImage = try imageIOService.loadImage(at: imageURL)
@@ -85,10 +79,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：产品缩略图批量生成
     /// 场景：为同一产品生成多种尺寸的缩略图
     func testProductThumbnailGeneration() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 定义需要生成的缩略图尺寸
         let thumbnailSizes: [String: Int] = [
@@ -129,10 +120,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：文档扫描完整流程
     /// 流程：检测文档边界 → 透视校正 → 增强对比度 → OCR
     func testDocumentScanningWorkflow() async throws {
-        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("Test asset not found: document.png")
-        }
+        let documentURL = TestResources.image("vision/document.png")
 
         // 1. 检测文档边界
         let rectangles = try await visionService.detectRectangles(
@@ -189,10 +177,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：批量文档处理
     /// 场景：处理多页文档，每页应用相同的增强处理
     func testBatchDocumentProcessing() async throws {
-        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("Test asset not found: document.png")
-        }
+        let documentURL = TestResources.image("vision/document.png")
 
         // 模拟多页文档（实际场景会有多个不同文件）
         let pageCount = 3
@@ -226,10 +211,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：图像库分类标签生成
     /// 场景：为图像库中的图片自动生成分类标签
     func testImageLibraryTagging() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 模拟图像库（实际场景会有多张不同图片）
         let imageCount = 3
@@ -254,10 +236,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：图像内容审核流程
     /// 场景：检测图像中是否包含特定内容（人脸、文字等）
     func testImageContentModeration() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 内容审核结果
         struct ModerationResult {
@@ -299,10 +278,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：社交媒体头像处理
     /// 场景：裁剪为正方形 → 缩放 → 应用滤镜
     func testSocialMediaAvatarProcessing() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 1. 加载图像
         let cgImage = try imageIOService.loadImage(at: imageURL)
@@ -345,10 +321,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：Instagram 风格滤镜批量应用
     /// 场景：为同一张图片生成多种滤镜效果预览
     func testInstagramStyleFilters() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 加载图像
         let cgImage = try imageIOService.loadImage(at: imageURL)
@@ -438,10 +411,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：高分辨率图像处理
     /// 场景：处理 4K+ 图像时的稳定性
     func testHighResolutionImageProcessing() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 1. 加载高分辨率图像
         let cgImage = try imageIOService.loadImage(at: imageURL)
@@ -475,10 +445,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：内存敏感的批量处理
     /// 场景：处理多张图片时避免内存泄漏
     func testMemoryEfficientBatchProcessing() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: line_art.png")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         // 处理多张图片，每次处理后清理缓存
         for i in 1...5 {
@@ -514,10 +481,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：完整的图片编辑用户流程
     /// 模拟用户：打开图片 → 查看信息 → 编辑 → 预览 → 保存
     func testCompleteUserEditingFlow() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: landscape.jpg")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 步骤 1: 用户打开图片，查看信息
         let imageInfo = try imageIOService.getImageInfo(at: imageURL)
@@ -575,10 +539,7 @@ final class RealWorldUseCaseTests: XCTestCase {
     /// 测试：图片比较功能
     /// 场景：用户想比较原图和编辑后的效果
     func testImageComparisonWorkflow() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found: line_art.png")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         // 加载原图
         let originalCGImage = try imageIOService.loadImage(at: imageURL)

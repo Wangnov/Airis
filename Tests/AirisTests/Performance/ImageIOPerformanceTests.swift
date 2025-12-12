@@ -12,24 +12,18 @@ final class ImageIOPerformanceTests: XCTestCase {
     var testImageURL: URL!
     var tempDirectory: URL!
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     override func setUp() async throws {
         try await super.setUp()
         service = ImageIOService()
 
         // 使用 1024x1024 图片进行性能测试（平衡大小与速度）
-        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/perf_1024x1024.jpg")
+        testImageURL = TestResources.image("assets/perf_1024x1024.jpg")
 
         // 创建临时目录用于保存测试
         tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("airis_perf_test_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
 
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
     }
 
     override func tearDown() async throws {

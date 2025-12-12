@@ -19,9 +19,6 @@ final class CommandCoverageIntegrationTests: XCTestCase {
     var imageIOService: ImageIOService!
     var tempDir: URL!
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     // MARK: - Setup & Teardown
 
     override func setUp() {
@@ -47,10 +44,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Animal 命令 - 动物识别
     func testAnimalRecognition() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let results = try await visionService.recognizeAnimals(at: imageURL)
         // 风景图可能没有动物，但流程应该完成
@@ -59,10 +53,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Face 命令 - 人脸特征点检测
     func testFaceLandmarksDetection() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let results = try await visionService.detectFaceLandmarks(at: imageURL)
         // 风景图没有人脸
@@ -71,10 +62,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Pose 命令 - 人体姿态检测
     func testHumanBodyPoseDetection() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let results = try await visionService.detectHumanBodyPose(at: imageURL)
         XCTAssertNotNil(results)
@@ -82,10 +70,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Pose3D 命令 - 3D 人体姿态检测
     func testHumanBodyPose3DDetection() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let results = try await visionService.detectHumanBodyPose3D(at: imageURL)
         XCTAssertNotNil(results)
@@ -93,10 +78,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Hand 命令 - 手部姿态检测
     func testHumanHandPoseDetection() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let results = try await visionService.detectHumanHandPose(at: imageURL, maximumHandCount: 2)
         XCTAssertNotNil(results)
@@ -104,10 +86,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：PetPose 命令 - 动物姿态检测
     func testAnimalBodyPoseDetection() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let results = try await visionService.detectAnimalBodyPose(at: imageURL)
         XCTAssertNotNil(results)
@@ -115,10 +94,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Flow 命令 - 光流计算
     func testOpticalFlowComputation() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 光流需要两张图片，这里用同一张测试
         let result = try await visionService.computeOpticalFlow(
@@ -131,10 +107,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Align 命令 - 图像对齐
     func testImageAlignment() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 图像对齐需要两张图片
         let result = try await visionService.computeImageAlignment(
@@ -146,10 +119,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：前景遮罩生成
     func testForegroundMaskGeneration() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         // 风景图可能没有明显的前景对象，可能会抛出 noResultsFound
         do {
@@ -165,10 +135,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Rotate 命令 - 图像旋转
     func testImageRotation() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -185,10 +152,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Flip 命令 - 图像翻转
     func testImageFlip() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -204,10 +168,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Blur 命令 - 各种模糊效果
     func testBlurEffects() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -227,10 +188,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Noise 命令 - 降噪
     func testNoiseReduction() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -241,10 +199,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Pixel 命令 - 像素化
     func testPixellate() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -255,10 +210,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Comic 命令 - 漫画效果
     func testComicEffect() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -269,10 +221,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Halftone 命令 - 半色调效果
     func testHalftoneEffect() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -283,10 +232,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Exposure 命令 - 曝光调整
     func testExposureAdjustment() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -297,10 +243,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Temperature 命令 - 色温调整
     func testTemperatureAdjustment() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -311,10 +254,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Posterize 命令 - 色调分离
     func testPosterize() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -325,10 +265,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Threshold 命令 - 阈值化
     func testThreshold() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -339,10 +276,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Defringe 命令 - 去紫边
     func testDefringe() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -353,10 +287,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Trace 命令 - 线条追踪
     func testLineOverlay() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -367,10 +298,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：边缘检测
     func testEdgeDetection() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -384,10 +312,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Photo Effect Process 和 Transfer
     func testPhotoEffectsProcessAndTransfer() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -401,10 +326,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Unsharp Mask 锐化
     func testUnsharpMask() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -417,10 +339,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Info 命令 - 图像信息
     func testImageInfo() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let info = try imageIOService.getImageInfo(at: imageURL)
         XCTAssertGreaterThan(info.width, 0)
@@ -431,10 +350,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Meta 命令 - 图像元数据
     func testImageMetadata() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let metadata = try imageIOService.loadImageMetadata(at: imageURL)
         XCTAssertFalse(metadata.isEmpty)
@@ -442,10 +358,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：Format 命令 - 格式检测
     func testImageFormat() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let format = try imageIOService.getImageFormat(at: imageURL)
         // ImageIO 返回的格式标识符可能是 "public.png" 或其他形式
@@ -455,10 +368,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：图像帧数检测（GIF 等）
     func testImageFrameCount() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let frameCount = try imageIOService.getImageFrameCount(at: imageURL)
         XCTAssertGreaterThanOrEqual(frameCount, 1)
@@ -468,10 +378,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：完整的照片编辑工作流（覆盖多个 Adjust 命令）
     func testCompletePhotoAdjustmentWorkflow() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/landscape.jpg")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("landscape.jpg")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         var ciImage = CIImage(cgImage: cgImage)
@@ -503,10 +410,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：完整的艺术效果工作流（覆盖多个 Filter 命令）
     func testCompleteArtisticEffectsWorkflow() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)
@@ -534,10 +438,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：完整的 Vision 分析工作流（覆盖多个 Detect 命令）
     func testCompleteVisionAnalysisWorkflow() async throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("vision/document.png")
 
         let service = try XCTUnwrap(visionService)
 
@@ -583,10 +484,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
 
     /// 测试：自动增强滤镜信息获取
     func testAutoEnhanceFilterInfo() throws {
-        let imageURL = URL(fileURLWithPath: Self.resourcePath + "/line_art.png")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            throw XCTSkip("Test asset not found")
-        }
+        let imageURL = TestResources.image("line_art.png")
 
         let cgImage = try imageIOService.loadImage(at: imageURL)
         let ciImage = CIImage(cgImage: cgImage)

@@ -9,19 +9,12 @@ final class VisionServiceAdditionalTests: XCTestCase {
     var service: VisionService!
     var testImageURL: URL!
 
-    // 测试资源路径（相对于项目根目录）
-    static let resourcePath = "Tests/Resources/images"
-
     override func setUp() async throws {
         try await super.setUp()
         service = VisionService()
 
         // 使用内置的 512x512 中等尺寸图片，避免光流等计算密集操作耗时过长
-        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/medium_512x512.jpg")
-
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
+        testImageURL = TestResources.image("assets/medium_512x512.jpg")
     }
 
     override func tearDown() async throws {
@@ -113,11 +106,7 @@ final class VisionServiceAdditionalTests: XCTestCase {
 
     /// 使用清晰地平线图片，期望命中成功分支
     func testDetectHorizonWithClearLine() async throws {
-        let url = URL(fileURLWithPath: Self.resourcePath + "/assets/horizon_clear_512x512.jpg")
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            throw XCTSkip("清晰地平线测试图片不存在")
-        }
-
+        let url = TestResources.image("assets/horizon_clear_512x512.jpg")
         let result = try await service.detectHorizon(at: url)
         XCTAssertNotNil(result, "清晰地平线图片应检测到地平线")
     }
@@ -139,11 +128,7 @@ final class VisionServiceAdditionalTests: XCTestCase {
     /// 使用单人沙滩照片，期望生成前景遮罩
     @available(macOS 14.0, *)
     func testGenerateForegroundMaskWithForegroundSubject() async throws {
-        let url = URL(fileURLWithPath: Self.resourcePath + "/assets/foreground_person_beach_512x512.jpg")
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            throw XCTSkip("前景人物测试图片不存在")
-        }
-
+        let url = TestResources.image("assets/foreground_person_beach_512x512.jpg")
         let result = try await service.generateForegroundMask(at: url)
         XCTAssertGreaterThan(result.extent.width, 0)
         XCTAssertGreaterThan(result.extent.height, 0)
@@ -159,11 +144,7 @@ final class VisionServiceAdditionalTests: XCTestCase {
         }
 
         let service = VisionService(operations: AirisErrorOps())
-        let url = URL(fileURLWithPath: Self.resourcePath + "/assets/foreground_person_indoor_512x512.jpg")
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            throw XCTSkip("前景人物室内测试图片不存在")
-        }
-
+        let url = TestResources.image("assets/foreground_person_indoor_512x512.jpg")
         do {
             _ = try await service.generateForegroundMask(at: url)
             XCTFail("应抛出 AirisError.noResultsFound")
@@ -214,11 +195,7 @@ final class VisionServiceAdditionalTests: XCTestCase {
     /// 测试矩形检测不同参数
     func testDetectRectanglesWithParameters() async throws {
         // 使用包含矩形（文档）的测试图片
-        let rectangleURL = URL(fileURLWithPath: Self.resourcePath + "/assets/rectangle_512x512.png")
-        guard FileManager.default.fileExists(atPath: rectangleURL.path) else {
-            throw XCTSkip("矩形测试图片不存在")
-        }
-
+        let rectangleURL = TestResources.image("assets/rectangle_512x512.png")
         let results = try await service.detectRectangles(
             at: rectangleURL,
             minimumConfidence: 0.3,

@@ -95,8 +95,7 @@ final class GeminiProviderTests: XCTestCase {
 
     // Helper: small base64 image string
     private static func sampleBase64Image() throws -> String {
-        let url = URL(fileURLWithPath: "Tests/Resources/images/assets/small_100x100.png")
-        let data = try Data(contentsOf: url)
+        let data = try Data(contentsOf: TestResources.image("assets/small_100x100.png"))
         return data.base64EncodedString()
     }
 
@@ -176,7 +175,7 @@ final class GeminiProviderTests: XCTestCase {
         )
 
         // 准备参考图片与输出路径
-        let reference = URL(fileURLWithPath: "Tests/Resources/images/assets/small_100x100.png")
+        let reference = TestResources.image("assets/small_100x100.png")
         let outputURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("gemini_pro_output_\(UUID().uuidString).png")
 

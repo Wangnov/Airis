@@ -1,21 +1,9 @@
 import Foundation
 
 enum CommandTestHarness {
-    private static let resourcesBase: URL = {
-        // 基于本文件路径定位到 Tests/Resources
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent() // Utils
-            .deletingLastPathComponent() // AirisTests
-            .deletingLastPathComponent() // Tests
-            .appendingPathComponent("Resources")
-    }()
-
     /// 返回测试资源目录下的图片 URL
     static func fixture(_ name: String) -> URL {
-        resourcesBase
-            .appendingPathComponent("images")
-            .appendingPathComponent("assets")
-            .appendingPathComponent(name)
+        TestResources.image("assets/\(name)")
     }
 
     /// 创建临时输出文件路径（不预创建文件）

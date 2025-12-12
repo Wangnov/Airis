@@ -5,9 +5,6 @@ import XCTest
 final class ImageUtilsTests: XCTestCase {
     var tempDirectory: URL!
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     override func setUp() {
         super.setUp()
         tempDirectory = FileManager.default.temporaryDirectory
@@ -24,12 +21,7 @@ final class ImageUtilsTests: XCTestCase {
 
     /// 测试编码图片为 Base64
     func testEncodeImageToBase64() throws {
-        let testImagePath = Self.resourcePath + "/assets/small_100x100.png"
-        guard FileManager.default.fileExists(atPath: testImagePath) else {
-            throw XCTSkip("测试资产不存在: \(testImagePath)")
-        }
-
-        let url = URL(fileURLWithPath: testImagePath)
+        let url = TestResources.image("assets/small_100x100.png")
         let result = try ImageUtils.encodeImageToBase64(at: url)
 
         XCTAssertFalse(result.data.isEmpty)
@@ -138,12 +130,7 @@ final class ImageUtilsTests: XCTestCase {
 
     /// 测试获取图片尺寸
     func testGetImageDimensions() throws {
-        let testImagePath = Self.resourcePath + "/assets/medium_512x512.jpg"
-        guard FileManager.default.fileExists(atPath: testImagePath) else {
-            throw XCTSkip("测试资产不存在: \(testImagePath)")
-        }
-
-        let url = URL(fileURLWithPath: testImagePath)
+        let url = TestResources.image("assets/medium_512x512.jpg")
         let dimensions = try ImageUtils.getImageDimensions(at: url)
 
         XCTAssertEqual(dimensions.width, 512, "应读取到正确的宽度")

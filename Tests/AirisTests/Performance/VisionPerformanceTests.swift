@@ -12,22 +12,14 @@ final class VisionPerformanceTests: XCTestCase {
     var testImageURL: URL!
     var documentImageURL: URL!
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     override func setUp() async throws {
         try await super.setUp()
         service = VisionService()
 
         // 使用 1024x1024 图片进行性能测试（平衡大小与速度）
-        testImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/perf_1024x1024.jpg")
+        testImageURL = TestResources.image("assets/perf_1024x1024.jpg")
         // OCR 性能测试用 512x512 文档图（避免耗时过长）
-        documentImageURL = URL(fileURLWithPath: Self.resourcePath + "/assets/document_text_512x512.png")
-
-        // 验证测试资产存在
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
+        documentImageURL = TestResources.image("assets/document_text_512x512.png")
     }
 
     override func tearDown() async throws {
@@ -75,10 +67,6 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试 OCR 识别性能 - 准确模式
     func testOCRPerformance_Accurate() async throws {
-        guard FileManager.default.fileExists(atPath: documentImageURL.path) else {
-            throw XCTSkip("文档测试图片不存在")
-        }
-
         let url = try XCTUnwrap(documentImageURL)
         let svc = try XCTUnwrap(service)
 
@@ -98,10 +86,6 @@ final class VisionPerformanceTests: XCTestCase {
 
     /// 测试 OCR 识别性能 - 快速模式
     func testOCRPerformance_Fast() async throws {
-        guard FileManager.default.fileExists(atPath: documentImageURL.path) else {
-            throw XCTSkip("文档测试图片不存在")
-        }
-
         let url = try XCTUnwrap(documentImageURL)
         let svc = try XCTUnwrap(service)
 

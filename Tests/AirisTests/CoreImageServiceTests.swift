@@ -459,7 +459,7 @@ final class CoreImageServiceTests: XCTestCase {
     func testApplyAndSaveWritesFile() throws {
         let factory = MockCoreImageFilterFactory()
         let svc = makeService(factory: factory)
-        let input = URL(fileURLWithPath: "Tests/Resources/images/assets/medium_512x512.jpg")
+        let input = TestResources.image("assets/medium_512x512.jpg")
         let output = FileManager.default.temporaryDirectory
             .appendingPathComponent("ci_apply_\(UUID().uuidString).png")
 
@@ -483,7 +483,7 @@ final class CoreImageServiceTests: XCTestCase {
             filterFactory: factory,
             rendererOverride: { _ in nil }  // 强制渲染失败
         )
-        let input = URL(fileURLWithPath: "Tests/Resources/images/assets/medium_512x512.jpg")
+        let input = TestResources.image("assets/medium_512x512.jpg")
         let output = FileManager.default.temporaryDirectory
             .appendingPathComponent("ci_apply_fail_\(UUID().uuidString).png")
 
@@ -506,7 +506,7 @@ final class CoreImageServiceTests: XCTestCase {
     func testAutoEnhanceAndSaveWritesFile() throws {
         let factory = MockCoreImageFilterFactory()
         let svc = makeService(factory: factory)
-        let input = URL(fileURLWithPath: "Tests/Resources/images/assets/medium_512x512.jpg")
+        let input = TestResources.image("assets/medium_512x512.jpg")
         let output = FileManager.default.temporaryDirectory
             .appendingPathComponent("ci_auto_\(UUID().uuidString).png")
 
@@ -529,7 +529,7 @@ final class CoreImageServiceTests: XCTestCase {
             filterFactory: factory,
             rendererOverride: { _ in nil }  // 强制渲染失败
         )
-        let input = URL(fileURLWithPath: "Tests/Resources/images/assets/medium_512x512.jpg")
+        let input = TestResources.image("assets/medium_512x512.jpg")
         let output = FileManager.default.temporaryDirectory
             .appendingPathComponent("ci_auto_fail_\(UUID().uuidString).png")
 

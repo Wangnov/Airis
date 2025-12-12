@@ -28,7 +28,10 @@ let package = Package(
         ),
         .testTarget(
             name: "AirisTests",
-            dependencies: ["Airis"]
+            dependencies: ["Airis"],
+            resources: [
+                .copy("../Resources")
+            ]
         )
     ]
 )

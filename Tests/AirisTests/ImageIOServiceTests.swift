@@ -19,12 +19,9 @@ final class ImageIOServiceTests: XCTestCase {
             .appendingPathComponent("airis_imageio_test_\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-        // 使用测试图片
-        let resourcePath = "Tests/Resources/images"
-        let projectRoot = FileManager.default.currentDirectoryPath
-
-        testImageURL = URL(fileURLWithPath: "\(projectRoot)/\(resourcePath)/imageio/load_basic.png")
-        transparentImageURL = URL(fileURLWithPath: "\(projectRoot)/\(resourcePath)/imageio/alpha_test.png")
+        // 使用测试图片（不依赖当前工作目录）
+        testImageURL = TestResources.image("imageio/load_basic.png")
+        transparentImageURL = TestResources.image("imageio/alpha_test.png")
     }
 
     override func tearDown() {

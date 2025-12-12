@@ -16,9 +16,6 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     var service: VisionService!
 
-    // 内置测试资源路径
-    static let resourcePath = "Tests/Resources/images"
-
     override func setUp() {
         super.setUp()
         service = Self.sharedVisionService
@@ -137,10 +134,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试零阈值 - 应返回所有分类结果
     func testClassifyZeroThreshold() async throws {
-        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/classify.jpg")
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
+        let testImageURL = TestResources.image("vision/classify.jpg")
 
         let results = try await service.classifyImage(at: testImageURL, threshold: 0)
         // 零阈值应该返回所有结果
@@ -149,10 +143,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试满阈值（1.0）- 应返回空或极少结果
     func testClassifyFullThreshold() async throws {
-        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/classify.jpg")
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
+        let testImageURL = TestResources.image("vision/classify.jpg")
 
         let results = try await service.classifyImage(at: testImageURL, threshold: 1.0)
         // 满阈值应该返回空结果（置信度几乎不可能达到 1.0）
@@ -161,10 +152,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试负阈值 - 应等同于阈值 0
     func testClassifyNegativeThreshold() async throws {
-        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/classify.jpg")
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
+        let testImageURL = TestResources.image("vision/classify.jpg")
 
         // 负阈值应该被处理（等同于 0）
         let results = try await service.classifyImage(at: testImageURL, threshold: -1.0)
@@ -175,10 +163,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试 OCR 空语言列表 - 应启用自动检测
     func testOCREmptyLanguages() async throws {
-        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("测试资产不存在: \(documentURL.path)")
-        }
+        let documentURL = TestResources.image("vision/document.png")
 
         // 空语言列表应该启用自动检测
         let results = try await service.recognizeText(at: documentURL, languages: [])
@@ -188,10 +173,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试 OCR 多语言列表
     func testOCRMultipleLanguages() async throws {
-        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("测试资产不存在: \(documentURL.path)")
-        }
+        let documentURL = TestResources.image("vision/document.png")
 
         let results = try await service.recognizeText(
             at: documentURL,
@@ -205,10 +187,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试 QR 码检测 - 应检测到条形码
     func testBarcodeDetectionWithQRCode() async throws {
-        let qrcodeURL = URL(fileURLWithPath: Self.resourcePath + "/vision/qrcode.png")
-        guard FileManager.default.fileExists(atPath: qrcodeURL.path) else {
-            throw XCTSkip("测试资产不存在: \(qrcodeURL.path)")
-        }
+        let qrcodeURL = TestResources.image("vision/qrcode.png")
 
         let results = try await service.detectBarcodes(at: qrcodeURL)
         // QR 码图片应该检测到条形码
@@ -222,11 +201,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试无条形码图像 - 应返回空结果
     func testBarcodeDetectionNoBarcode() async throws {
-        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/classify.jpg")
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
-
+        let testImageURL = TestResources.image("vision/classify.jpg")
         let results = try await service.detectBarcodes(at: testImageURL)
         // 普通风景图没有条形码
         XCTAssertTrue(results.isEmpty, "无条形码图片应返回空结果")
@@ -236,11 +211,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试矩形检测 - 最小置信度
     func testRectangleDetectionMinConfidence() async throws {
-        let rectangleURL = URL(fileURLWithPath: Self.resourcePath + "/assets/rectangle_512x512.png")
-        guard FileManager.default.fileExists(atPath: rectangleURL.path) else {
-            throw XCTSkip("测试资产不存在: \(rectangleURL.path)")
-        }
-
+        let rectangleURL = TestResources.image("assets/rectangle_512x512.png")
         let results = try await service.detectRectangles(
             at: rectangleURL,
             minimumConfidence: 0.0,
@@ -252,11 +223,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试矩形检测 - 最大置信度（极端边界）
     func testRectangleDetectionMaxConfidence() async throws {
-        let rectangleURL = URL(fileURLWithPath: Self.resourcePath + "/assets/rectangle_512x512.png")
-        guard FileManager.default.fileExists(atPath: rectangleURL.path) else {
-            throw XCTSkip("测试资产不存在: \(rectangleURL.path)")
-        }
-
+        let rectangleURL = TestResources.image("assets/rectangle_512x512.png")
         let results = try await service.detectRectangles(
             at: rectangleURL,
             minimumConfidence: 1.0,
@@ -356,11 +323,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试人脸检测 - 有人脸图片应检测到人脸
     func testFaceDetectionWithFace() async throws {
-        let faceURL = URL(fileURLWithPath: Self.resourcePath + "/vision/face.png")
-        guard FileManager.default.fileExists(atPath: faceURL.path) else {
-            throw XCTSkip("测试资产不存在: \(faceURL.path)")
-        }
-
+        let faceURL = TestResources.image("vision/face.png")
         let results = try await service.detectFaceLandmarks(at: faceURL)
         // 人脸图片应检测到人脸
         XCTAssertFalse(results.isEmpty, "应检测到人脸")
@@ -368,11 +331,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试无人脸图像的检测 - 应返回空结果
     func testFaceDetectionNoFace() async throws {
-        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/classify.jpg")
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
-
+        let testImageURL = TestResources.image("vision/classify.jpg")
         // 风景图没有人脸
         let results = try await service.detectFaceLandmarks(at: testImageURL)
         XCTAssertTrue(results.isEmpty, "风景图应检测不到人脸")
@@ -382,11 +341,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试动物识别 - 有动物图片应识别到动物
     func testAnimalRecognitionWithAnimal() async throws {
-        let catURL = URL(fileURLWithPath: Self.resourcePath + "/vision/cat.png")
-        guard FileManager.default.fileExists(atPath: catURL.path) else {
-            throw XCTSkip("测试资产不存在: \(catURL.path)")
-        }
-
+        let catURL = TestResources.image("vision/cat.png")
         let results = try await service.recognizeAnimals(at: catURL)
         // 猫图片应识别到动物
         XCTAssertFalse(results.isEmpty, "应识别到动物")
@@ -403,11 +358,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试无动物图像的检测 - 应返回空结果
     func testAnimalRecognitionNoAnimal() async throws {
-        let documentURL = URL(fileURLWithPath: Self.resourcePath + "/vision/document.png")
-        guard FileManager.default.fileExists(atPath: documentURL.path) else {
-            throw XCTSkip("测试资产不存在: \(documentURL.path)")
-        }
-
+        let documentURL = TestResources.image("vision/document.png")
         // 文档图像没有动物
         let results = try await service.recognizeAnimals(at: documentURL)
         XCTAssertTrue(results.isEmpty, "文档图片应检测不到动物")
@@ -417,11 +368,7 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试手部检测 - 有手部图片应检测到手部
     func testHandDetectionWithHand() async throws {
-        let handURL = URL(fileURLWithPath: Self.resourcePath + "/vision/hand.png")
-        guard FileManager.default.fileExists(atPath: handURL.path) else {
-            throw XCTSkip("测试资产不存在: \(handURL.path)")
-        }
-
+        let handURL = TestResources.image("vision/hand.png")
         let results = try await service.detectHumanHandPose(at: handURL)
         // 手部图片应检测到手部
         XCTAssertFalse(results.isEmpty, "应检测到手部")
@@ -429,22 +376,14 @@ final class VisionEdgeCaseTests: XCTestCase {
 
     /// 测试无手部图像的检测 - 应返回空结果
     func testHandDetectionNoHand() async throws {
-        let testImageURL = URL(fileURLWithPath: Self.resourcePath + "/vision/classify.jpg")
-        guard FileManager.default.fileExists(atPath: testImageURL.path) else {
-            throw XCTSkip("测试资产不存在: \(testImageURL.path)")
-        }
-
+        let testImageURL = TestResources.image("vision/classify.jpg")
         let results = try await service.detectHumanHandPose(at: testImageURL)
         XCTAssertTrue(results.isEmpty, "风景图应检测不到手部")
     }
 
     /// 测试手部检测最大数量参数
     func testHandDetectionMaxCount() async throws {
-        let handURL = URL(fileURLWithPath: Self.resourcePath + "/vision/hand.png")
-        guard FileManager.default.fileExists(atPath: handURL.path) else {
-            throw XCTSkip("测试资产不存在: \(handURL.path)")
-        }
-
+        let handURL = TestResources.image("vision/hand.png")
         // 测试限制最大手部数量为 1
         let results1 = try await service.detectHumanHandPose(at: handURL, maximumHandCount: 1)
         XCTAssertLessThanOrEqual(results1.count, 1, "应最多检测到 1 只手")

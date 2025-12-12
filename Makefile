@@ -30,6 +30,7 @@ help:
 	@echo "  make clean         清理构建产物"
 	@echo "  make format        格式化代码（需要 swiftformat）"
 	@echo "  make lint          代码检查（需要 swiftlint）"
+	@echo "  make test-assets   离线生成/更新测试图片资源"
 	@echo "  make cov           生成代码覆盖率报告"
 	@echo "  make cov-html      生成 HTML 覆盖率报告并打开"
 	@echo ""
@@ -78,6 +79,12 @@ test-perf:
 		--filter VisionPerformanceTests \
 		--filter ImageIOPerformanceTests \
 		--filter CoreImagePerformanceTests
+
+## test-assets: 离线生成/更新测试图片资源
+test-assets:
+	@echo "🖼️  生成测试图片资源（离线）..."
+	@bash Tests/Resources/create_test_images.sh || true
+	@echo "✅ 测试图片生成完成"
 
 ## test-unit: 仅运行单元测试
 test-unit:
