@@ -17,7 +17,6 @@ enum TestResources {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent() // Utils
             .deletingLastPathComponent() // AirisTests
-            .deletingLastPathComponent() // Tests
             .appendingPathComponent("Resources")
     }()
 
@@ -45,4 +44,3 @@ enum TestResources {
 #if !SWIFT_PACKAGE
 private final class BundleToken {}
 #endif
-

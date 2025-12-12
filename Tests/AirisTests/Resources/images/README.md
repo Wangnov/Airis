@@ -27,7 +27,7 @@ images/
 
 - 入口：`make test-assets`
 - 覆盖重生成：`FORCE=1 make test-assets`
-- 实现：`Tests/Resources/generate_test_images.swift`
+- 实现：`Tests/AirisTests/Resources/generate_test_images.swift`
 
 脚本默认只生成缺失文件，避免污染工作区；需要覆盖重生成时再显式开启 `--force`。
 

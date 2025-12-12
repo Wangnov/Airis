@@ -5,9 +5,9 @@ set -euo pipefail
 #
 # 用法:
 #   make test-assets
-#   bash Tests/Resources/create_test_images.sh           # 仅生成缺失文件
+#   bash Tests/AirisTests/Resources/create_test_images.sh           # 仅生成缺失文件
 #   FORCE=1 make test-assets                             # 覆盖已存在的可生成资源
-#   bash Tests/Resources/create_test_images.sh --force    # 同上
+#   bash Tests/AirisTests/Resources/create_test_images.sh --force    # 同上
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SWIFT_SCRIPT="$SCRIPT_DIR/generate_test_images.swift"

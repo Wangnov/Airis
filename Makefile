@@ -82,7 +82,7 @@ test-perf:
 
 ## test-assets: 离线生成/更新测试图片资源
 test-assets:
-	@bash Tests/Resources/create_test_images.sh
+	@bash Tests/AirisTests/Resources/create_test_images.sh
 	@echo "✅ 测试图片生成完成"
 	@echo "💡 覆盖重生成: FORCE=1 make test-assets"
 

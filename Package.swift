@@ -30,7 +30,7 @@ let package = Package(
             name: "AirisTests",
             dependencies: ["Airis"],
             resources: [
-                .copy("../Resources")
+                .copy("Resources")
             ]
         )
     ]
