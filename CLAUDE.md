@@ -5,8 +5,8 @@
 **Airis** - AI 驱动的图像处理 CLI 工具
 
 - **命令数量**: 51 个
-- **测试数量**: 640 tests
-- **覆盖率**: 85%
+- **测试数量**: 1,148+
+- **覆盖率**: 100%（make cov，过滤 Tests/.build 依赖）
 - **语言**: Swift 5.10+
 - **平台**: macOS 14.0+
 
@@ -79,7 +79,7 @@ make clean            # 清理构建产物
 make format           # 格式化代码（需要 swiftformat）
 make lint             # 代码检查（需要 swiftlint）
 make cov              # 生成代码覆盖率报告
-make cov-html         # 生成 HTML 覆盖率报告并打开
+make cov-html         # 生成 HTML 覆盖率报告并打开（已过滤 Tests/.build）
 make help             # 显示帮助
 ```
 
@@ -485,7 +485,7 @@ final class CoreImageService: Sendable {
 3. 副 Agents 并行开发
 4. 主 Agent 逐个验收合并
 
-**效率提升**: 65%+（实战验证）
+**效率提升**: 65%+（以现有测试规模、并行策略实测）
 
 ---
 
