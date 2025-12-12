@@ -151,6 +151,7 @@ cov-html:
 	@xcrun llvm-cov show \
 		.build/debug/AirisPackageTests.xctest/Contents/MacOS/AirisPackageTests \
 		-instr-profile=.build/debug/codecov/default.profdata \
+		--ignore-filename-regex='(/Tests/|/\.build/)' \
 		-format=html \
 		-output-dir=.build/coverage
 	@echo "✅ HTML 报告已生成: .build/coverage/index.html"
