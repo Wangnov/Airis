@@ -183,11 +183,7 @@ struct Pose3DCommand: AsyncParsableCommand {
         print("Detected \(results.count) person(s)")
         print("")
 
-        #if DEBUG
         let forceMissingJoint = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_MISSING_JOINT"] == "1"
-        #else
-        let forceMissingJoint = false
-        #endif
 
         for (index, observation) in results.enumerated() {
             print("[\(index + 1)] Person")
@@ -226,11 +222,7 @@ struct Pose3DCommand: AsyncParsableCommand {
         let items = results.map { observation -> [String: Any] in
             var keypoints: [[String: Any]] = []
 
-            #if DEBUG
             let forceMissingJoint = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_MISSING_JOINT"] == "1"
-            #else
-            let forceMissingJoint = false
-            #endif
 
             for jointName in allJointNames {
                 let point: VNRecognizedPoint3D?
