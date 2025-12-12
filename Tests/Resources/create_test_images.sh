@@ -1,19 +1,34 @@
 #!/bin/bash
-# 创建测试所需的图片资源
+set -euo pipefail
 
-cd "$(dirname "$0")/images"
+# 离线生成/更新测试图片资源（确定性、无需网络、无需 API Key）。
+#
+# 用法:
+#   make test-assets
+#   bash Tests/Resources/create_test_images.sh           # 仅生成缺失文件
+#   FORCE=1 make test-assets                             # 覆盖已存在的可生成资源
+#   bash Tests/Resources/create_test_images.sh --force    # 同上
 
-# 使用 sips 创建测试图片（macOS 内置工具）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SWIFT_SCRIPT="$SCRIPT_DIR/generate_test_images.swift"
 
-# 1. 小图 100x100 (PNG)
-sips -z 100 100 --setProperty format png -o small_100x100.png /System/Library/Desktop\ Pictures/Solid\ Colors/Solid\ Aqua\ Graphite.png 2>/dev/null
+if ! command -v swift >/dev/null 2>&1; then
+  echo "⚠️  未找到 swift，跳过测试资源生成" >&2
+  exit 0
+fi
 
-# 2. 中图 512x512 (JPEG)
-sips -z 512 512 --setProperty format jpeg --setProperty formatOptions 85 -o medium_512x512.jpg /System/Library/Desktop\ Pictures/Solid\ Colors/Solid\ Blue.png 2>/dev/null
+args=("$@")
 
-# 3. 带透明通道 (PNG)
-# 从系统图标复制一个有透明的图片
-cp /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericDocumentIcon.icns transparent.png 2>/dev/null || echo "skip transparent"
+# 兼容 Makefile 的 FORCE=1
+if [[ "${FORCE:-}" == "1" ]]; then
+  args+=("--force")
+fi
 
-echo "测试图片创建完成"
-ls -lh
+echo "🖼️  生成测试图片资源（离线）..."
+
+# macOS 自带的 bash(3.2) 在 set -u 下展开空数组会报错，因此需要分支处理。
+if (( ${#args[@]} )); then
+  swift "$SWIFT_SCRIPT" "${args[@]}"
+else
+  swift "$SWIFT_SCRIPT"
+fi

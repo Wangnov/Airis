@@ -82,9 +82,9 @@ test-perf:
 
 ## test-assets: 离线生成/更新测试图片资源
 test-assets:
-	@echo "🖼️  生成测试图片资源（离线）..."
-	@bash Tests/Resources/create_test_images.sh || true
+	@bash Tests/Resources/create_test_images.sh
 	@echo "✅ 测试图片生成完成"
+	@echo "💡 覆盖重生成: FORCE=1 make test-assets"
 
 ## test-unit: 仅运行单元测试
 test-unit:
