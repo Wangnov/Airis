@@ -97,7 +97,14 @@ struct ThumbCommand: AsyncParsableCommand {
         print("⏳ " + Strings.get("edit.thumb.generating"))
 
         // 使用 ImageIO 高效生成缩略图
-        guard let imageSource = CGImageSourceCreateWithURL(inputURL as CFURL, nil) else {
+        #if DEBUG
+        let forceSourceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_THUMB_SOURCE_NIL"] == "1"
+        let imageSource = forceSourceNil ? nil : CGImageSourceCreateWithURL(inputURL as CFURL, nil)
+        #else
+        let imageSource = CGImageSourceCreateWithURL(inputURL as CFURL, nil)
+        #endif
+
+        guard let imageSource else {
             throw AirisError.imageDecodeFailed
         }
 
@@ -108,7 +115,14 @@ struct ThumbCommand: AsyncParsableCommand {
             kCGImageSourceShouldCacheImmediately: true
         ]
 
-        guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary) else {
+        #if DEBUG
+        let forceThumbNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_THUMB_THUMB_NIL"] == "1"
+        let thumbnail = forceThumbNil ? nil : CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
+        #else
+        let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
+        #endif
+
+        guard let thumbnail else {
             throw AirisError.imageDecodeFailed
         }
 
@@ -133,7 +147,7 @@ struct ThumbCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

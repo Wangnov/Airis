@@ -160,6 +160,15 @@ struct PoseCommand: AsyncParsableCommand {
         }
     }
 
+#if DEBUG
+    /// 测试辅助：覆盖未知关节点名称分支
+    static func _testJointNameString(_ raw: String) -> String {
+        let key = VNRecognizedPointKey(rawValue: raw)
+        let joint = VNHumanBodyPoseObservation.JointName(rawValue: key)
+        return PoseCommand().jointNameString(joint)
+    }
+#endif
+
     private func printTable(results: [VNHumanBodyPoseObservation], imageWidth: Int, imageHeight: Int) {
         print("Detected \(results.count) person(s)")
         print("")

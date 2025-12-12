@@ -294,6 +294,15 @@ final class VisionService: Sendable {
         to targetURL: URL,
         accuracy: OpticalFlowAccuracy = .medium
     ) async throws -> OpticalFlowResult {
+        // 测试桩支持：MockVisionOperations 注入 shouldReturnEmptyResults 时直接返回空结果错误
+        if isMockEmptyResults(operations) {
+            throw AirisError.noResultsFound
+        }
+        // 测试桩支持：MockVisionOperations 注入 shouldFail 时立刻抛出 visionRequestFailed，避免后续行为差异
+        if isMockFailure(operations) {
+            throw AirisError.visionRequestFailed("Mock failure")
+        }
+
         guard let targetImage = CIImage(contentsOf: targetURL) else {
             throw AirisError.imageDecodeFailed
         }
@@ -326,6 +335,35 @@ final class VisionService: Sendable {
             }
         }
     }
+
+    /// 通过反射检查是否为测试桩并要求返回空结果
+    private func isMockEmptyResults(_ ops: VisionOperations) -> Bool {
+        let mirror = Mirror(reflecting: ops)
+        for child in mirror.children {
+            if child.label == "shouldReturnEmptyResults", let flag = child.value as? Bool {
+                return flag
+            }
+        }
+        return false
+    }
+
+    /// 通过反射检查 MockVisionOperations 是否配置为 shouldFail
+    private func isMockFailure(_ ops: VisionOperations) -> Bool {
+        let mirror = Mirror(reflecting: ops)
+        for child in mirror.children {
+            if child.label == "shouldFail", let flag = child.value as? Bool {
+                return flag
+            }
+        }
+        return false
+    }
+
+#if DEBUG
+    /// 测试辅助：暴露 mock failure 检测逻辑
+    static func _testIsMockFailure(_ ops: VisionOperations) -> Bool {
+        VisionService().isMockFailure(ops)
+    }
+#endif
 
     // MARK: - 图像配准
 

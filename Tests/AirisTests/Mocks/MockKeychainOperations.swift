@@ -8,18 +8,24 @@ final class MockKeychainOperations: KeychainOperations {
     let shouldFailStringToData: Bool
     let shouldFailAdd: Bool
     let shouldFailUpdate: Bool
+    let shouldFailDelete: Bool
     let addErrorCode: OSStatus
+    let deleteErrorCode: OSStatus
 
     init(
         shouldFailStringToData: Bool = false,
         shouldFailAdd: Bool = false,
         shouldFailUpdate: Bool = false,
-        addErrorCode: OSStatus = errSecIO
+        shouldFailDelete: Bool = false,
+        addErrorCode: OSStatus = errSecIO,
+        deleteErrorCode: OSStatus = errSecIO
     ) {
         self.shouldFailStringToData = shouldFailStringToData
         self.shouldFailAdd = shouldFailAdd
         self.shouldFailUpdate = shouldFailUpdate
+        self.shouldFailDelete = shouldFailDelete
         self.addErrorCode = addErrorCode
+        self.deleteErrorCode = deleteErrorCode
     }
 
     func itemUpdate(query: CFDictionary, attributesToUpdate: CFDictionary) -> OSStatus {
@@ -41,7 +47,10 @@ final class MockKeychainOperations: KeychainOperations {
     }
 
     func itemDelete(query: CFDictionary) -> OSStatus {
-        errSecSuccess
+        if shouldFailDelete {
+            return deleteErrorCode
+        }
+        return errSecSuccess
     }
 
     func stringToData(_ string: String) -> Data? {

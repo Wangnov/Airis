@@ -83,9 +83,11 @@ struct StraightenCommand: AsyncParsableCommand {
 
             let vision = ServiceContainer.shared.visionService
             let horizon = try await vision.detectHorizon(at: inputURL)
+            let forceNoHorizon = ProcessInfo.processInfo.environment["AIRIS_FORCE_STRAIGHTEN_NO_HORIZON"] == "1"
+            let forceZeroAngle = ProcessInfo.processInfo.environment["AIRIS_FORCE_STRAIGHTEN_ZERO"] == "1"
 
-            if let h = horizon {
-                rotationAngle = Double(h.angleInDegrees)
+            if let h = horizon, !forceNoHorizon {
+                rotationAngle = forceZeroAngle ? 0 : Double(h.angleInDegrees)
 
                 if abs(rotationAngle) < 0.1 {
                     print("✓ " + Strings.get("edit.straighten.already_level"))
@@ -113,7 +115,14 @@ struct StraightenCommand: AsyncParsableCommand {
         let corrected = coreImage.rotateAroundCenter(ciImage: ciImage, degrees: -rotationAngle)
 
         // 渲染并保存
-        guard let outputCGImage = coreImage.render(ciImage: corrected) else {
+#if DEBUG
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_STRAIGHTEN_RENDER_NIL"] == "1"
+        let rendered = forceNil ? nil : coreImage.render(ciImage: corrected)
+#else
+        let rendered = coreImage.render(ciImage: corrected)
+#endif
+
+        guard let outputCGImage = rendered else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -135,7 +144,7 @@ struct StraightenCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

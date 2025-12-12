@@ -82,6 +82,13 @@ struct PersonsCommand: AsyncParsableCommand {
 
     func run() async throws {
         let url = try FileUtils.validateImageFile(at: imagePath)
+        #if DEBUG
+        let forceStub = ProcessInfo.processInfo.environment["AIRIS_TEST_PERSONS_FAKE_RESULT"] == "1"
+        let forceCGImageNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_CGIMAGE_NIL"] == "1"
+        #else
+        let forceStub = false
+        let forceCGImageNil = false
+        #endif
 
         // Parse quality level
         let qualityLevel: VisionService.PersonSegmentationQuality
@@ -111,7 +118,16 @@ struct PersonsCommand: AsyncParsableCommand {
         }
 
         let vision = ServiceContainer.shared.visionService
-        let result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
+        let result: VisionService.PersonSegmentationResult
+        #if DEBUG
+        if forceStub {
+            result = Self._testPersonResult()
+        } else {
+            result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
+        }
+        #else
+        result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
+        #endif
 
         if format == "json" {
             printJSON(result: result, file: url.lastPathComponent)
@@ -160,7 +176,14 @@ struct PersonsCommand: AsyncParsableCommand {
         let maskImage = CIImage(cvPixelBuffer: result.maskBuffer)
 
         let context = CIContext()
-        guard let cgImage = context.createCGImage(maskImage, from: maskImage.extent) else {
+        #if DEBUG
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_CGIMAGE_NIL"] == "1"
+        let cgImageCandidate = forceNil ? nil : context.createCGImage(maskImage, from: maskImage.extent)
+        #else
+        let cgImageCandidate = context.createCGImage(maskImage, from: maskImage.extent)
+        #endif
+
+        guard let cgImage = cgImageCandidate else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -176,6 +199,16 @@ struct PersonsCommand: AsyncParsableCommand {
 
     private func openImage(at path: String) {
         let url = URL(fileURLWithPath: path)
-        NSWorkspace.shared.open(url)
+        NSWorkspace.openForCLI(url)
     }
+
+    #if DEBUG
+    /// 测试桩：生成 2x2 的人像分割结果
+    private static func _testPersonResult() -> VisionService.PersonSegmentationResult {
+        var pixelBuffer: CVPixelBuffer?
+        CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
+        let buffer = pixelBuffer!
+        return VisionService.PersonSegmentationResult(maskBuffer: buffer, width: 2, height: 2)
+    }
+    #endif
 }

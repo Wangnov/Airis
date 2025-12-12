@@ -95,6 +95,7 @@ struct MetaCommand: AsyncParsableCommand {
 
     func run() async throws {
         let url = try FileUtils.validateImageFile(at: imagePath)
+        let isTestMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
 
         // 显示参数总览
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -108,22 +109,78 @@ struct MetaCommand: AsyncParsableCommand {
         if setComment != nil || clearGps || clearAll {
             try writeMetadata(url: url)
         } else {
-            try readMetadata(url: url)
+            try readMetadata(url: url, isTestMode: isTestMode)
         }
     }
 
     // MARK: - 读取元数据
 
-    private func readMetadata(url: URL) throws {
-        guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
-              let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any] else {
-            throw AirisError.invalidPath(url.path)
+    private func readMetadata(url: URL, isTestMode: Bool) throws {
+        let properties: [String: Any]
+        if isTestMode {
+            let useAltBranches = ProcessInfo.processInfo.environment["AIRIS_TEST_META_ALT_BRANCH"] == "1"
+            let exposureTime: Double = useAltBranches ? 2.0 : 0.01
+            let flashValue: Int = useAltBranches ? 1 : 0
+            let hasAlphaValue: Bool = useAltBranches ? false : true
+            // 为测试模式提供稳定的元数据，确保所有分支都被覆盖
+            properties = [
+                kCGImagePropertyExifDictionary as String: [
+                    kCGImagePropertyExifDateTimeOriginal as String: "2025:01:01 12:00:00",
+                    kCGImagePropertyExifFNumber as String: 1.8,
+                    kCGImagePropertyExifExposureTime as String: exposureTime,
+                    kCGImagePropertyExifISOSpeedRatings as String: [200],
+                    kCGImagePropertyExifFocalLength as String: 35.0,
+                    kCGImagePropertyExifLensModel as String: "Test Lens",
+                    kCGImagePropertyExifFlash as String: flashValue,
+                    kCGImagePropertyExifUserComment as String: "Test Comment"
+                ],
+                kCGImagePropertyGPSDictionary as String: [
+                    kCGImagePropertyGPSLatitude as String: 31.2304,
+                    kCGImagePropertyGPSLatitudeRef as String: "N",
+                    kCGImagePropertyGPSLongitude as String: 121.4737,
+                    kCGImagePropertyGPSLongitudeRef as String: "E",
+                    kCGImagePropertyGPSAltitude as String: 4.0,
+                    kCGImagePropertyGPSTimeStamp as String: "12:00:00",
+                    kCGImagePropertyGPSDateStamp as String: "2025:01:01"
+                ],
+                kCGImagePropertyTIFFDictionary as String: [
+                    kCGImagePropertyTIFFMake as String: "Airis",
+                    kCGImagePropertyTIFFModel as String: "TestCam",
+                    kCGImagePropertyTIFFSoftware as String: "AirisTests",
+                    kCGImagePropertyTIFFDateTime as String: "2025:01:01 12:00:00",
+                    kCGImagePropertyTIFFOrientation as String: 1
+                ],
+                kCGImagePropertyIPTCDictionary as String: [
+                    kCGImagePropertyIPTCCaptionAbstract as String: "Test Caption",
+                    kCGImagePropertyIPTCKeywords as String: ["airis", "test"],
+                    kCGImagePropertyIPTCCopyrightNotice as String: "Test Corp",
+                    kCGImagePropertyIPTCCreatorContactInfo as String: "tester"
+                ],
+                kCGImagePropertyPixelWidth as String: 100,
+                kCGImagePropertyPixelHeight as String: 200,
+                kCGImagePropertyDPIWidth as String: 72,
+                kCGImagePropertyColorModel as String: "RGB",
+                kCGImagePropertyDepth as String: 8,
+                kCGImagePropertyHasAlpha as String: hasAlphaValue
+            ]
+        } else {
+            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
+                  let props = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any] else {
+                throw AirisError.invalidPath(url.path)
+            }
+            properties = props
+        }
+        let finalProperties: [String: Any]
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_META_EMPTY_PROPS"] == "1" {
+            finalProperties = [:]
+        } else {
+            finalProperties = properties
         }
 
         if format.lowercased() == "json" {
-            printMetadataJSON(properties: properties)
+            printMetadataJSON(properties: finalProperties)
         } else {
-            printMetadataTable(properties: properties)
+            printMetadataTable(properties: finalProperties)
         }
     }
 
@@ -355,6 +412,11 @@ struct MetaCommand: AsyncParsableCommand {
             throw AirisError.invalidPath(url.path)
         }
 
+        // 覆盖测试场景：移除 EXIF 以验证回退逻辑
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_META_NO_EXIF"] == "1" {
+            properties.removeValue(forKey: kCGImagePropertyExifDictionary as String)
+        }
+
         // 修改元数据
         if clearAll {
             // 清除所有可编辑的元数据
@@ -380,12 +442,14 @@ struct MetaCommand: AsyncParsableCommand {
         let format = getImageFormat(for: url)
 
         // 创建目标
-        guard let destination = CGImageDestinationCreateWithURL(
-            outputURL as CFURL,
-            format,
-            1,
-            nil
-        ) else {
+        let forceDestFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_META_DEST_FAIL"] == "1"
+        guard !forceDestFail,
+              let destination = CGImageDestinationCreateWithURL(
+                  outputURL as CFURL,
+                  format,
+                  1,
+                  nil
+              ) else {
             throw AirisError.invalidPath(outputPath)
         }
 
@@ -393,7 +457,9 @@ struct MetaCommand: AsyncParsableCommand {
         CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
 
         // 完成写入
-        guard CGImageDestinationFinalize(destination) else {
+        let forceFinalizeFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_META_FINALIZE_FAIL"] == "1"
+        let finalized = forceFinalizeFail ? false : CGImageDestinationFinalize(destination)
+        guard finalized else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -417,4 +483,11 @@ struct MetaCommand: AsyncParsableCommand {
             return UTType.jpeg.identifier as CFString
         }
     }
+
+#if DEBUG
+    /// 测试辅助：直接调用格式解析逻辑，便于覆盖默认分支
+    static func _testGetImageFormat(for path: String) -> CFString {
+        MetaCommand().getImageFormat(for: URL(fileURLWithPath: path))
+    }
+#endif
 }

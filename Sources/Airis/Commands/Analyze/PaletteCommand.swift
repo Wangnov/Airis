@@ -131,7 +131,10 @@ struct PaletteCommand: AsyncParsableCommand {
         filter.passes = 5
         filter.perceptual = true
 
-        guard let paletteImage = filter.outputImage else {
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PALETTE_OUTPUT_NIL"] == "1"
+        let paletteImage = forceNil ? nil : filter.outputImage
+
+        guard let paletteImage else {
             return []
         }
 
@@ -147,7 +150,10 @@ struct PaletteCommand: AsyncParsableCommand {
         filter.inputImage = scaledImage
         filter.extent = scaledImage.extent
 
-        guard let outputImage = filter.outputImage else {
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PALETTE_AVG_NIL"] == "1"
+        let outputImage = forceNil ? nil : filter.outputImage
+
+        guard let outputImage else {
             return nil
         }
 
@@ -165,7 +171,9 @@ struct PaletteCommand: AsyncParsableCommand {
             filter.inputImage = ciImage
             filter.scale = Float(scale)
             filter.aspectRatio = 1.0
-            return filter.outputImage ?? ciImage
+            let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PALETTE_SCALE_NIL"] == "1"
+            let output = forceNil ? nil : filter.outputImage
+            return output ?? ciImage
         }
 
         return ciImage

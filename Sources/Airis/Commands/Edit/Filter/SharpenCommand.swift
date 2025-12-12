@@ -118,14 +118,7 @@ struct SharpenCommand: AsyncParsableCommand {
             outputURL: outputURL,
             format: outputFormat == "jpeg" ? "jpg" : outputFormat,
             filterBlock: { ciImage in
-                switch method.lowercased() {
-                case "luminance":
-                    return coreImage.sharpen(ciImage: ciImage, sharpness: intensity)
-                case "unsharp":
-                    return coreImage.unsharpMask(ciImage: ciImage, radius: radius, intensity: intensity)
-                default:
-                    return coreImage.sharpen(ciImage: ciImage, sharpness: intensity)
-                }
+                applySharpen(ciImage: ciImage, method: method, intensity: intensity, radius: radius, coreImage: coreImage)
             }
         )
 
@@ -139,7 +132,33 @@ struct SharpenCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
+
+    private func applySharpen(
+        ciImage: CIImage,
+        method: String,
+        intensity: Double,
+        radius: Double,
+        coreImage: CoreImageService
+    ) -> CIImage {
+        switch method.lowercased() {
+        case "luminance":
+            return coreImage.sharpen(ciImage: ciImage, sharpness: intensity)
+        case "unsharp":
+            return coreImage.unsharpMask(ciImage: ciImage, radius: radius, intensity: intensity)
+        default:
+            return coreImage.sharpen(ciImage: ciImage, sharpness: intensity)
+        }
+    }
+
+    #if DEBUG
+    /// 测试辅助：无需文件 IO 即可覆盖不同 method 分支
+    static func _testFilter(method: String, intensity: Double = 0.5, radius: Double = 2.0) -> CIImage {
+        let coreImage = ServiceContainer.shared.coreImageService
+        let base = CIImage(color: CIColor(red: 0, green: 0, blue: 0)).cropped(to: CGRect(x: 0, y: 0, width: 1, height: 1))
+        return SharpenCommand().applySharpen(ciImage: base, method: method, intensity: intensity, radius: radius, coreImage: coreImage)
+    }
+    #endif
 }

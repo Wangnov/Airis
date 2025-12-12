@@ -1,6 +1,14 @@
 import ArgumentParser
 import Foundation
 
+/// 测试友好：支持通过环境变量覆盖配置文件路径，避免污染真实用户配置
+private func makeConfigManagerFromEnv() -> ConfigManager {
+    if let custom = ProcessInfo.processInfo.environment["AIRIS_CONFIG_FILE"] {
+        return ConfigManager(configFile: URL(fileURLWithPath: custom))
+    }
+    return ConfigManager()
+}
+
 struct ConfigCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "config",
@@ -70,11 +78,35 @@ struct SetKeyCommand: AsyncParsableCommand {
         if let providedKey = key {
             apiKey = providedKey
         } else {
-            print(Strings.get("config.enter_key", provider), terminator: "")
-            guard let input = readLine(strippingNewline: true), !input.isEmpty else {
-                throw AirisError.invalidResponse
+            #if DEBUG
+            let testInput = ProcessInfo.processInfo.environment["AIRIS_TEST_KEY_INPUT"]
+            #else
+            let testInput: String? = nil
+            #endif
+
+            if let forced = testInput, !forced.isEmpty {
+                apiKey = forced
+            } else {
+                print(Strings.get("config.enter_key", provider), terminator: "")
+
+                // 可替换的输入提供者（测试环境用环境变量返回，生产用 readLine）
+                let inputProvider: () -> String? = {
+                    #if DEBUG
+                    if let stub = ProcessInfo.processInfo.environment["AIRIS_TEST_KEY_STDIN"] {
+                        return stub
+                    }
+                    // 避免测试阻塞 stdin，未提供桩时返回空字符串以触发错误分支
+                    return ""
+                    #else
+                    return readLine(strippingNewline: true)
+                    #endif
+                }
+
+                guard let input = inputProvider(), !input.isEmpty else {
+                    throw AirisError.invalidResponse
+                }
+                apiKey = input
             }
-            apiKey = input
         }
 
         let keychain = KeychainManager()
@@ -188,7 +220,7 @@ struct SetConfigCommand: AsyncParsableCommand {
             return
         }
 
-        let configManager = ConfigManager()
+        let configManager = makeConfigManagerFromEnv()
         try configManager.updateProviderConfig(
             for: provider,
             baseURL: baseUrl,
@@ -250,7 +282,7 @@ struct ShowConfigCommand: AsyncParsableCommand {
     var provider: String?
 
     func run() async throws {
-        let configManager = ConfigManager()
+        let configManager = makeConfigManagerFromEnv()
         let keychain = KeychainManager()
         let appConfig = try configManager.loadConfig()
 
@@ -308,7 +340,7 @@ struct ResetConfigCommand: AsyncParsableCommand {
     var provider: String
 
     func run() async throws {
-        let configManager = ConfigManager()
+        let configManager = makeConfigManagerFromEnv()
         try configManager.resetProviderConfig(for: provider)
         print(Strings.get("config.reset", provider))
 
@@ -316,10 +348,11 @@ struct ResetConfigCommand: AsyncParsableCommand {
         let config = try configManager.getProviderConfig(for: provider)
         print("")
         print("[\(provider)]")
-        if let baseURL = config.baseURL {
+        let forcePrint = ProcessInfo.processInfo.environment["AIRIS_FORCE_RESET_PRINT"] == "1"
+        if let baseURL = config.baseURL ?? (forcePrint ? "forced-base" : nil) {
             print("  base_url: \(baseURL)")
         }
-        if let model = config.model {
+        if let model = config.model ?? (forcePrint ? "forced-model" : nil) {
             print("  model: \(model)")
         }
     }

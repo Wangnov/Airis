@@ -102,6 +102,18 @@ struct OCRCommand: AsyncParsableCommand {
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("")
 
+        #if DEBUG
+        // 测试/调试环境下可注入桩结果，覆盖低置信度与坐标分支
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_OCR_FAKE"] == "1" {
+            let fakeResults = [
+                TextResult(text: "低置信度", confidence: 0.42, boundingBox: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.25)),
+                TextResult(text: "高置信度", confidence: 0.95, boundingBox: CGRect(x: 0.55, y: 0.6, width: 0.2, height: 0.15))
+            ]
+            handleResults(fakeResults)
+            return
+        }
+        #endif
+
         // 执行 OCR
         let results = try await vision.recognizeText(
             at: url,
@@ -109,22 +121,8 @@ struct OCRCommand: AsyncParsableCommand {
             level: recognitionLevel
         )
 
-        if results.isEmpty {
-            print(Strings.get("error.no_results"))
-            return
-        }
-
-        // 提取文本
         let textResults = extractTextResults(from: results)
-
-        switch format.lowercased() {
-        case "json":
-            printJSON(results: textResults)
-        case "text":
-            printPlainText(results: textResults)
-        default:
-            printTable(results: textResults)
-        }
+        handleResults(textResults)
     }
 
     private func extractTextResults(from observations: [VNRecognizedTextObservation]) -> [TextResult] {
@@ -140,6 +138,30 @@ struct OCRCommand: AsyncParsableCommand {
             )
         }
     }
+
+    private func handleResults(_ textResults: [TextResult]) {
+        if textResults.isEmpty {
+            print(Strings.get("error.no_results"))
+            return
+        }
+
+        switch format.lowercased() {
+        case "json":
+            printJSON(results: textResults)
+        case "text":
+            printPlainText(results: textResults)
+        default:
+            printTable(results: textResults)
+        }
+    }
+
+#if DEBUG
+    /// 测试辅助：覆盖 topCandidates 为空的分支
+    static func _testExtractEmptyCandidate() -> [TextResult] {
+        let obs = VNRecognizedTextObservation()
+        return OCRCommand().extractTextResults(from: [obs])
+    }
+#endif
 
     private func printTable(results: [TextResult]) {
         print("识别到 \(results.count) 段文字")

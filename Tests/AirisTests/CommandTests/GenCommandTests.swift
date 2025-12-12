@@ -3,7 +3,7 @@ import XCTest
 
 final class GenCommandTests: XCTestCase {
 
-    let keychain = KeychainManager()
+    let keychain = KeychainManager(operations: InMemoryKeychainOperations())
     let testProvider = "test-gen-provider"
 
     override func tearDown() {

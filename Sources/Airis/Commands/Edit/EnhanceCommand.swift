@@ -62,6 +62,7 @@ struct EnhanceCommand: AsyncParsableCommand {
 
     func run() async throws {
         let inputURL = try FileUtils.validateImageFile(at: input)
+        let testMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
 
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
@@ -93,7 +94,12 @@ struct EnhanceCommand: AsyncParsableCommand {
         if verbose {
             let cgImage = try imageIO.loadImage(at: inputURL)
             let ciImage = CIImage(cgImage: cgImage)
-            let filters = coreImage.getAutoEnhanceFilters(for: ciImage)
+            var filters = coreImage.getAutoEnhanceFilters(for: ciImage)
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_ENHANCE_NO_FILTERS"] == "1" {
+                filters = []
+            }
+            #endif
 
             if filters.isEmpty {
                 print("📋 " + Strings.get("edit.enhance.no_filters"))
@@ -126,7 +132,12 @@ struct EnhanceCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            if testMode {
+                // 测试模式跳过真正打开 Finder，避免 UI 依赖
+                print("👁️  (TEST MODE) open skipped")
+            } else {
+                NSWorkspace.openForCLI(outputURL)
+            }
         }
     }
 }

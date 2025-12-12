@@ -49,8 +49,9 @@ struct CutCommand: AsyncParsableCommand {
     var force: Bool = false
 
     func run() async throws {
-        // 验证 macOS 版本
-        guard #available(macOS 14.0, *) else {
+        // 验证 macOS 版本（测试可强制触发降级分支）
+        let forceUnsupported = ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_OS_UNSUPPORTED"] == "1"
+        guard #available(macOS 14.0, *), !forceUnsupported else {
             throw AirisError.unsupportedFormat("Background removal requires macOS 14.0+")
         }
 
@@ -88,11 +89,28 @@ struct CutCommand: AsyncParsableCommand {
 
         // 渲染并保存
         let coreImage = ServiceContainer.shared.coreImageService
-        guard let cgImage = coreImage.render(ciImage: maskedImage) else {
+        let imageIO = ServiceContainer.shared.imageIOService
+
+#if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_RENDER_FAIL"] == "1" {
             throw AirisError.imageEncodeFailed
         }
 
-        let imageIO = ServiceContainer.shared.imageIOService
+        let forceNilRender = ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_RENDER_NIL"] == "1"
+        let renderResult: CGImage?
+        if forceNilRender {
+            renderResult = nil
+        } else {
+            renderResult = coreImage.render(ciImage: maskedImage)
+        }
+#else
+        let renderResult = coreImage.render(ciImage: maskedImage)
+#endif
+
+        guard let cgImage = renderResult else {
+            throw AirisError.imageEncodeFailed
+        }
+
         try imageIO.saveImage(cgImage, to: outputURL, format: "png")
 
         print("")
@@ -105,7 +123,7 @@ struct CutCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

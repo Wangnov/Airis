@@ -77,8 +77,14 @@ struct Pose3DCommand: AsyncParsableCommand {
     var format: String = "table"
 
     func run() async throws {
+        let forceUnsupported = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_UNSUPPORTED"] == "1"
+        #if DEBUG
+        let forceEmpty = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_EMPTY"] == "1"
+        #else
+        let forceEmpty = false
+        #endif
         // 检查 macOS 版本
-        guard #available(macOS 14.0, *) else {
+        guard #available(macOS 14.0, *), !forceUnsupported else {
             print("⚠️ 3D pose detection requires macOS 14.0 or later.")
             print("   Your current system does not support this feature.")
             return
@@ -99,7 +105,16 @@ struct Pose3DCommand: AsyncParsableCommand {
             print("")
 
             // 执行检测
-            let results = try await vision.detectHumanBodyPose3D(at: url)
+            let results: [VNHumanBodyPose3DObservation]
+            #if DEBUG
+            if forceEmpty {
+                results = []
+            } else {
+                results = try await vision.detectHumanBodyPose3D(at: url)
+            }
+            #else
+            results = try await vision.detectHumanBodyPose3D(at: url)
+            #endif
 
             if results.isEmpty {
                 print("No human body poses detected.")
@@ -154,20 +169,40 @@ struct Pose3DCommand: AsyncParsableCommand {
         }
     }
 
+    #if DEBUG
+    /// 测试辅助：覆盖默认分支
+    static func _testJointNameString(_ raw: String) -> String {
+        let key = VNRecognizedPointKey(rawValue: raw)
+        let name = VNHumanBodyPose3DObservation.JointName(rawValue: key)
+        return Pose3DCommand().jointNameString(name)
+    }
+    #endif
+
     @available(macOS 14.0, *)
     private func printTable(results: [VNHumanBodyPose3DObservation]) {
         print("Detected \(results.count) person(s)")
         print("")
+
+        #if DEBUG
+        let forceMissingJoint = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_MISSING_JOINT"] == "1"
+        #else
+        let forceMissingJoint = false
+        #endif
 
         for (index, observation) in results.enumerated() {
             print("[\(index + 1)] Person")
             print("    Estimated Height: \(String(format: "%.2f", observation.bodyHeight)) m")
             print("    Keypoints:")
 
-            for jointName in allJointNames {
-                guard let point = try? observation.recognizedPoint(jointName) else {
-                    continue
+        for jointName in allJointNames {
+                let point: VNRecognizedPoint3D?
+                if forceMissingJoint {
+                    point = nil
+                } else {
+                    point = try? observation.recognizedPoint(jointName)
                 }
+
+                guard let point else { continue }
 
                 let name = jointNameString(jointName)
                 let paddedName = name.padding(toLength: 16, withPad: " ", startingAt: 0)
@@ -191,10 +226,20 @@ struct Pose3DCommand: AsyncParsableCommand {
         let items = results.map { observation -> [String: Any] in
             var keypoints: [[String: Any]] = []
 
+            #if DEBUG
+            let forceMissingJoint = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_MISSING_JOINT"] == "1"
+            #else
+            let forceMissingJoint = false
+            #endif
+
             for jointName in allJointNames {
-                guard let point = try? observation.recognizedPoint(jointName) else {
-                    continue
+                let point: VNRecognizedPoint3D?
+                if forceMissingJoint {
+                    point = nil
+                } else {
+                    point = try? observation.recognizedPoint(jointName)
                 }
+                guard let point else { continue }
 
                 let position = point.position
                 let keypointDict: [String: Any] = [

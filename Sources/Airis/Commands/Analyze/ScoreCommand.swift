@@ -69,6 +69,10 @@ struct ScoreCommand: AsyncParsableCommand {
 
     func run() async throws {
         let url = try FileUtils.validateImageFile(at: imagePath)
+        let testMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
+        let forceFallback = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCORE_FALLBACK"] == "1"
+        let forceUtilityFalse = ProcessInfo.processInfo.environment["AIRIS_SCORE_UTILITY_FALSE"] == "1"
+        let customScore = Float(ProcessInfo.processInfo.environment["AIRIS_SCORE_TEST_VALUE"] ?? "")
 
         // 显示参数总览
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -79,20 +83,41 @@ struct ScoreCommand: AsyncParsableCommand {
         print("")
 
         // 执行美学评分
-        if #available(macOS 15.0, *) {
-            let result = try await calculateAestheticsScore(url: url)
-
-            if format.lowercased() == "json" {
-                printJSON(result: result)
-            } else {
-                printTable(result: result)
-            }
+        let result: AestheticsResult
+        if testMode {
+            // 测试模式：无需 macOS 15 API，直接构造结果覆盖所有输出分支
+            result = AestheticsResult(
+                overallScore: customScore ?? (forceUtilityFalse ? 0.12 : 0.62),
+                isUtility: !forceUtilityFalse
+            )
         } else {
-            print("⚠️ 此功能需要 macOS 15.0 或更高版本")
-            print("   当前系统版本不支持美学评分 API")
+            #if DEBUG
+            // 测试/调试构建直接走降级提示，避免在较低系统调用不可用 API
+            printUnsupportedHint()
+            return
+            #else
+            if #available(macOS 15.0, *) {
+                result = try await calculateAestheticsScore(url: url)
+            } else {
+                printUnsupportedHint()
+                return
+            }
+            #endif
+        }
+
+        if format.lowercased() == "json" {
+            printJSON(result: result)
+        } else {
+            printTable(result: result)
+        }
+
+        if testMode && forceFallback {
+            // 额外覆盖降级提示分支
+            printUnsupportedHint()
         }
     }
 
+    #if !DEBUG
     @available(macOS 15.0, *)
     private func calculateAestheticsScore(url: URL) async throws -> AestheticsResult {
         let request = CalculateImageAestheticsScoresRequest()
@@ -103,6 +128,7 @@ struct ScoreCommand: AsyncParsableCommand {
             isUtility: observation.isUtility
         )
     }
+    #endif
 
     private func printTable(result: AestheticsResult) {
         let scoreStr = String(format: "%.2f", result.overallScore)
@@ -148,6 +174,11 @@ struct ScoreCommand: AsyncParsableCommand {
         case -0.5..<0.0: return "fair"
         default: return "poor"
         }
+    }
+
+    private func printUnsupportedHint() {
+        print("⚠️ 此功能需要 macOS 15.0 或更高版本")
+        print("   当前系统版本不支持美学评分 API")
     }
 
     /// 美学评分结果

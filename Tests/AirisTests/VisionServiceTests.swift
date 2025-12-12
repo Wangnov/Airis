@@ -1,4 +1,5 @@
 import XCTest
+@preconcurrency import Vision
 @testable import Airis
 
 final class VisionServiceTests: XCTestCase {
@@ -658,6 +659,32 @@ final class VisionServiceTests: XCTestCase {
         } catch {
             guard case AirisError.noResultsFound = error else {
                 XCTFail("应该抛出 noResultsFound")
+                return
+            }
+        }
+    }
+
+    /// 测试 computeOpticalFlow 内部 perform 抛错触发 catch 分支
+    func testComputeOpticalFlow_PerformThrows() async throws {
+        final class ThrowingVisionOperations: VisionOperations {
+            func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws {
+                throw NSError(domain: "ThrowingOps", code: -2, userInfo: [NSLocalizedDescriptionKey: "forced throw"])
+            }
+        }
+
+        let service = VisionService(operations: ThrowingVisionOperations())
+
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("flow_throw.jpg")
+        let testImage = createTestCGImage()
+        try ImageIOService().saveImage(testImage, to: tempURL, format: "jpg")
+        defer { try? FileManager.default.removeItem(at: tempURL) }
+
+        do {
+            _ = try await service.computeOpticalFlow(from: tempURL, to: tempURL)
+            XCTFail("应该抛出错误")
+        } catch {
+            guard case AirisError.visionRequestFailed = error else {
+                XCTFail("错误类型不符，期望 visionRequestFailed")
                 return
             }
         }

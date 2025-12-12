@@ -60,6 +60,18 @@ final class KeychainManagerTests: XCTestCase {
         XCTAssertNoThrow(try keychain.deleteAPIKey(for: "non-existent-provider"))
     }
 
+    func testDeleteAPIKeyFailsWhenKeychainReturnsError() {
+        let mockOps = MockKeychainOperations(shouldFailDelete: true, deleteErrorCode: errSecDecode)
+        let mockKeychain = KeychainManager(operations: mockOps)
+
+        XCTAssertThrowsError(try mockKeychain.deleteAPIKey(for: "provider")) { error in
+            guard case AirisError.keychainError(errSecDecode) = error else {
+                XCTFail("应该抛出 keychainError(errSecDecode)")
+                return
+            }
+        }
+    }
+
     // MARK: - HasAPIKey Tests
 
     func testHasAPIKey() throws {
