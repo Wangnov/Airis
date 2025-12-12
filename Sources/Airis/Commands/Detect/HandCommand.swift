@@ -187,10 +187,22 @@ struct HandCommand: AsyncParsableCommand {
         switch chirality {
         case .left: return "Left Hand"
         case .right: return "Right Hand"
-        case .unknown: return "Unknown Hand"
-        @unknown default: return "Unknown Hand"
+        default: return "Unknown Hand"
         }
     }
+
+    #if DEBUG
+    /// 测试辅助：覆盖默认分支
+    static func _testJointNameString(_ raw: String) -> String {
+        let key = VNRecognizedPointKey(rawValue: raw)
+        let name = VNHumanHandPoseObservation.JointName(rawValue: key)
+        return HandCommand().jointNameString(name)
+    }
+
+    static func _testChiralityString(_ value: VNChirality) -> String {
+        HandCommand().chiralityString(value)
+    }
+    #endif
 
     private func printTable(results: [VNHumanHandPoseObservation], imageWidth: Int, imageHeight: Int) {
         print("Detected \(results.count) hand(s)")
@@ -254,13 +266,9 @@ struct HandCommand: AsyncParsableCommand {
                 keypoints.append(keypointDict)
             }
 
-            var chiralityValue: String
-            switch observation.chirality {
-            case .left: chiralityValue = "left"
-            case .right: chiralityValue = "right"
-            case .unknown: chiralityValue = "unknown"
-            @unknown default: chiralityValue = "unknown"
-            }
+            let chiralityValue = chiralityString(observation.chirality)
+                .replacingOccurrences(of: " Hand", with: "")
+                .lowercased()
 
             return [
                 "chirality": chiralityValue,

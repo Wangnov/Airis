@@ -88,7 +88,14 @@ struct DefringeCommand: AsyncParsableCommand {
         let defringed = coreImage.defringe(ciImage: ciImage, amount: amount)
 
         // 渲染并保存
-        guard let outputCGImage = coreImage.render(ciImage: defringed) else {
+#if DEBUG
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_DEFRINGE_RENDER_NIL"] == "1"
+        let rendered = forceNil ? nil : coreImage.render(ciImage: defringed)
+#else
+        let rendered = coreImage.render(ciImage: defringed)
+#endif
+
+        guard let outputCGImage = rendered else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -105,7 +112,7 @@ struct DefringeCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

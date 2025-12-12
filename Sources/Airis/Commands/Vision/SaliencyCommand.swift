@@ -100,8 +100,18 @@ struct SaliencyCommand: AsyncParsableCommand {
             print("⏳ Detecting saliency...")
         }
 
+        let result: VisionService.SaliencyResult
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_TEST_SALIENCY_FAKE_RESULT"] == "1" {
+            result = Self._testSaliencyResult(type: saliencyType)
+        } else {
+            let vision = ServiceContainer.shared.visionService
+            result = try await vision.detectSaliency(at: url, type: saliencyType)
+        }
+        #else
         let vision = ServiceContainer.shared.visionService
-        let result = try await vision.detectSaliency(at: url, type: saliencyType)
+        result = try await vision.detectSaliency(at: url, type: saliencyType)
+        #endif
 
         // Get original image info for coordinate conversion
         let imageIO = ServiceContainer.shared.imageIOService
@@ -186,7 +196,14 @@ struct SaliencyCommand: AsyncParsableCommand {
         let heatmapImage = CIImage(cvPixelBuffer: result.heatMapBuffer)
 
         let context = CIContext()
-        guard let cgImage = context.createCGImage(heatmapImage, from: heatmapImage.extent) else {
+        #if DEBUG
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SALIENCY_CGIMAGE_NIL"] == "1"
+        let cgImageCandidate = forceNil ? nil : context.createCGImage(heatmapImage, from: heatmapImage.extent)
+        #else
+        let cgImageCandidate = context.createCGImage(heatmapImage, from: heatmapImage.extent)
+        #endif
+
+        guard let cgImage = cgImageCandidate else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -198,4 +215,22 @@ struct SaliencyCommand: AsyncParsableCommand {
         let format = outputPath.hasSuffix(".png") ? "png" : "jpg"
         try imageIO.saveImage(cgImage, to: outputURL, format: format)
     }
+
+    #if DEBUG
+    /// 测试桩：快速生成带 1 个显著区域的 4x4 热力图
+    private static func _testSaliencyResult(type: VisionService.SaliencyType) -> VisionService.SaliencyResult {
+        var pixelBuffer: CVPixelBuffer?
+        CVPixelBufferCreate(nil, 4, 4, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
+        let buffer = pixelBuffer!
+        let bounds: [CGRect]
+        if ProcessInfo.processInfo.environment["AIRIS_TEST_SALIENCY_EMPTY"] == "1" {
+            bounds = []
+        } else if type == .objectness {
+            bounds = [CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4), CGRect(x: 0.6, y: 0.5, width: 0.2, height: 0.2)]
+        } else {
+            bounds = [CGRect(x: 0.25, y: 0.25, width: 0.5, height: 0.5)]
+        }
+        return VisionService.SaliencyResult(heatMapBuffer: buffer, salientBounds: bounds, width: 4, height: 4)
+    }
+    #endif
 }

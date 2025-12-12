@@ -123,8 +123,6 @@ struct BlurCommand: AsyncParsableCommand {
             format: outputFormat == "jpeg" ? "jpg" : outputFormat,
             filterBlock: { ciImage in
                 switch type.lowercased() {
-                case "gaussian":
-                    return coreImage.gaussianBlur(ciImage: ciImage, radius: radius)
                 case "motion":
                     return coreImage.motionBlur(ciImage: ciImage, radius: radius, angle: angle)
                 case "zoom":
@@ -145,7 +143,7 @@ struct BlurCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

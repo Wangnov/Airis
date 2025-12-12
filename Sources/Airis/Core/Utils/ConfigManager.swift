@@ -31,15 +31,21 @@ struct AppConfig: Codable, Sendable {
 
 /// 配置文件管理器（支持依赖注入，测试隔离）
 final class ConfigManager: Sendable {
-    /// 默认配置目录
+    /// 默认配置目录（可通过环境变量 AIRIS_CONFIG_FILE 覆盖，用于测试隔离）
     static let defaultConfigDirectory: URL = {
+        if let custom = ProcessInfo.processInfo.environment["AIRIS_CONFIG_FILE"] {
+            return URL(fileURLWithPath: custom).deletingLastPathComponent()
+        }
         let home = FileManager.default.homeDirectoryForCurrentUser
         return home.appendingPathComponent(".config/airis")
     }()
 
     /// 默认配置文件路径
     static let defaultConfigFile: URL = {
-        defaultConfigDirectory.appendingPathComponent("config.json")
+        if let custom = ProcessInfo.processInfo.environment["AIRIS_CONFIG_FILE"] {
+            return URL(fileURLWithPath: custom)
+        }
+        return defaultConfigDirectory.appendingPathComponent("config.json")
     }()
 
     /// 默认 Provider 配置

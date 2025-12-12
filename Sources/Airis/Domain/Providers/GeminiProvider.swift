@@ -31,6 +31,37 @@ final class GeminiProvider: Sendable {
         outputPath: String? = nil,
         enableSearch: Bool = false
     ) async throws -> URL {
+        let isTestMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
+        let shouldStub = isTestMode || ProcessInfo.processInfo.environment["AIRIS_GEN_STUB"] == "1"
+
+        if shouldStub {
+            let targetURL: URL
+            if let outputPath {
+                let absolute = FileUtils.absolutePath(outputPath)
+                try FileUtils.ensureDirectory(for: absolute)
+                targetURL = URL(fileURLWithPath: absolute)
+            } else {
+                targetURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("airis_draw_stub_\(UUID().uuidString).png")
+            }
+
+            let placeholder: [UInt8] = [
+                0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+                0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+                0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+                0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+                0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
+                0x54, 0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
+                0x00, 0x04, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B,
+                0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
+                0xAE, 0x42, 0x60, 0x82
+            ]
+
+            try Data(placeholder).write(to: targetURL)
+            print(Strings.get("info.saved_to", targetURL.path))
+            return targetURL
+        }
+
         // 获取 API Key
         let apiKey = try keychainManager.getAPIKey(for: providerName)
 

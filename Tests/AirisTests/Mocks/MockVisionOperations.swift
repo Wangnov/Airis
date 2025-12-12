@@ -34,8 +34,7 @@ final class MockVisionOperations: VisionOperations {
 
         // 模拟空 results（触发 results.first == nil 路径）
         if shouldReturnEmptyResults {
-            // Vision requests 的 results 初始就是空数组，无需特殊处理
-            // 直接返回，让默认的空数组生效
+            // Vision requests 默认 results 为空，直接返回
             return
         }
 

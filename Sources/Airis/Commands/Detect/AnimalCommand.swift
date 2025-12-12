@@ -87,45 +87,62 @@ struct AnimalCommand: AsyncParsableCommand {
             print("")
 
             // 执行检测
-            let results = try await vision.recognizeAnimals(at: url)
-
-            // 解析结果
-            var animalResults: [AnimalResult] = []
-            for observation in results {
-                // 检查整体置信度
-                guard observation.confidence >= threshold else { continue }
-
-                for label in observation.labels {
-                    let combinedConfidence = observation.confidence * label.confidence
-
-                    // 检查组合置信度
-                    guard combinedConfidence >= threshold else { continue }
-
-                    // 类型过滤
-                    if let typeFilter = type?.lowercased() {
-                        guard label.identifier.lowercased() == typeFilter else { continue }
-                    }
-
-                    animalResults.append(AnimalResult(
-                        type: label.identifier,
-                        confidence: combinedConfidence,
-                        boundingBox: observation.boundingBox
-                    ))
-                }
-            }
-
-            if animalResults.isEmpty {
-                print("No animals detected.")
-                print("")
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_STUB"] == "1" {
+                let stub = Self._testObservations()
+                try await handleResults(stub, url: url)
                 continue
             }
-
-            // 输出结果
-            if format == "json" {
-                printJSON(results: animalResults, file: url.lastPathComponent)
-            } else {
-                printTable(results: animalResults)
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_LOW_LABEL"] == "1" {
+                let stub = Self._testLowConfidenceLabelObservations()
+                try await handleResults(stub, url: url)
+                continue
             }
+            #endif
+
+            let results = try await vision.recognizeAnimals(at: url)
+
+            try await handleResults(results, url: url)
+        }
+    }
+
+    private func handleResults(_ results: [VNRecognizedObjectObservation], url: URL) async throws {
+        // 解析结果
+        var animalResults: [AnimalResult] = []
+        for observation in results {
+            // 检查整体置信度
+            guard observation.confidence >= threshold else { continue }
+
+            for label in observation.labels {
+                let combinedConfidence = observation.confidence * label.confidence
+
+                // 检查组合置信度
+                guard combinedConfidence >= threshold else { continue }
+
+                // 类型过滤
+                if let typeFilter = type?.lowercased() {
+                    guard label.identifier.lowercased() == typeFilter else { continue }
+                }
+
+                animalResults.append(AnimalResult(
+                    type: label.identifier,
+                    confidence: combinedConfidence,
+                    boundingBox: observation.boundingBox
+                ))
+            }
+        }
+
+        if animalResults.isEmpty {
+            print("No animals detected.")
+            print("")
+            return
+        }
+
+        // 输出结果
+        if format == "json" {
+            printJSON(results: animalResults, file: url.lastPathComponent)
+        } else {
+            printTable(results: animalResults)
         }
     }
 
@@ -181,3 +198,42 @@ private struct AnimalResult {
     let confidence: Float
     let boundingBox: CGRect
 }
+
+#if DEBUG
+extension AnimalCommand {
+    /// 测试辅助：构造可控的识别结果，覆盖类型过滤与空结果分支
+    static func _testObservations() -> [VNRecognizedObjectObservation] {
+        func makeObservation(type: String, confidence: Float, box: CGRect) -> VNRecognizedObjectObservation {
+            let obs = VNRecognizedObjectObservation(boundingBox: box)
+            let label = VNClassificationObservation()
+            label.setValue(type, forKey: "identifier")
+            label.setValue(confidence, forKey: "confidence")
+            obs.setValue([label], forKey: "labels")
+            obs.setValue(confidence, forKey: "confidence")
+            return obs
+        }
+
+        return [
+            makeObservation(type: "cat", confidence: 0.92, box: CGRect(x: 0.1, y: 0.1, width: 0.3, height: 0.3)),
+            makeObservation(type: "dog", confidence: 0.85, box: CGRect(x: 0.5, y: 0.2, width: 0.25, height: 0.35))
+        ]
+    }
+
+    /// 低标签置信度分支（覆盖 combinedConfidence < threshold）
+    static func _testLowConfidenceLabelObservations() -> [VNRecognizedObjectObservation] {
+        func makeObservation(type: String, confidence: Float, labelConfidence: Float, box: CGRect) -> VNRecognizedObjectObservation {
+            let obs = VNRecognizedObjectObservation(boundingBox: box)
+            let label = VNClassificationObservation()
+            label.setValue(type, forKey: "identifier")
+            label.setValue(labelConfidence, forKey: "confidence")
+            obs.setValue([label], forKey: "labels")
+            obs.setValue(confidence, forKey: "confidence")
+            return obs
+        }
+
+        return [
+            makeObservation(type: "cat", confidence: 0.98, labelConfidence: 0.4, box: CGRect(x: 0.2, y: 0.2, width: 0.3, height: 0.3))
+        ]
+    }
+}
+#endif

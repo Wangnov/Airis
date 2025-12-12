@@ -68,7 +68,12 @@ struct ScanCommand: AsyncParsableCommand {
 
         // 使用 VisionService 检测矩形
         let vision = ServiceContainer.shared.visionService
-        let rectangles = try await vision.detectRectangles(at: inputURL)
+        var rectangles = try await vision.detectRectangles(at: inputURL)
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_NO_RECT"] == "1" {
+            rectangles = []
+        }
+        #endif
 
         guard let rect = rectangles.first else {
             throw AirisError.noResultsFound
@@ -103,18 +108,38 @@ struct ScanCommand: AsyncParsableCommand {
 
         // 应用透视校正
         let coreImage = ServiceContainer.shared.coreImageService
-        guard let corrected = coreImage.perspectiveCorrection(
+        #if DEBUG
+        let forcePerspectiveNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_PERSPECTIVE_NIL"] == "1"
+        let corrected = forcePerspectiveNil ? nil : coreImage.perspectiveCorrection(
             ciImage: ciImage,
             topLeft: topLeft,
             topRight: topRight,
             bottomLeft: bottomLeft,
             bottomRight: bottomRight
-        ) else {
+        )
+        #else
+        let corrected = coreImage.perspectiveCorrection(
+            ciImage: ciImage,
+            topLeft: topLeft,
+            topRight: topRight,
+            bottomLeft: bottomLeft,
+            bottomRight: bottomRight
+        )
+        #endif
+
+        guard let corrected else {
             throw AirisError.imageEncodeFailed
         }
 
         // 渲染并保存
-        guard let outputCGImage = coreImage.render(ciImage: corrected) else {
+        #if DEBUG
+        let forceRenderNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_RENDER_NIL"] == "1"
+        let outputCGImage = forceRenderNil ? nil : coreImage.render(ciImage: corrected)
+        #else
+        let outputCGImage = coreImage.render(ciImage: corrected)
+        #endif
+
+        guard let outputCGImage else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -134,7 +159,7 @@ struct ScanCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

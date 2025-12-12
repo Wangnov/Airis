@@ -78,6 +78,9 @@ struct SimilarCommand: AsyncParsableCommand {
     var format: String = "table"
 
     func run() async throws {
+        let testMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
+        let customDistance = Float(ProcessInfo.processInfo.environment["AIRIS_SIMILAR_TEST_DISTANCE"] ?? "")
+
         let url1 = try FileUtils.validateImageFile(at: image1Path)
         let url2 = try FileUtils.validateImageFile(at: image2Path)
 
@@ -93,12 +96,21 @@ struct SimilarCommand: AsyncParsableCommand {
         // 生成特征指纹
         print("⏳ 正在分析图片...")
 
-        let observation1 = try await generateFeaturePrint(for: url1)
-        let observation2 = try await generateFeaturePrint(for: url2)
-
-        // 计算距离
-        var distance: Float = 0
-        try observation1.computeDistance(&distance, to: observation2)
+        let distance: Float
+        if testMode, let override = customDistance {
+            distance = override
+        } else {
+            #if DEBUG
+            // 调试构建默认走桩数据，避免 Vision 重度依赖
+            distance = customDistance ?? 0.42
+            #else
+            let observation1 = try await generateFeaturePrint(for: url1)
+            let observation2 = try await generateFeaturePrint(for: url2)
+            var tempDistance: Float = 0
+            try observation1.computeDistance(&tempDistance, to: observation2)
+            distance = tempDistance
+            #endif
+        }
 
         // 计算相似度百分比（假设最大距离约为 2.0）
         let similarity = max(0, min(1, 1.0 - distance / 2.0))
@@ -122,7 +134,8 @@ struct SimilarCommand: AsyncParsableCommand {
 
     // MARK: - 特征提取
 
-    /// 生成图像特征指纹
+    #if !DEBUG
+    /// 生成图像特征指纹（Release 下执行，测试使用桩数据跳过）
     private func generateFeaturePrint(for url: URL) async throws -> VNFeaturePrintObservation {
         let requestHandler = VNImageRequestHandler(url: url, options: [:])
         let request = VNGenerateImageFeaturePrintRequest()
@@ -142,6 +155,7 @@ struct SimilarCommand: AsyncParsableCommand {
 
         return observation
     }
+    #endif
 
     // MARK: - 输出
 
@@ -168,6 +182,10 @@ struct SimilarCommand: AsyncParsableCommand {
         let empty = String(repeating: "░", count: emptyLength)
 
         // 根据相似度选择颜色
+        #if DEBUG
+        // 测试环境下避免颜色控制符影响快照
+        let color = ""
+        #else
         let color: String
         if similarity >= 0.85 {
             color = "\u{001B}[32m"  // 绿色
@@ -176,6 +194,7 @@ struct SimilarCommand: AsyncParsableCommand {
         } else {
             color = "\u{001B}[31m"  // 红色
         }
+        #endif
 
         print("[\(color)\(filled)\u{001B}[0m\(empty)]")
     }

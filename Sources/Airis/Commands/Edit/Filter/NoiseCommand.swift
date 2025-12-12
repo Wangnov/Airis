@@ -101,6 +101,12 @@ struct NoiseCommand: AsyncParsableCommand {
         // 应用滤镜
         let coreImage = ServiceContainer.shared.coreImageService
 
+#if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_NOISE_RENDER_FAIL"] == "1" {
+            throw AirisError.imageEncodeFailed
+        }
+#endif
+
         try coreImage.applyAndSave(
             inputURL: inputURL,
             outputURL: outputURL,
@@ -120,7 +126,7 @@ struct NoiseCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

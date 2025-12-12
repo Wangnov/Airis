@@ -141,6 +141,9 @@ struct DrawCommand: AsyncParsableCommand {
     var enableSearch: Bool = false
 
     func run() async throws {
+        let isTestMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
+        let forceNetworkBranch = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_NETWORK_BRANCH"] == "1"
+
         // 确定使用的 provider
         let configManager = ConfigManager()
         let config = try configManager.loadConfig()
@@ -186,19 +189,25 @@ struct DrawCommand: AsyncParsableCommand {
         if reveal {
             print("")
             print("📂 正在 Finder 中显示...")
-            openInFinder(outputURL)
+            openInFinder(outputURL, isTestMode: isTestMode && !forceNetworkBranch)
         } else if open {
             print("")
             print("🖼️  正在打开图片...")
-            openWithDefaultApp(outputURL)
+            openWithDefaultApp(outputURL, isTestMode: isTestMode && !forceNetworkBranch)
         }
     }
 
     /// 使用默认应用打开图片
-    private func openWithDefaultApp(_ url: URL) {
+    private func openWithDefaultApp(_ url: URL, isTestMode: Bool) {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        process.arguments = [url.path]
+        #if DEBUG
+        let forceFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_OPEN_FAIL"] == "1"
+        let executable = forceFail ? "/nonexistent/open" : (isTestMode ? "/usr/bin/true" : "/usr/bin/open")
+        #else
+        let executable = isTestMode ? "/usr/bin/true" : "/usr/bin/open"
+        #endif
+        process.executableURL = URL(fileURLWithPath: executable)
+        process.arguments = isTestMode ? [] : [url.path]
 
         do {
             try process.run()
@@ -208,10 +217,16 @@ struct DrawCommand: AsyncParsableCommand {
     }
 
     /// 在 Finder 中显示图片
-    private func openInFinder(_ url: URL) {
+    private func openInFinder(_ url: URL, isTestMode: Bool) {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        process.arguments = ["-R", url.path]
+        #if DEBUG
+        let forceFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_REVEAL_FAIL"] == "1"
+        let executable = forceFail ? "/nonexistent/open" : (isTestMode ? "/usr/bin/true" : "/usr/bin/open")
+        #else
+        let executable = isTestMode ? "/usr/bin/true" : "/usr/bin/open"
+        #endif
+        process.executableURL = URL(fileURLWithPath: executable)
+        process.arguments = isTestMode ? [] : ["-R", url.path]
 
         do {
             try process.run()
@@ -220,3 +235,16 @@ struct DrawCommand: AsyncParsableCommand {
         }
     }
 }
+
+#if DEBUG
+extension DrawCommand {
+    /// 测试辅助：暴露私有打开方法
+    func _testOpenWithDefaultApp(_ url: URL, isTestMode: Bool) throws {
+        try openWithDefaultApp(url, isTestMode: isTestMode)
+    }
+
+    func _testOpenInFinder(_ url: URL, isTestMode: Bool) throws {
+        try openInFinder(url, isTestMode: isTestMode)
+    }
+}
+#endif

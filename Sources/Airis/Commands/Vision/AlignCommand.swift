@@ -81,11 +81,24 @@ struct AlignCommand: AsyncParsableCommand {
             print("⏳ Computing alignment...")
         }
 
+        let result: VisionService.ImageAlignmentResult
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_TEST_ALIGN_FAKE_RESULT"] == "1" {
+            result = Self._testAlignmentResult()
+        } else {
+            let vision = ServiceContainer.shared.visionService
+            result = try await vision.computeImageAlignment(
+                referenceURL: referenceURL,
+                floatingURL: floatingURL
+            )
+        }
+        #else
         let vision = ServiceContainer.shared.visionService
-        let result = try await vision.computeImageAlignment(
+        result = try await vision.computeImageAlignment(
             referenceURL: referenceURL,
             floatingURL: floatingURL
         )
+        #endif
 
         if format == "json" {
             printJSON(
@@ -163,7 +176,14 @@ struct AlignCommand: AsyncParsableCommand {
         let alignedImage = ciImage.transformed(by: transform)
 
         // Render
-        guard let outputCGImage = coreImage.render(ciImage: alignedImage) else {
+        #if DEBUG
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_ALIGN_RENDER_NIL"] == "1"
+        let renderedImage = forceNil ? nil : coreImage.render(ciImage: alignedImage)
+        #else
+        let renderedImage = coreImage.render(ciImage: alignedImage)
+        #endif
+
+        guard let outputCGImage = renderedImage else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -174,4 +194,16 @@ struct AlignCommand: AsyncParsableCommand {
         let format = outputPath.hasSuffix(".png") ? "png" : "jpg"
         try imageIO.saveImage(outputCGImage, to: outputURL, format: format)
     }
+
+    #if DEBUG
+    /// 测试桩：固定的平移矩阵，避免依赖 Vision 实际计算
+    private static func _testAlignmentResult() -> VisionService.ImageAlignmentResult {
+        let transform = CGAffineTransform(translationX: 3, y: -2)
+        return VisionService.ImageAlignmentResult(
+            transform: transform,
+            translationX: transform.tx,
+            translationY: transform.ty
+        )
+    }
+    #endif
 }

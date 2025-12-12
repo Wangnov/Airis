@@ -61,9 +61,24 @@ struct TraceCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 验证参数
-        guard ["edges", "sketch", "work"].contains(style) else {
+        let validStyles = ["edges", "sketch", "work"]
+#if DEBUG
+        let allowFallback = ProcessInfo.processInfo.environment["AIRIS_ALLOW_UNKNOWN_TRACE_STYLE"] == "1"
+        let styleToUse: String
+        if !validStyles.contains(style) && allowFallback {
+            styleToUse = "edges"
+        } else {
+            guard validStyles.contains(style) else {
+                throw AirisError.invalidPath("Invalid style: \(style). Use: edges, sketch, work")
+            }
+            styleToUse = style
+        }
+#else
+        guard validStyles.contains(style) else {
             throw AirisError.invalidPath("Invalid style: \(style). Use: edges, sketch, work")
         }
+        let styleToUse = style
+#endif
 
         guard intensity >= 0.1 && intensity <= 5.0 else {
             throw AirisError.invalidPath("Intensity must be 0.1-5.0, got: \(intensity)")
@@ -91,7 +106,7 @@ struct TraceCommand: AsyncParsableCommand {
         print("📁 " + Strings.get("edit.input") + ": \(inputURL.lastPathComponent)")
         print("🎨 " + Strings.get("edit.trace.style") + ": \(style)")
         print("📊 " + Strings.get("edit.trace.intensity") + ": \(String(format: "%.1f", intensity))")
-        if style == "work" {
+        if styleToUse == "work" {
             print("📏 " + Strings.get("edit.trace.radius") + ": \(String(format: "%.1f", radius))")
         }
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -108,26 +123,51 @@ struct TraceCommand: AsyncParsableCommand {
 
         var result: CIImage?
 
-        switch style {
-        case "edges":
+#if DEBUG
+        let forceNilResult = ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RESULT_NIL"] == "1"
+        let forceRenderNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RENDER_NIL"] == "1"
+        if forceNilResult {
+            result = nil
+        } else {
+            if styleToUse == "edges" {
+                result = coreImage.edges(ciImage: ciImage, intensity: intensity)
+            } else if styleToUse == "sketch" {
+                result = coreImage.lineOverlay(
+                    ciImage: ciImage,
+                    edgeIntensity: intensity
+                )
+            } else {
+                result = coreImage.edgeWork(ciImage: ciImage, radius: radius)
+            }
+        }
+#else
+        if style == "edges" {
             result = coreImage.edges(ciImage: ciImage, intensity: intensity)
-        case "sketch":
+        } else if style == "sketch" {
             result = coreImage.lineOverlay(
                 ciImage: ciImage,
                 edgeIntensity: intensity
             )
-        case "work":
+        } else {
             result = coreImage.edgeWork(ciImage: ciImage, radius: radius)
-        default:
-            result = coreImage.edges(ciImage: ciImage, intensity: intensity)
         }
+#endif
 
         guard let tracedImage = result else {
             throw AirisError.imageEncodeFailed
         }
 
         // 渲染并保存
-        guard let outputCGImage = coreImage.render(ciImage: tracedImage) else {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RENDER_FAIL"] == "1" {
+            throw AirisError.imageEncodeFailed
+        }
+        let renderedImage = forceRenderNil ? nil : coreImage.render(ciImage: tracedImage)
+        #else
+        let renderedImage = coreImage.render(ciImage: tracedImage)
+        #endif
+
+        guard let outputCGImage = renderedImage else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -144,7 +184,7 @@ struct TraceCommand: AsyncParsableCommand {
 
         // 打开结果
         if open {
-            NSWorkspace.shared.open(outputURL)
+            NSWorkspace.openForCLI(outputURL)
         }
     }
 }

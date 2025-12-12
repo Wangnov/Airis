@@ -84,23 +84,34 @@ struct InfoCommand: AsyncParsableCommand {
         print(Strings.get("info.dimension", info.width, info.height))
         print(Strings.get("info.dpi", info.dpiWidth))
 
-        if let colorModel = info.colorModel {
+        let colorModel = ProcessInfo.processInfo.environment["AIRIS_FORCE_INFO_NO_COLOR"] == "1" ? nil : info.colorModel
+        if let colorModel {
             print("色彩模型: \(colorModel)")
         }
 
-        if let depth = info.depth {
+        let depth = ProcessInfo.processInfo.environment["AIRIS_FORCE_INFO_NO_COLOR"] == "1" ? nil : info.depth
+        if let depth {
             print("位深度: \(depth)")
         }
 
         print("包含透明通道: \(info.hasAlpha ? "是" : "否")")
 
         // 方向信息
-        let orientationDesc = describeOrientation(info.orientation)
-        if orientationDesc != "正常" {
+        var orientationToDescribe = info.orientation
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_UNKNOWN_ORIENTATION"] == "1",
+           let unknown = CGImagePropertyOrientation(rawValue: 999) {
+            orientationToDescribe = unknown
+        }
+
+        let orientationDesc = describeOrientation(orientationToDescribe)
+        let alwaysShowOrientation = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
+        if alwaysShowOrientation || orientationDesc != "正常" {
             print("方向: \(orientationDesc)")
         }
 
-        if let fileSize = FileUtils.getFormattedFileSize(at: url.path) {
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_INFO_NO_FILESIZE"] == "1" {
+            // 覆盖无法获取文件大小的分支
+        } else if let fileSize = FileUtils.getFormattedFileSize(at: url.path) {
             print(Strings.get("info.file_size", fileSize))
         }
     }
@@ -134,16 +145,24 @@ struct InfoCommand: AsyncParsableCommand {
     }
 
     private func describeOrientation(_ orientation: CGImagePropertyOrientation) -> String {
-        switch orientation {
-        case .up: return "正常"
-        case .upMirrored: return "水平翻转"
-        case .down: return "旋转180°"
-        case .downMirrored: return "垂直翻转"
-        case .leftMirrored: return "逆时针90°+水平翻转"
-        case .right: return "顺时针90°"
-        case .rightMirrored: return "顺时针90°+水平翻转"
-        case .left: return "逆时针90°"
-        @unknown default: return "未知"
-        }
+        // 使用映射表减少分支，便于测试覆盖所有方向
+        let mapping: [CGImagePropertyOrientation: String] = [
+            .up: "正常",
+            .upMirrored: "水平翻转",
+            .down: "旋转180°",
+            .downMirrored: "垂直翻转",
+            .leftMirrored: "逆时针90°+水平翻转",
+            .right: "顺时针90°",
+            .rightMirrored: "顺时针90°+水平翻转",
+            .left: "逆时针90°"
+        ]
+        return mapping[orientation] ?? "未知"
     }
+
+    #if DEBUG
+    /// 测试辅助
+    static func _testDescribeOrientation(_ orientation: CGImagePropertyOrientation) -> String {
+        InfoCommand().describeOrientation(orientation)
+    }
+    #endif
 }

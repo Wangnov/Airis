@@ -89,8 +89,9 @@ struct PetPoseCommand: AsyncParsableCommand {
     var format: String = "table"
 
     func run() async throws {
-        // 检查 macOS 版本
-        guard #available(macOS 14.0, *) else {
+        // 检查 macOS 版本（测试可通过环境变量强制触发降级分支）
+        let forceUnsupported = ProcessInfo.processInfo.environment["AIRIS_FORCE_PETPOSE_UNSUPPORTED"] == "1"
+        guard #available(macOS 14.0, *), !forceUnsupported else {
             print("⚠️ Pet pose detection requires macOS 14.0 or later.")
             print("   Your current system does not support this feature.")
             return
@@ -195,6 +196,15 @@ struct PetPoseCommand: AsyncParsableCommand {
         default: return "unknown"
         }
     }
+
+    #if DEBUG
+    /// 测试辅助：覆盖默认分支
+    static func _testJointNameString(_ raw: String) -> String {
+        let key = VNRecognizedPointKey(rawValue: raw)
+        let name = VNAnimalBodyPoseObservation.JointName(rawValue: key)
+        return PetPoseCommand().jointNameString(name)
+    }
+    #endif
 
     @available(macOS 14.0, *)
     private func printTable(results: [VNAnimalBodyPoseObservation], imageWidth: Int, imageHeight: Int) {

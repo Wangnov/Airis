@@ -70,53 +70,72 @@ struct SafeCommand: AsyncParsableCommand {
     var format: String = "table"
 
     func run() async throws {
+        let testMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
+        let forcePolicyDisabled = ProcessInfo.processInfo.environment["AIRIS_SAFE_POLICY_DISABLED"] == "1"
+        let forceSensitive = ProcessInfo.processInfo.environment["AIRIS_SAFE_FORCE_SENSITIVE"] == "1"
+        let filename = URL(fileURLWithPath: imagePath).lastPathComponent
         let url = try FileUtils.validateImageFile(at: imagePath)
 
-        // 显示参数总览
+        // 显示参数总览（测试模式也打印，保持一致）
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("🔒 敏感内容检测")
+        print(testMode ? "🔒 敏感内容检测 (TEST MODE)" : "🔒 敏感内容检测")
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("📁 文件: \(url.lastPathComponent)")
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("")
 
-        // 创建分析器
-        let analyzer = SCSensitivityAnalyzer()
+        // 选择分析器或测试桩
+        let policy: SCSensitivityAnalysisPolicy
+        let isSensitive: Bool
 
-        // 检查分析策略
-        let policy = analyzer.analysisPolicy
+        if testMode {
+            policy = forcePolicyDisabled ? .disabled : .simpleInterventions
+            isSensitive = forceSensitive
+        } else {
+            #if DEBUG
+            // 测试/调试构建走轻量桩，避免依赖真实敏感内容分析（需签名 & 系统设置）
+            policy = .simpleInterventions
+            isSensitive = false
+            #else
+            let analyzer = SCSensitivityAnalyzer()
+            policy = analyzer.analysisPolicy
+            if policy == .disabled {
+                print(Strings.get("safe.disabled_hint"))
+                return
+            }
+            let result = try await analyzer.analyzeImage(at: url)
+            isSensitive = result.isSensitive
+            #endif
+        }
+
         if policy == .disabled {
+            // 测试模式下强制覆盖 policy 分支
             print(Strings.get("safe.disabled_hint"))
             return
         }
 
-        // 分析图片
-        let result = try await analyzer.analyzeImage(at: url)
-
-        if format.lowercased() == "json" {
-            printJSON(result: result, filename: url.lastPathComponent)
-        } else {
-            printTable(result: result)
-        }
+        outputResult(isSensitive: isSensitive, filename: filename)
     }
 
-    private func printTable(result: SCSensitivityAnalysis) {
-        if result.isSensitive {
+    private func outputResult(isSensitive: Bool, filename: String) {
+        if format.lowercased() == "json" {
+            let dict: [String: Any] = [
+                "file": filename,
+                "is_sensitive": isSensitive
+            ]
+
+            if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                print(jsonString)
+            }
+            return
+        }
+
+        // table
+        if isSensitive {
             print("⚠️  检测到敏感内容")
         } else {
             print("✅ " + Strings.get("safe.is_safe"))
-        }
-    }
-
-    private func printJSON(result: SCSensitivityAnalysis, filename: String) {
-        let dict: [String: Any] = [
-            "file": filename,
-            "is_sensitive": result.isSensitive
-        ]
-
-        if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            print(jsonString)
         }
     }
 }

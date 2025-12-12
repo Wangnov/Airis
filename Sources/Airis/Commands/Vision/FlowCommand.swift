@@ -99,12 +99,26 @@ struct FlowCommand: AsyncParsableCommand {
             print("⏳ Processing...")
         }
 
+        let result: VisionService.OpticalFlowResult
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_TEST_FLOW_FAKE_RESULT"] == "1" {
+            result = Self._testFlowResult()
+        } else {
+            let vision = ServiceContainer.shared.visionService
+            result = try await vision.computeOpticalFlow(
+                from: url1,
+                to: url2,
+                accuracy: accuracyLevel
+            )
+        }
+        #else
         let vision = ServiceContainer.shared.visionService
-        let result = try await vision.computeOpticalFlow(
+        result = try await vision.computeOpticalFlow(
             from: url1,
             to: url2,
             accuracy: accuracyLevel
         )
+        #endif
 
         if format == "json" {
             printJSON(result: result, file1: url1.lastPathComponent, file2: url2.lastPathComponent)
@@ -153,7 +167,19 @@ struct FlowCommand: AsyncParsableCommand {
         // Scale the flow field to match a visible range
         let scaledImage = flowImage.transformed(by: CGAffineTransform(scaleX: 1, y: 1))
 
-        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent, format: .RGBAf, colorSpace: colorSpace) else {
+        #if DEBUG
+        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_FLOW_CGIMAGE_NIL"] == "1"
+        let cgImageCandidate: CGImage?
+        if forceNil {
+            cgImageCandidate = nil
+        } else {
+            cgImageCandidate = context.createCGImage(scaledImage, from: scaledImage.extent, format: .RGBAf, colorSpace: colorSpace)
+        }
+        #else
+        let cgImageCandidate = context.createCGImage(scaledImage, from: scaledImage.extent, format: .RGBAf, colorSpace: colorSpace)
+        #endif
+
+        guard let cgImage = cgImageCandidate else {
             throw AirisError.imageEncodeFailed
         }
 
@@ -165,4 +191,14 @@ struct FlowCommand: AsyncParsableCommand {
 
         try imageIO.saveImage(cgImage, to: outputURL, format: "png")
     }
+
+    #if DEBUG
+    /// 测试桩：快速生成 2x2 光流结果，避免依赖 Vision 实际计算
+    private static func _testFlowResult() -> VisionService.OpticalFlowResult {
+        var pixelBuffer: CVPixelBuffer?
+        CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &pixelBuffer)
+        let buffer = pixelBuffer!
+        return VisionService.OpticalFlowResult(pixelBuffer: buffer, width: 2, height: 2)
+    }
+    #endif
 }

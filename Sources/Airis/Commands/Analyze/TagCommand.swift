@@ -83,8 +83,19 @@ struct TagCommand: AsyncParsableCommand {
         print("")
 
         // 执行分类
+#if DEBUG
+        if ProcessInfo.processInfo.environment["AIRIS_FORCE_TAG_STUB"] == "1" {
+            let stub = Self._testObservations(count: 5)
+            handleResults(stub)
+            return
+        }
+#endif
         let results = try await vision.classifyImage(at: url, threshold: threshold)
 
+        handleResults(results)
+    }
+
+    private func handleResults(_ results: [VNClassificationObservation]) {
         if results.isEmpty {
             print(Strings.get("error.no_results"))
             return
@@ -140,4 +151,16 @@ struct TagCommand: AsyncParsableCommand {
             print(jsonString)
         }
     }
+
+    #if DEBUG
+    /// 测试辅助：构造可控的标签列表，便于覆盖总数>显示数的分支
+    static func _testObservations(count: Int) -> [VNClassificationObservation] {
+        (0..<count).map { idx in
+            let obs = VNClassificationObservation()
+            obs.setValue("tag_\(idx)", forKey: "identifier")
+            obs.setValue(Float(1.0 - Double(idx) * 0.1), forKey: "confidence")
+            return obs
+        }
+    }
+    #endif
 }
