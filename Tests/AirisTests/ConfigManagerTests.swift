@@ -159,4 +159,39 @@ final class ConfigManagerTests: XCTestCase {
         // 真实配置中不应该有 test provider
         XCTAssertNil(realConfig.providers["test"])
     }
+
+    // MARK: - Default Path Computation Tests
+
+    func testComputeDefaultConfigDirectory_NoEnvUsesHomeConfigDir() {
+        let dir = ConfigManager.computeDefaultConfigDirectory(environment: [:])
+        let expected = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".config/airis")
+        XCTAssertEqual(dir.path, expected.path)
+    }
+
+    func testComputeDefaultConfigDirectory_UsesEnvOverride() {
+        let customConfigFile = "/tmp/airis_custom/config.json"
+        let dir = ConfigManager.computeDefaultConfigDirectory(environment: [
+            "AIRIS_CONFIG_FILE": customConfigFile
+        ])
+        let expected = URL(fileURLWithPath: customConfigFile).deletingLastPathComponent()
+        XCTAssertEqual(dir.path, expected.path)
+    }
+
+    func testComputeDefaultConfigFile_NoEnvUsesConfigJsonUnderDefaultDir() {
+        let file = ConfigManager.computeDefaultConfigFile(environment: [:])
+        let expectedDir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".config/airis")
+        let expected = expectedDir.appendingPathComponent("config.json")
+        XCTAssertEqual(file.path, expected.path)
+    }
+
+    func testComputeDefaultConfigFile_UsesEnvOverride() {
+        let customConfigFile = "/tmp/airis_custom/config.json"
+        let file = ConfigManager.computeDefaultConfigFile(environment: [
+            "AIRIS_CONFIG_FILE": customConfigFile
+        ])
+        XCTAssertEqual(file.path, URL(fileURLWithPath: customConfigFile).path)
+    }
+
 }

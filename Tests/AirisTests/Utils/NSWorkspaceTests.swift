@@ -10,6 +10,26 @@ final class NSWorkspaceTests: XCTestCase {
         unsetenv("AIRIS_TEST_MODE")
     }
 
+    func testOpenForCLISkipWhenXCTestConfigurationPresent() {
+        unsetenv("AIRIS_TEST_MODE")
+        unsetenv("CI")
+
+        let key = "XCTestConfigurationFilePath"
+        let old = getenv(key)
+        setenv(key, "/tmp/xctest_config", 1)
+        defer {
+            if let old {
+                setenv(key, String(cString: old), 1)
+            } else {
+                unsetenv(key)
+            }
+        }
+
+        let url = URL(fileURLWithPath: "/tmp/airis_test_dummy_xctest.txt")
+        let result = NSWorkspace.openForCLI(url)
+        XCTAssertTrue(result)
+    }
+
     func testOpenForCLISkipInCI() {
         unsetenv("AIRIS_TEST_MODE")
         setenv("CI", "1", 1)
