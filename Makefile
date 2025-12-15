@@ -1,7 +1,7 @@
 # Airis Makefile
 # Swift CLI 工具构建和测试脚本
 
-.PHONY: help build test test-quick test-perf install clean format lint cov cov-html
+.PHONY: help build test test-quick test-perf test-unit test-integration test-assets test-assets-force install clean format lint cov cov-summary cov-html
 
 .DEFAULT_GOAL := help
 
@@ -31,7 +31,9 @@ help:
 	@echo "  make format        格式化代码（需要 swiftformat）"
 	@echo "  make lint          代码检查（需要 swiftlint）"
 	@echo "  make test-assets   离线生成/更新测试图片资源"
+	@echo "  make test-assets-force  强制重生成测试图片资源（FORCE=1）"
 	@echo "  make cov           生成代码覆盖率报告"
+	@echo "  make cov-summary   输出覆盖率概览（Core/Domain/Commands）"
 	@echo "  make cov-html      生成 HTML 覆盖率报告并打开"
 	@echo ""
 
@@ -163,3 +165,33 @@ cov-html:
 		-output-dir=.build/coverage
 	@echo "✅ HTML 报告已生成: .build/coverage/index.html"
 	@open .build/coverage/index.html 2>/dev/null || echo "   请手动打开: .build/coverage/index.html"
+
+## test-assets-force: 强制重生成测试图片资源（FORCE=1）
+test-assets-force:
+	@FORCE=1 $(MAKE) test-assets
+
+## cov-summary: 输出覆盖率概览（Core/Domain/Commands）
+cov-summary:
+	@echo "📊 生成代码覆盖率概览..."
+	@swift test --enable-code-coverage
+	@echo ""
+	@echo "📈 覆盖率概览（Line Coverage）："
+	@xcrun llvm-cov report \
+		.build/debug/AirisPackageTests.xctest/Contents/MacOS/AirisPackageTests \
+		-instr-profile=.build/debug/codecov/default.profdata \
+		2>/dev/null | awk '\
+/^Sources\/Airis\// {\
+    lines=$$8; missed=$$9;\
+    total_lines+=lines; total_missed+=missed;\
+    if ($$1 ~ /^Sources\/Airis\/Core\//) { core_lines+=lines; core_missed+=missed }\
+    else if ($$1 ~ /^Sources\/Airis\/Domain\//) { domain_lines+=lines; domain_missed+=missed }\
+    else if ($$1 ~ /^Sources\/Airis\/Commands\//) { cmd_lines+=lines; cmd_missed+=missed }\
+}\
+END {\
+    if (core_lines>0)   printf "  Core     %6.2f%%\n",   100*(core_lines-core_missed)/core_lines;\
+    if (domain_lines>0) printf "  Domain   %6.2f%%\n", 100*(domain_lines-domain_missed)/domain_lines;\
+    if (cmd_lines>0)    printf "  Commands %6.2f%%\n", 100*(cmd_lines-cmd_missed)/cmd_lines;\
+    if (total_lines>0)  printf "  TOTAL    %6.2f%%\n", 100*(total_lines-total_missed)/total_lines;\
+}\
+'
+	@echo ""
