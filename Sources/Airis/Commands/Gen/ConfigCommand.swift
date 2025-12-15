@@ -76,7 +76,8 @@ struct ConfigCommand: AsyncParsableCommand {
             DeleteKeyCommand.self,
             SetConfigCommand.self,
             ShowConfigCommand.self,
-            ResetConfigCommand.self
+            ResetConfigCommand.self,
+            SetDefaultCommand.self
         ]
     )
 }
@@ -397,6 +398,10 @@ struct ShowConfigCommand: AsyncParsableCommand {
         let appConfig = try configManager.loadConfig()
 
         print(Strings.get("config.file_location", configManager.getConfigFilePath()))
+
+        // 显示默认 provider
+        let defaultProvider = appConfig.defaultProvider ?? "gemini"
+        print("\(Strings.get("config.default_provider")): \(defaultProvider)")
         print("")
 
         if let provider = provider {
@@ -477,5 +482,50 @@ struct ResetConfigCommand: AsyncParsableCommand {
         if let model = config.model ?? (forcePrint ? "forced-model" : nil) {
             print("  model: \(model)")
         }
+    }
+}
+
+// MARK: - set-default
+
+struct SetDefaultCommand: AsyncParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "set-default",
+        abstract: HelpTextFactory.text(
+            en: "Set default provider",
+            cn: "设置默认 Provider"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Set the default provider for image generation.
+                When using 'airis gen draw', this provider will be used if --provider is not specified.
+
+                EXAMPLES:
+                  airis gen config set-default --provider gemini
+                  airis gen config set-default --provider openai
+
+                AVAILABLE PROVIDERS:
+                  - gemini: Google Gemini (default)
+                """,
+            cn: """
+                设置图像生成的默认 Provider。
+                使用 'airis gen draw' 时，如果未指定 --provider，将使用此默认值。
+
+                EXAMPLES:
+                  airis gen config set-default --provider gemini
+                  airis gen config set-default --provider openai
+
+                可用 PROVIDERS:
+                  - gemini: Google Gemini（默认）
+                """
+        )
+    )
+
+    @Option(name: .long, help: HelpTextFactory.help(en: "Provider name to set as default", cn: "设为默认的 Provider 名称"))
+    var provider: String
+
+    func run() async throws {
+        let configManager = makeConfigManagerFromEnv()
+        try configManager.setDefaultProvider(provider)
+        print(Strings.get("config.default_set", provider))
     }
 }

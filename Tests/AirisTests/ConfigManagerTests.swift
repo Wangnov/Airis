@@ -194,4 +194,50 @@ final class ConfigManagerTests: XCTestCase {
         XCTAssertEqual(file.path, URL(fileURLWithPath: customConfigFile).path)
     }
 
+    // MARK: - Default Provider Tests
+
+    func testSetDefaultProvider() throws {
+        // 设置默认 provider
+        try manager.setDefaultProvider("openai")
+
+        // 验证设置成功
+        let defaultProvider = try manager.getDefaultProvider()
+        XCTAssertEqual(defaultProvider, "openai")
+    }
+
+    func testGetDefaultProvider_ReturnsGeminiWhenNotSet() throws {
+        // 未设置时应返回 gemini
+        let defaultProvider = try manager.getDefaultProvider()
+        XCTAssertEqual(defaultProvider, "gemini")
+    }
+
+    func testSetDefaultProvider_PersistsAfterReload() throws {
+        // 设置默认 provider
+        try manager.setDefaultProvider("custom-provider")
+
+        // 创建新的 manager 实例（模拟重新加载）
+        let newManager = ConfigManager(configFile: tempConfigFile)
+        let defaultProvider = try newManager.getDefaultProvider()
+        XCTAssertEqual(defaultProvider, "custom-provider")
+    }
+
+    func testGetDefaultProvider_FallbacksToGeminiWhenFieldIsNull() throws {
+        // 创建一个配置文件，其中 defaultProvider 字段不存在（null）
+        let configWithoutDefault = """
+        {
+            "providers": {
+                "gemini": {
+                    "base_url": "https://example.com",
+                    "model": "test-model"
+                }
+            }
+        }
+        """
+        try configWithoutDefault.data(using: .utf8)?.write(to: tempConfigFile)
+
+        // 验证 getDefaultProvider 返回 fallback 值 "gemini"
+        let defaultProvider = try manager.getDefaultProvider()
+        XCTAssertEqual(defaultProvider, "gemini")
+    }
+
 }

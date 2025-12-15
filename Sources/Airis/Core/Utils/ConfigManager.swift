@@ -163,4 +163,17 @@ final class ConfigManager: Sendable {
     func getConfigFilePath() -> String {
         configFile.path
     }
+
+    /// 设置默认 Provider
+    func setDefaultProvider(_ provider: String) throws {
+        var config = try loadConfig()
+        config.defaultProvider = provider
+        try saveConfig(config)
+    }
+
+    /// 获取默认 Provider
+    func getDefaultProvider() throws -> String {
+        let config = try loadConfig()
+        return config.defaultProvider ?? "gemini"
+    }
 }

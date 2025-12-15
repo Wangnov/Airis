@@ -24,8 +24,12 @@ final class GenCommandTests: XCTestCase {
     // MARK: - ConfigCommand Tests
 
     func testConfigCommandHasAllSubcommands() throws {
-        // set-key, get-key, delete-key, set, show, reset
-        XCTAssertEqual(ConfigCommand.configuration.subcommands.count, 6)
+        // set-key, get-key, delete-key, set, show, reset, set-default
+        XCTAssertEqual(ConfigCommand.configuration.subcommands.count, 7)
+    }
+
+    func testSetDefaultCommandConfiguration() throws {
+        XCTAssertEqual(SetDefaultCommand.configuration.commandName, "set-default")
     }
 
     // MARK: - DrawCommand Configuration Tests

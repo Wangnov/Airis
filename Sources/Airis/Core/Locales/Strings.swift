@@ -296,6 +296,14 @@ struct Strings: Sendable {
             .en: "Not configured",
             .cn: "未配置"
         ],
+        "config.default_set": [
+            .en: "✅ Default provider set to: %@",
+            .cn: "✅ 已设置默认 Provider：%@"
+        ],
+        "config.default_provider": [
+            .en: "Default provider",
+            .cn: "默认 Provider"
+        ],
 
         // ============ Edit 命令 ============
         "edit.input": [

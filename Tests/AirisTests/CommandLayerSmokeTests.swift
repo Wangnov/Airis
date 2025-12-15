@@ -60,8 +60,31 @@ final class CommandLayerSmokeTests: XCTestCase {
         try await runCommand(GetKeyCommand.self, args: ["--provider", "testp"])
         try await runCommand(SetConfigCommand.self, args: ["--provider", "testp", "--base-url", "https://example.com", "--model", "m1"])
         try await runCommand(ShowConfigCommand.self, args: ["--provider", "testp"])
+        try await runCommand(SetDefaultCommand.self, args: ["--provider", "testp"])
         try await runCommand(ResetConfigCommand.self, args: ["--provider", "testp"])
         try await runCommand(DeleteKeyCommand.self, args: ["--provider", "testp"])
+    }
+
+    func testShowConfigWithoutDefaultProviderSet() async throws {
+        // 创建一个配置文件，其中没有设置 defaultProvider 字段
+        let configFile = CommandTestHarness.temporaryFile(ext: "json")
+        let configWithoutDefault = """
+        {
+            "providers": {
+                "gemini": {
+                    "base_url": "https://example.com",
+                    "model": "test-model"
+                }
+            }
+        }
+        """
+        try configWithoutDefault.data(using: .utf8)?.write(to: configFile)
+        setenv("AIRIS_CONFIG_FILE", configFile.path, 1)
+
+        // 运行 ShowConfigCommand，验证 defaultProvider 为 nil 时的 fallback 分支
+        try await runCommand(ShowConfigCommand.self, args: [])
+
+        CommandTestHarness.cleanup(configFile)
     }
 
     func testGenDrawCommandTestMode() async throws {
