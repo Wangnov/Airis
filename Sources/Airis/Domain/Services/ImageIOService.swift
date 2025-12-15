@@ -30,7 +30,12 @@ final class ImageIOService: Sendable {
 
     // MARK: - 图像加载
 
-    /// 加载图像（支持缩略图优化）
+    /// 加载图像（支持缩略图优化和内存管理）
+    ///
+    /// ## 内存优化说明
+    /// - 使用 `kCGImageSourceShouldCache: false` 延迟解码，减少内存峰值
+    /// - 对于缩略图，使用 `kCGImageSourceCreateThumbnailFromImageIfAbsent` 复用嵌入式缩略图
+    /// - 应用 EXIF 变换避免后续旋转处理开销
     func loadImage(at url: URL, maxDimension: Int? = nil) throws -> CGImage {
         let dimDescription = maxDimension.map(String.init) ?? "nil"
         AirisLog.debug("ImageIO load image: \(url.path) maxDimension=\(dimDescription)")
@@ -39,14 +44,16 @@ final class ImageIOService: Sendable {
         }
 
         var options: [CFString: Any] = [
-            kCGImageSourceShouldCache: false  // 延迟解码，节省内存
+            kCGImageSourceShouldCache: false,       // 延迟解码，减少内存峰值
+            kCGImageSourceShouldAllowFloat: true    // 支持 HDR 浮点图像
         ]
 
         if let maxDim = maxDimension {
             // 创建缩略图（性能优化）
-            options[kCGImageSourceCreateThumbnailFromImageAlways] = true
+            options[kCGImageSourceCreateThumbnailFromImageIfAbsent] = true  // 优先使用嵌入式缩略图
+            options[kCGImageSourceCreateThumbnailFromImageAlways] = true    // 否则生成缩略图
             options[kCGImageSourceThumbnailMaxPixelSize] = maxDim
-            options[kCGImageSourceCreateThumbnailWithTransform] = true
+            options[kCGImageSourceCreateThumbnailWithTransform] = true      // 应用 EXIF 旋转
         }
 
         guard let image = operations.createImage(from: source, at: 0, options: options as CFDictionary) else {

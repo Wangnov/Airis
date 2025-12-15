@@ -33,8 +33,14 @@ protocol ImageIOOperations: Sendable {
 /// 真实的 ImageIO 操作实现
 final class RealImageIOOperations: ImageIOOperations, @unchecked Sendable {
 
+    /// 创建图像源时的内存优化选项
+    /// - `kCGImageSourceShouldCache: false` - 延迟解码，避免立即占用内存
+    private let sourceOptions: CFDictionary = [
+        kCGImageSourceShouldCache: false
+    ] as CFDictionary
+
     func createImageSource(at url: URL) -> CGImageSource? {
-        CGImageSourceCreateWithURL(url as CFURL, nil)
+        CGImageSourceCreateWithURL(url as CFURL, sourceOptions)
     }
 
     func getProperties(from source: CGImageSource, at index: Int) -> [CFString: Any]? {
