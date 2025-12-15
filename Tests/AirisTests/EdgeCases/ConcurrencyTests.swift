@@ -1,6 +1,6 @@
 import XCTest
-import CoreImage
-import Vision
+@preconcurrency import CoreImage
+@preconcurrency import Vision
 @testable import Airis
 
 /// 并发安全测试
