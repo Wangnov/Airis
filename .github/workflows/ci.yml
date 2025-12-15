@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-arm:
+    name: Test (ARM64)
+    runs-on: macos-latest  # macOS 15 ARM64 (2025年8月起)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-${{ runner.arch }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-spm-
+
+      - name: Build
+        run: swift build -c debug
+
+      - name: Run Tests
+        run: swift test --parallel
+
+  test-intel:
+    name: Test (Intel)
+    runs-on: macos-15-intel  # macOS 15 Intel (支持到 2027年8月)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-${{ runner.arch }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-spm-
+
+      - name: Build
+        run: swift build -c debug
+
+      - name: Run Tests
+        run: swift test --parallel
+
+  build-release:
+    name: Build Universal Binary
+    runs-on: macos-latest
+    needs: [test-arm, test-intel]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Universal Binary
+        run: swift build -c release --arch arm64 --arch x86_64
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: airis-universal
+          path: .build/apple/Products/Release/airis
+
+  lint:
+    name: SwiftLint
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run SwiftLint
+        run: |
+          brew install swiftlint
+          swiftlint --strict
