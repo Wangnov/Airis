@@ -3,84 +3,125 @@ import ArgumentParser
 import Foundation
 
 struct ScoreCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "score",
-        abstract: "Calculate image aesthetic score",
-        discussion: """
-            Analyze image aesthetic quality using Apple's Vision framework.
-            Returns an overall score and utility classification.
+        abstract: HelpTextFactory.text(
+            en: "Calculate image aesthetic score",
+            cn: "计算图片美学评分"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Analyze image aesthetic quality using Apple's Vision framework.
+                Returns an overall score and utility classification.
 
-            QUICK START:
-              airis analyze score photo.jpg
+                QUICK START:
+                  airis analyze score photo.jpg
 
-            EXAMPLES:
-              # Get aesthetic score
-              airis analyze score sunset.jpg
+                EXAMPLES:
+                  # Get aesthetic score
+                  airis analyze score sunset.jpg
 
-              # JSON output for scripting
-              airis analyze score photo.png --format json
+                  # JSON output for scripting
+                  airis analyze score photo.png --format json
 
-              # Batch scoring (use shell loop)
-              for f in *.jpg; do airis analyze score "$f" --format json; done
+                  # Batch scoring (use shell loop)
+                  for f in *.jpg; do airis analyze score "$f" --format json; done
 
-            OUTPUT FORMAT (table):
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              ⭐ 美学评分
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 文件: sunset.jpg
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  ⭐ 美学评分
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 文件: sunset.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              综合评分: 0.85
-              评价: 优秀
-              实用性图像: 否
+                  综合评分: 0.85
+                  评价: 优秀
+                  实用性图像: 否
 
-            OUTPUT FORMAT (json):
-              {
-                "overall_score": 0.85,
-                "is_utility": false,
-                "rating": "excellent"
-              }
+                OUTPUT FORMAT (json):
+                  {
+                    "overall_score": 0.85,
+                    "is_utility": false,
+                    "rating": "excellent"
+                  }
 
-            SCORE INTERPRETATION:
-              -1.0 to -0.5  : 较差 (Poor)
-              -0.5 to  0.0  : 一般 (Fair)
-               0.0 to  0.5  : 良好 (Good)
-               0.5 to  1.0  : 优秀 (Excellent)
+                SCORE INTERPRETATION:
+                  -1.0 to -0.5  : 较差 (Poor)
+                  -0.5 to  0.0  : 一般 (Fair)
+                   0.0 to  0.5  : 良好 (Good)
+                   0.5 to  1.0  : 优秀 (Excellent)
 
-            UTILITY IMAGES:
-              Screenshots, documents, QR codes, whiteboards are marked as
-              "utility" images. They may have good technical quality but
-              lack aesthetic appeal.
+                UTILITY IMAGES:
+                  Screenshots, documents, QR codes, whiteboards are marked as
+                  "utility" images. They may have good technical quality but
+                  lack aesthetic appeal.
 
-            REQUIREMENTS:
-              macOS 15.0 or later (uses CalculateImageAestheticsScoresRequest)
+                REQUIREMENTS:
+                  macOS 15.0 or later (uses CalculateImageAestheticsScoresRequest)
 
-            NOTES:
-              - All processing is done locally on device
-              - Score range: -1.0 (worst) to 1.0 (best)
-            """
+                NOTES:
+                  - All processing is done locally on device
+                  - Score range: -1.0 (worst) to 1.0 (best)
+                """,
+            cn: """
+                使用 Apple Vision 的美学评分能力给图片打分，并标注是否为“实用性图像”。
+
+                QUICK START:
+                  airis analyze score photo.jpg
+
+                EXAMPLES:
+                  # 获取评分
+                  airis analyze score sunset.jpg
+
+                  # JSON 输出（便于脚本解析）
+                  airis analyze score photo.png --format json
+
+                  # 批量评分（shell 示例）
+                  for f in *.jpg; do airis analyze score "$f" --format json; done
+
+                分数解释：
+                  -1.0 ~ -0.5  : 较差
+                  -0.5 ~  0.0  : 一般
+                   0.0 ~  0.5  : 良好
+                   0.5 ~  1.0  : 优秀
+
+                实用性图像：
+                  截图、文档、二维码、白板等通常会被标注为 utility。
+
+                系统要求：
+                  macOS 15.0+（CalculateImageAestheticsScoresRequest）
+
+                说明：
+                  - 全部本地执行（不上传图片）
+                  - 分数范围：-1.0（最低）到 1.0（最高）
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
     var imagePath: String
 
-    @Option(name: .long, help: "Output format: table (default), json")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format: table (default), json", cn: "输出格式：table（默认）或 json"))
     var format: String = "table"
 
     func run() async throws {
         let url = try FileUtils.validateImageFile(at: imagePath)
         let testMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
-        let forceFallback = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCORE_FALLBACK"] == "1"
         let forceUtilityFalse = ProcessInfo.processInfo.environment["AIRIS_SCORE_UTILITY_FALSE"] == "1"
         let customScore = Float(ProcessInfo.processInfo.environment["AIRIS_SCORE_TEST_VALUE"] ?? "")
 
-        // 显示参数总览
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("⭐ 美学评分")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📁 文件: \(url.lastPathComponent)")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("")
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
+
+        AirisOutput.printBanner([
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "⭐ 美学评分",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "📁 文件: \(url.lastPathComponent)",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        ], enabled: showHumanOutput)
 
         // 执行美学评分
         let result: AestheticsResult
@@ -93,27 +134,30 @@ struct ScoreCommand: AsyncParsableCommand {
         } else {
             #if DEBUG
             // 测试/调试构建直接走降级提示，避免在较低系统调用不可用 API
-            printUnsupportedHint()
+            if outputFormat == .json {
+                printUnsupportedJSON()
+            } else if showHumanOutput {
+                printUnsupportedHint()
+            }
             return
             #else
             if #available(macOS 15.0, *) {
                 result = try await calculateAestheticsScore(url: url)
             } else {
-                printUnsupportedHint()
+                if outputFormat == .json {
+                    printUnsupportedJSON()
+                } else if showHumanOutput {
+                    printUnsupportedHint()
+                }
                 return
             }
             #endif
         }
 
-        if format.lowercased() == "json" {
+        if outputFormat == .json {
             printJSON(result: result)
-        } else {
+        } else if showHumanOutput {
             printTable(result: result)
-        }
-
-        if testMode && forceFallback {
-            // 额外覆盖降级提示分支
-            printUnsupportedHint()
         }
     }
 
@@ -179,6 +223,18 @@ struct ScoreCommand: AsyncParsableCommand {
     private func printUnsupportedHint() {
         print("⚠️ 此功能需要 macOS 15.0 或更高版本")
         print("   当前系统版本不支持美学评分 API")
+    }
+
+    private func printUnsupportedJSON() {
+        let dict: [String: Any] = [
+            "supported": false,
+            "required_macos": "15.0",
+            "error": "unsupported_os_version"
+        ]
+        if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print(jsonString)
+        }
     }
 
     /// 美学评分结果

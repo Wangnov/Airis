@@ -5,63 +5,87 @@ import AppKit
 struct BlurCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "blur",
-        abstract: "Apply blur effects to images",
-        discussion: """
-            Apply various blur effects using CoreImage filters.
+        abstract: HelpTextFactory.text(
+            en: "Apply blur effects to images",
+            cn: "模糊滤镜"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply various blur effects using CoreImage filters.
 
-            BLUR TYPES:
-              gaussian  Standard Gaussian blur (default)
-              motion    Directional motion blur
-              zoom      Radial zoom blur from center
+                BLUR TYPES:
+                  gaussian  Standard Gaussian blur (default)
+                  motion    Directional motion blur
+                  zoom      Radial zoom blur from center
 
-            PARAMETERS:
-              --radius: Blur intensity (0-100, default: 10)
-              --type:   Blur algorithm (gaussian, motion, zoom)
-              --angle:  Motion direction in degrees (motion blur only)
+                PARAMETERS:
+                  --radius: Blur intensity (0-100, default: 10)
+                  --type:   Blur algorithm (gaussian, motion, zoom)
+                  --angle:  Motion direction in degrees (motion blur only)
 
-            QUICK START:
-              airis edit filter blur photo.jpg -o blurred.png
+                QUICK START:
+                  airis edit filter blur photo.jpg -o blurred.png
 
-            EXAMPLES:
-              # Gaussian blur with radius 10
-              airis edit filter blur photo.jpg -o blurred.png
+                EXAMPLES:
+                  # Gaussian blur with radius 10
+                  airis edit filter blur photo.jpg -o blurred.png
 
-              # Stronger Gaussian blur
-              airis edit filter blur photo.jpg --radius 25 -o soft.png
+                  # Stronger Gaussian blur
+                  airis edit filter blur photo.jpg --radius 25 -o soft.png
 
-              # Motion blur (horizontal, 20px)
-              airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
+                  # Motion blur (horizontal, 20px)
+                  airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
 
-              # Diagonal motion blur
-              airis edit filter blur photo.jpg --type motion --radius 15 --angle 45 -o diagonal.png
+                  # Diagonal motion blur
+                  airis edit filter blur photo.jpg --type motion --radius 15 --angle 45 -o diagonal.png
 
-              # Zoom blur from center
-              airis edit filter blur photo.jpg --type zoom --radius 15 -o zoom.png
+                  # Zoom blur from center
+                  airis edit filter blur photo.jpg --type zoom --radius 15 -o zoom.png
 
-            OUTPUT:
-              Blurred image in the specified format (png, jpg, heic)
-            """
+                OUTPUT:
+                  Blurred image in the specified format (png, jpg, heic)
+                """,
+            cn: """
+                使用 Core Image 对图片进行模糊处理（高斯/运动/缩放模糊）。
+
+                QUICK START:
+                  airis edit filter blur photo.jpg -o blurred.png
+
+                EXAMPLES:
+                  # 更强高斯模糊
+                  airis edit filter blur photo.jpg --radius 25 -o soft.png
+
+                  # 运动模糊
+                  airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Blur radius (0-100, default: 10)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Blur radius (0-100, default: 10)", cn: "模糊半径（0-100，默认：10）"))
     var radius: Double = 10
 
-    @Option(name: .long, help: "Blur type: gaussian, motion, zoom (default: gaussian)")
+    @Option(
+        name: .long,
+        help: HelpTextFactory.help(
+            en: "Blur type: gaussian, motion, zoom (default: gaussian)",
+            cn: "模糊类型：gaussian / motion / zoom（默认：gaussian）"
+        )
+    )
     var type: String = "gaussian"
 
-    @Option(name: .long, help: "Motion blur angle in degrees (0-360, default: 0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Motion blur angle in degrees (0-360, default: 0)", cn: "运动模糊角度（0-360，默认：0）"))
     var angle: Double = 0
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

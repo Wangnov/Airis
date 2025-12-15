@@ -3,99 +3,143 @@ import ArgumentParser
 import Foundation
 
 struct AnimalCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "animal",
-        abstract: "Detect animals (cats and dogs) in images",
-        discussion: """
-            Detect cats and dogs in images using Apple's Vision framework.
+        abstract: HelpTextFactory.text(
+            en: "Detect animals (cats and dogs) in images",
+            cn: "检测图片中的动物（猫/狗）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect cats and dogs in images using Apple's Vision framework.
 
-            QUICK START:
-              airis detect animal photo.jpg
+                QUICK START:
+                  airis detect animal photo.jpg
 
-            SUPPORTED ANIMALS:
-              • Cat - Domestic cats of various breeds
-              • Dog - Domestic dogs of various breeds
+                SUPPORTED ANIMALS:
+                  • Cat - Domestic cats of various breeds
+                  • Dog - Domestic dogs of various breeds
 
-            EXAMPLES:
-              # Detect animals in a photo
-              airis detect animal pet.jpg
+                EXAMPLES:
+                  # Detect animals in a photo
+                  airis detect animal pet.jpg
 
-              # Filter by animal type
-              airis detect animal photo.png --type cat
-              airis detect animal photo.png --type dog
+                  # Filter by animal type
+                  airis detect animal photo.png --type cat
+                  airis detect animal photo.png --type dog
 
-              # Set confidence threshold
-              airis detect animal group.jpg --threshold 0.7
+                  # Set confidence threshold
+                  airis detect animal group.jpg --threshold 0.7
 
-              # JSON output for scripting
-              airis detect animal pets.jpg --format json
+                  # JSON output for scripting
+                  airis detect animal pets.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Detected 2 animal(s)
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Detected 2 animal(s)
 
-              [1] Cat
-                  Confidence: 0.94
-                  Bounding Box: (0.15, 0.30) - 0.35×0.45
+                  [1] Cat
+                      Confidence: 0.94
+                      Bounding Box: (0.15, 0.30) - 0.35×0.45
 
-              [2] Dog
-                  Confidence: 0.89
-                  Bounding Box: (0.55, 0.25) - 0.40×0.50
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  [2] Dog
+                      Confidence: 0.89
+                      Bounding Box: (0.55, 0.25) - 0.40×0.50
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-            OPTIONS:
-              --type <type>      Filter by animal type (cat, dog)
-              --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.0)
-              --format <fmt>     Output format: table (default), json
+                OPTIONS:
+                  --type <type>      Filter by animal type (cat, dog)
+                  --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.0)
+                  --format <fmt>     Output format: table (default), json
 
-            NOTE:
-              The Vision framework currently supports detection of cats and dogs.
-              Other animals are not recognized by this detector.
-            """
+                NOTE:
+                  The Vision framework currently supports detection of cats and dogs.
+                  Other animals are not recognized by this detector.
+                """,
+            cn: """
+                使用 Apple Vision 框架检测图片中的猫/狗，输出类型、置信度与 bounding box。
+
+                QUICK START:
+                  airis detect animal photo.jpg
+
+                EXAMPLES:
+                  # 检测猫/狗
+                  airis detect animal pet.jpg
+
+                  # 按类型过滤
+                  airis detect animal photo.png --type cat
+                  airis detect animal photo.png --type dog
+
+                  # 置信度阈值
+                  airis detect animal group.jpg --threshold 0.7
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect animal pets.jpg --format json
+
+                OPTIONS:
+                  --type <type>      类型过滤（cat / dog）
+                  --threshold <val>  置信度阈值（0.0-1.0，默认：0.0）
+                  --format <fmt>     输出格式：table（默认）或 json
+
+                说明：
+                  - 目前仅支持猫/狗
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Option(name: .long, help: "Filter by animal type (cat, dog)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Filter by animal type (cat, dog)", cn: "类型过滤（cat / dog）"))
     var type: String?
 
-    @Option(name: .long, help: "Minimum confidence threshold (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Minimum confidence threshold (0.0-1.0)", cn: "置信度阈值（0.0-1.0）"))
     var threshold: Float = 0.0
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let vision = ServiceContainer.shared.visionService
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         for imagePath in imagePaths {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("🐾 Animal Detection")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
+            var bannerLines = [
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "🐾 Animal Detection",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)"
+            ]
+
             if let type = type {
-                print("🔖 Type filter: \(type.capitalized)")
+                bannerLines.append("🔖 Type filter: \(type.capitalized)")
             }
+
             if threshold > 0 {
-                print("🎯 Threshold: \(String(format: "%.2f", threshold))")
+                bannerLines.append("🎯 Threshold: \(String(format: "%.2f", threshold))")
             }
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+
+            bannerLines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            AirisOutput.printBanner(
+                bannerLines,
+                enabled: showHumanOutput
+            )
 
             // 执行检测
             #if DEBUG
             if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_STUB"] == "1" {
                 let stub = Self.testObservations()
-                try await handleResults(stub, url: url)
+                try await handleResults(stub, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
                 continue
             }
             if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_LOW_LABEL"] == "1" {
                 let stub = Self.testLowConfidenceLabelObservations()
-                try await handleResults(stub, url: url)
+                try await handleResults(stub, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
                 continue
             }
             #endif
@@ -110,11 +154,16 @@ struct AnimalCommand: AsyncParsableCommand {
                 )
             }
 
-            try await handleResults(adapted, url: url)
+            try await handleResults(adapted, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
         }
     }
 
-    private func handleResults<T: AnimalObservationLike>(_ results: [T], url: URL) async throws {
+    private func handleResults<T: AnimalObservationLike>(
+        _ results: [T],
+        url: URL,
+        outputFormat: OutputFormat,
+        showHumanOutput: Bool
+    ) async throws {
         // 解析结果
         var animalResults: [AnimalResult] = []
         for observation in results {
@@ -141,15 +190,19 @@ struct AnimalCommand: AsyncParsableCommand {
         }
 
         if animalResults.isEmpty {
-            print("No animals detected.")
-            print("")
+            if outputFormat == .json {
+                printJSON(results: [], file: url.lastPathComponent)
+            } else if showHumanOutput {
+                print("No animals detected.")
+                print("")
+            }
             return
         }
 
         // 输出结果
-        if format == "json" {
+        if outputFormat == .json {
             printJSON(results: animalResults, file: url.lastPathComponent)
-        } else {
+        } else if showHumanOutput {
             printTable(results: animalResults)
         }
     }

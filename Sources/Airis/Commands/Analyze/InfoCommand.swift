@@ -3,60 +3,112 @@ import Foundation
 import ImageIO
 
 struct InfoCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "info",
-        abstract: "Display basic image information",
-        discussion: """
-            Show image dimensions, DPI, color space, and file metadata.
+        abstract: HelpTextFactory.text(
+            en: "Display basic image information",
+            cn: "显示图像基础信息"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Show image dimensions, DPI, color space, and file metadata.
 
-            QUICK START:
-              airis analyze info photo.jpg
+                QUICK START:
+                  airis analyze info photo.jpg
 
-            EXAMPLES:
-              # Display basic info in table format
-              airis analyze info image.jpg
+                EXAMPLES:
+                  # Display basic info in table format
+                  airis analyze info image.jpg
 
-              # Output as JSON for scripting
-              airis analyze info photo.png --format json
+                  # Output as JSON for scripting
+                  airis analyze info photo.png --format json
 
-              # Show info for HEIC image
-              airis analyze info IMG_0001.heic
+                  # Show info for HEIC image
+                  airis analyze info IMG_0001.heic
 
-            OUTPUT FORMAT (table):
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              ℹ️  图像信息
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 文件: photo.jpg
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  ℹ️  图像信息
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 文件: photo.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              尺寸: 1920 × 1080 像素
-              DPI: 72
-              色彩模型: RGB
-              位深度: 8
-              包含透明通道: 否
-              文件大小: 2.3 MB
+                  尺寸: 1920 × 1080 像素
+                  DPI: 72
+                  色彩模型: RGB
+                  位深度: 8
+                  包含透明通道: 否
+                  文件大小: 2.3 MB
 
-            OUTPUT FORMAT (json):
-              {
-                "width": 1920,
-                "height": 1080,
-                "dpi_width": 72,
-                "dpi_height": 72,
-                "color_model": "RGB",
-                "depth": 8,
-                "has_alpha": false,
-                "file_size": 2400000
-              }
+                OUTPUT FORMAT (json):
+                  {
+                    "width": 1920,
+                    "height": 1080,
+                    "dpi_width": 72,
+                    "dpi_height": 72,
+                    "color_model": "RGB",
+                    "depth": 8,
+                    "has_alpha": false,
+                    "file_size": 2400000
+                  }
 
-            SUPPORTED FORMATS:
-              JPEG, PNG, HEIC, HEIF, TIFF, WebP, GIF, BMP
-            """
+                SUPPORTED FORMATS:
+                  JPEG, PNG, HEIC, HEIF, TIFF, WebP, GIF, BMP
+                """,
+            cn: """
+                显示图像尺寸、DPI、色彩模型、位深度、透明通道与文件大小等信息。
+
+                QUICK START:
+                  airis analyze info photo.jpg
+
+                EXAMPLES:
+                  # 表格输出（默认）
+                  airis analyze info image.jpg
+
+                  # JSON 输出（便于脚本解析）
+                  airis analyze info photo.png --format json
+
+                  # 查看 HEIC 信息
+                  airis analyze info IMG_0001.heic
+
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  ℹ️  图像信息
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 文件: photo.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                  尺寸: 1920 × 1080 像素
+                  DPI: 72
+                  色彩模型: RGB
+                  位深度: 8
+                  包含透明通道: 否
+                  文件大小: 2.3 MB
+
+                OUTPUT FORMAT (json):
+                  {
+                    "width": 1920,
+                    "height": 1080,
+                    "dpi_width": 72,
+                    "dpi_height": 72,
+                    "color_model": "RGB",
+                    "depth": 8,
+                    "has_alpha": false,
+                    "file_size": 2400000
+                  }
+
+                SUPPORTED FORMATS:
+                  JPEG, PNG, HEIC, HEIF, TIFF, WebP, GIF, BMP
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
     var imagePath: String
 
-    @Option(name: .long, help: "Output format: table (default), json")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format: table (default), json", cn: "输出格式：table（默认）或 json"))
     var format: String = "table"
 
     func run() async throws {
@@ -65,17 +117,20 @@ struct InfoCommand: AsyncParsableCommand {
 
         let info = try imageIO.getImageInfo(at: url)
 
-        // 显示参数总览
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("ℹ️  图像信息")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📁 文件: \(url.lastPathComponent)")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("")
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
-        if format.lowercased() == "json" {
+        AirisOutput.printBanner([
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "ℹ️  图像信息",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "📁 文件: \(url.lastPathComponent)",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        ], enabled: showHumanOutput)
+
+        if outputFormat == .json {
             printJSON(info: info, url: url)
-        } else {
+        } else if showHumanOutput {
             printTable(info: info, url: url)
         }
     }

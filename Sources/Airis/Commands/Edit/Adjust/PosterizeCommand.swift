@@ -5,66 +5,72 @@ import AppKit
 struct PosterizeCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "posterize",
-        abstract: "Reduce color levels (poster effect)",
-        discussion: """
-            Apply posterization effect using CIColorPosterize filter.
-            Reduces the number of color levels, creating a poster-like appearance.
+        abstract: HelpTextFactory.text(
+            en: "Reduce color levels (poster effect)",
+            cn: "色调分离（海报效果）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply posterization effect using CIColorPosterize filter.
+                Reduces the number of color levels, creating a poster-like appearance.
 
-            PARAMETERS:
-              Levels: 2 to 30 (default: 6)
-                      Lower values = fewer colors = more dramatic effect
-                      Higher values = more colors = subtler effect
+                PARAMETERS:
+                  Levels: 2 to 30 (default: 6)
+                          Lower values = fewer colors = more dramatic effect
+                          Higher values = more colors = subtler effect
 
-            QUICK START:
-              airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
+                QUICK START:
+                  airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
 
-            EXAMPLES:
-              # Strong poster effect (4 levels per channel)
-              airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
+                EXAMPLES:
+                  # Strong poster effect (4 levels per channel)
+                  airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
 
-              # Minimal posterization (2 levels = very graphic)
-              airis edit adjust posterize art.png --levels 2 -o graphic.png
+                  # Minimal posterization (2 levels = very graphic)
+                  airis edit adjust posterize art.png --levels 2 -o graphic.png
 
-              # Subtle posterization (8 levels)
-              airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
+                  # Subtle posterization (8 levels)
+                  airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
 
-              # Medium effect with PNG output
-              airis edit adjust posterize image.jpg --levels 6 -o medium.png
+                  # Medium effect with PNG output
+                  airis edit adjust posterize image.jpg --levels 6 -o medium.png
 
-            EFFECT:
-              - Reduces continuous color gradients to discrete bands
-              - Creates flat, graphic art appearance
-              - Similar to screen printing or pop art style
-              - Lower levels = Andy Warhol style effect
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                使用 CIColorPosterize 减少色阶数量，形成海报/波普风格的色调分离效果。
 
-            USE CASES:
-              - Creating pop art effects
-              - Retro/vintage poster designs
-              - Reducing color complexity for printing
-              - Artistic stylization
+                参数范围：
+                  levels: 2 ~ 30（默认：6；越小越夸张）
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                QUICK START:
+                  airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
+
+                EXAMPLES:
+                  airis edit adjust posterize art.png --levels 2 -o graphic.png
+                  airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Number of color levels per channel (2 to 30, default: 6)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Number of color levels per channel (2 to 30, default: 6)", cn: "每通道色阶数（2~30，默认：6）"))
     var levels: Double = 6.0
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

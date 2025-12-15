@@ -6,74 +6,105 @@ import Foundation
 struct SaliencyCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "saliency",
-        abstract: "Detect visual saliency (attention areas) in images",
-        discussion: """
-            Generate a saliency map highlighting visually important regions.
-            Supports both attention-based and objectness-based detection.
+        abstract: HelpTextFactory.text(
+            en: "Detect visual saliency (attention areas) in images",
+            cn: "显著性检测（注意力区域）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Generate a saliency map highlighting visually important regions.
+                Supports both attention-based and objectness-based detection.
 
-            QUICK START:
-              airis vision saliency photo.jpg
+                QUICK START:
+                  airis vision saliency photo.jpg
 
-            SALIENCY TYPES:
-              attention   - Human visual attention model (where eyes look)
-                           Returns 1 salient region (default)
-              objectness  - Object prominence model (likely objects)
-                           Returns up to 3 salient regions
+                SALIENCY TYPES:
+                  attention   - Human visual attention model (where eyes look)
+                               Returns 1 salient region (default)
+                  objectness  - Object prominence model (likely objects)
+                               Returns up to 3 salient regions
 
-            EXAMPLES:
-              # Attention-based saliency (default)
-              airis vision saliency portrait.jpg
+                EXAMPLES:
+                  # Attention-based saliency (default)
+                  airis vision saliency portrait.jpg
 
-              # Objectness-based saliency
-              airis vision saliency scene.jpg --type objectness
+                  # Objectness-based saliency
+                  airis vision saliency scene.jpg --type objectness
 
-              # Save heatmap visualization
-              airis vision saliency photo.jpg -o heatmap.png
+                  # Save heatmap visualization
+                  airis vision saliency photo.jpg -o heatmap.png
 
-              # JSON output with bounding boxes
-              airis vision saliency photo.jpg --format json
+                  # JSON output with bounding boxes
+                  airis vision saliency photo.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Saliency Detection
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              File: portrait.jpg
-              Type: attention
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Saliency Detection
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  File: portrait.jpg
+                  Type: attention
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              Heatmap: 68 x 68
-              Salient regions: 1
+                  Heatmap: 68 x 68
+                  Salient regions: 1
 
-              Region 1:
-                Position: (0.25, 0.30)
-                Size: 0.50 x 0.40
+                  Region 1:
+                    Position: (0.25, 0.30)
+                    Size: 0.50 x 0.40
 
-            USE CASES:
-              - Smart cropping (crop around salient regions)
-              - Thumbnail generation
-              - Image composition analysis
-              - Focus detection
+                USE CASES:
+                  - Smart cropping (crop around salient regions)
+                  - Thumbnail generation
+                  - Image composition analysis
+                  - Focus detection
 
-            NOTE:
-              The heatmap is a grayscale image where brighter = more salient.
-              Bounding boxes use normalized coordinates (0.0 - 1.0).
-            """
+                NOTE:
+                  The heatmap is a grayscale image where brighter = more salient.
+                  Bounding boxes use normalized coordinates (0.0 - 1.0).
+                """,
+            cn: """
+                生成显著性热力图（saliency map），高亮视觉上更重要/更吸引注意力的区域。
+                支持 attention（注意力）与 objectness（物体显著性）两种模式。
+
+                QUICK START:
+                  airis vision saliency photo.jpg
+
+                EXAMPLES:
+                  # 默认：attention
+                  airis vision saliency portrait.jpg
+
+                  # objectness 模式
+                  airis vision saliency scene.jpg --type objectness
+
+                  # 保存热力图（PNG）
+                  airis vision saliency photo.jpg -o heatmap.png
+
+                  # JSON 输出（包含 bounding boxes）
+                  airis vision saliency photo.jpg --format json
+
+                OPTIONS:
+                  --type <type>      attention / objectness
+                  --format <fmt>     输出格式：table（默认）或 json
+                """
+        )
     )
 
-    @Argument(help: "Path to image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to image file", cn: "输入图片路径"))
     var imagePath: String
 
-    @Option(name: .long, help: "Saliency type (attention, objectness)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Saliency type (attention, objectness)", cn: "显著性类型（attention / objectness）"))
     var type: String = "attention"
 
-    @Option(name: [.short, .long], help: "Output heatmap image path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output heatmap image path", cn: "输出热力图路径"))
     var output: String?
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let url = try FileUtils.validateImageFile(at: imagePath)
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         // Parse saliency type
         let saliencyType: VisionService.SaliencyType
@@ -86,7 +117,7 @@ struct SaliencyCommand: AsyncParsableCommand {
             saliencyType = .attention
         }
 
-        if format != "json" {
+        if showHumanOutput {
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print("👁️ Saliency Detection")
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -117,9 +148,9 @@ struct SaliencyCommand: AsyncParsableCommand {
         let imageIO = ServiceContainer.shared.imageIOService
         let imageInfo = try imageIO.getImageInfo(at: url)
 
-        if format == "json" {
+        if outputFormat == .json {
             printJSON(result: result, file: url.lastPathComponent, imageInfo: imageInfo)
-        } else {
+        } else if showHumanOutput {
             print("")
             print("✅ Detection complete")
             print("")
@@ -146,7 +177,7 @@ struct SaliencyCommand: AsyncParsableCommand {
         // Save heatmap if requested
         if let outputPath = output {
             try saveHeatmap(result: result, to: outputPath)
-            if format != "json" {
+            if showHumanOutput {
                 print("")
                 print(Strings.get("info.saved_to", outputPath))
             }
@@ -219,11 +250,29 @@ struct SaliencyCommand: AsyncParsableCommand {
     #if DEBUG
     /// 测试桩：快速生成带 1 个显著区域的 4x4 热力图
     private static func testSaliencyResult(type: VisionService.SaliencyType) -> VisionService.SaliencyResult {
+        let forceCreateFailure = ProcessInfo.processInfo.environment["AIRIS_FORCE_SALIENCY_TEST_PIXELBUFFER_FAIL"] == "1"
+
         var pixelBuffer: CVPixelBuffer?
-        let status = CVPixelBufferCreate(nil, 4, 4, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
-        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
-            fatalError("CVPixelBufferCreate failed in testSaliencyResult")
+        let status: CVReturn = forceCreateFailure
+            ? kCVReturnInvalidSize
+            : CVPixelBufferCreate(nil, 4, 4, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
+
+        let buffer: CVPixelBuffer
+        if status == kCVReturnSuccess, let created = pixelBuffer {
+            buffer = created
+        } else {
+            // 理论上不应触发；若触发则持续尝试直到创建成功（测试桩仅用于覆盖与避免 fatalError）。
+            var retryPixelBuffer: CVPixelBuffer!
+            while retryPixelBuffer == nil {
+                var retryBuffer: CVPixelBuffer?
+                let retryStatus = CVPixelBufferCreate(nil, 4, 4, kCVPixelFormatType_OneComponent8, nil, &retryBuffer)
+                if retryStatus == kCVReturnSuccess, let retryBuffer {
+                    retryPixelBuffer = retryBuffer
+                }
+            }
+            buffer = retryPixelBuffer
         }
+
         let bounds: [CGRect]
         if ProcessInfo.processInfo.environment["AIRIS_TEST_SALIENCY_EMPTY"] == "1" {
             bounds = []

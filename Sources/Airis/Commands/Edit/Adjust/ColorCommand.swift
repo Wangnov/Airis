@@ -5,63 +5,83 @@ import AppKit
 struct ColorCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "color",
-        abstract: "Adjust brightness, contrast, and saturation",
-        discussion: """
-            Fine-tune image colors with precise control using CIColorControls filter.
+        abstract: HelpTextFactory.text(
+            en: "Adjust brightness, contrast, and saturation",
+            cn: "调整亮度/对比度/饱和度"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Fine-tune image colors with precise control using CIColorControls filter.
 
-            PARAMETERS:
-              Brightness: -1.0 to 1.0 (0 = unchanged)
-              Contrast:   0.0 to 4.0 (1.0 = unchanged)
-              Saturation: 0.0 to 2.0 (1.0 = unchanged, 0 = grayscale)
+                PARAMETERS:
+                  Brightness: -1.0 to 1.0 (0 = unchanged)
+                  Contrast:   0.0 to 4.0 (1.0 = unchanged)
+                  Saturation: 0.0 to 2.0 (1.0 = unchanged, 0 = grayscale)
 
-            QUICK START:
-              airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
+                QUICK START:
+                  airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
 
-            EXAMPLES:
-              # Increase brightness
-              airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
+                EXAMPLES:
+                  # Increase brightness
+                  airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
 
-              # Boost contrast and saturation
-              airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
+                  # Boost contrast and saturation
+                  airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
 
-              # Desaturate (grayscale effect)
-              airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
+                  # Desaturate (grayscale effect)
+                  airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
 
-              # All parameters at once
-              airis edit adjust color dark.jpg \\
-                --brightness 0.3 --contrast 1.2 --saturation 1.1 -o enhanced.jpg
+                  # All parameters at once
+                  airis edit adjust color dark.jpg \\
+                    --brightness 0.3 --contrast 1.2 --saturation 1.1 -o enhanced.jpg
 
-              # Lower contrast for flat look
-              airis edit adjust color photo.jpg --contrast 0.7 -o flat.jpg
+                  # Lower contrast for flat look
+                  airis edit adjust color photo.jpg --contrast 0.7 -o flat.jpg
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                使用 CIColorControls 调整亮度/对比度/饱和度。
+
+                参数范围：
+                  brightness: -1.0 ~ 1.0（默认：0）
+                  contrast:   0.0 ~ 4.0（默认：1.0）
+                  saturation: 0.0 ~ 2.0（默认：1.0）
+
+                QUICK START:
+                  airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
+
+                EXAMPLES:
+                  airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
+                  airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Brightness adjustment (-1.0 to 1.0, default: 0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Brightness adjustment (-1.0 to 1.0, default: 0)", cn: "亮度（-1.0~1.0，默认：0）"))
     var brightness: Double = 0
 
-    @Option(name: .long, help: "Contrast adjustment (0.0 to 4.0, default: 1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Contrast adjustment (0.0 to 4.0, default: 1.0)", cn: "对比度（0.0~4.0，默认：1.0）"))
     var contrast: Double = 1.0
 
-    @Option(name: .long, help: "Saturation adjustment (0.0 to 2.0, default: 1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Saturation adjustment (0.0 to 2.0, default: 1.0)", cn: "饱和度（0.0~2.0，默认：1.0）"))
     var saturation: Double = 1.0
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

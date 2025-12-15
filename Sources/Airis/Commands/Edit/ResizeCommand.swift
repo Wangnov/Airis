@@ -3,71 +3,111 @@ import Foundation
 import AppKit
 
 struct ResizeCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "resize",
-        abstract: "Resize images with high-quality scaling",
-        discussion: """
-            Resize images using Lanczos algorithm for high-quality results.
-            Supports maintaining aspect ratio automatically.
+        abstract: HelpTextFactory.text(
+            en: "Resize images with high-quality scaling",
+            cn: "高质量缩放图片尺寸"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Resize images using Lanczos algorithm for high-quality results.
+                Supports maintaining aspect ratio automatically.
 
-            QUICK START:
-              airis edit resize photo.jpg --width 1920 -o resized.jpg
+                QUICK START:
+                  airis edit resize photo.jpg --width 1920 -o resized.jpg
 
-            SIZING OPTIONS:
-              --width <px>      Target width in pixels
-              --height <px>     Target height in pixels
-              --scale <factor>  Scale factor (e.g., 0.5 for half size)
+                SIZING OPTIONS:
+                  --width <px>      Target width in pixels
+                  --height <px>     Target height in pixels
+                  --scale <factor>  Scale factor (e.g., 0.5 for half size)
 
-              If only width OR height is specified, aspect ratio is maintained.
-              If both are specified, use --stretch to ignore aspect ratio.
+                  If only width OR height is specified, aspect ratio is maintained.
+                  If both are specified, use --stretch to ignore aspect ratio.
 
-            EXAMPLES:
-              # Resize to specific width (maintain aspect ratio)
-              airis edit resize photo.jpg --width 1920 -o photo_1080p.jpg
+                EXAMPLES:
+                  # Resize to specific width (maintain aspect ratio)
+                  airis edit resize photo.jpg --width 1920 -o photo_1080p.jpg
 
-              # Resize to specific height
-              airis edit resize photo.jpg --height 1080 -o photo_1080h.jpg
+                  # Resize to specific height
+                  airis edit resize photo.jpg --height 1080 -o photo_1080h.jpg
 
-              # Resize to exact dimensions (may distort)
-              airis edit resize photo.jpg --width 800 --height 600 --stretch -o thumb.jpg
+                  # Resize to exact dimensions (may distort)
+                  airis edit resize photo.jpg --width 800 --height 600 --stretch -o thumb.jpg
 
-              # Scale by factor
-              airis edit resize photo.jpg --scale 0.5 -o photo_half.jpg
+                  # Scale by factor
+                  airis edit resize photo.jpg --scale 0.5 -o photo_half.jpg
 
-              # High quality HEIC output
-              airis edit resize large.png --width 2000 -o optimized.heic --quality 0.9
+                  # High quality HEIC output
+                  airis edit resize large.png --width 2000 -o optimized.heic --quality 0.9
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                使用 Lanczos 算法进行高质量缩放，并支持自动保持宽高比。
+
+                QUICK START:
+                  airis edit resize photo.jpg --width 1920 -o resized.jpg
+
+                尺寸参数：
+                  --width <px>      目标宽度（像素）
+                  --height <px>     目标高度（像素）
+                  --scale <factor>  缩放倍率（例如 0.5 表示缩小为一半）
+
+                  只指定 width 或 height 时会自动保持宽高比。
+                  同时指定 width+height 时，需要配合 --stretch 才会忽略宽高比。
+
+                EXAMPLES:
+                  # 仅指定宽度（保持宽高比）
+                  airis edit resize photo.jpg --width 1920 -o photo_1080p.jpg
+
+                  # 仅指定高度
+                  airis edit resize photo.jpg --height 1080 -o photo_1080h.jpg
+
+                  # 指定精确尺寸（可能拉伸变形）
+                  airis edit resize photo.jpg --width 800 --height 600 --stretch -o thumb.jpg
+
+                  # 按倍率缩放
+                  airis edit resize photo.jpg --scale 0.5 -o photo_half.jpg
+
+                  # 高质量 HEIC 输出
+                  airis edit resize large.png --width 2000 -o optimized.heic --quality 0.9
+
+                OUTPUT:
+                  支持 PNG/JPEG/HEIC/TIFF 输出格式，格式由输出文件后缀决定。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Target width in pixels")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Target width in pixels", cn: "目标宽度（像素）"))
     var width: Int?
 
-    @Option(name: .long, help: "Target height in pixels")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Target height in pixels", cn: "目标高度（像素）"))
     var height: Int?
 
-    @Option(name: .long, help: "Scale factor (e.g., 0.5 for half size)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Scale factor (e.g., 0.5 for half size)", cn: "缩放倍率（例如 0.5 表示缩小为一半）"))
     var scale: Double?
 
-    @Flag(name: .long, help: "Stretch to exact dimensions (ignore aspect ratio)")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Stretch to exact dimensions (ignore aspect ratio)", cn: "拉伸到精确尺寸（忽略宽高比）"))
     var stretch: Bool = false
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

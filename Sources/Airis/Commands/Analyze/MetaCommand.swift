@@ -4,118 +4,174 @@ import Foundation
 import UniformTypeIdentifiers
 
 struct MetaCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "meta",
-        abstract: "Read and write image EXIF metadata",
-        discussion: """
-            Read, display, and modify EXIF metadata in image files.
-            Supports reading all standard metadata and writing common fields.
+        abstract: HelpTextFactory.text(
+            en: "Read and write image EXIF metadata",
+            cn: "读取与写入图片 EXIF 元数据"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Read, display, and modify EXIF metadata in image files.
+                Supports reading all standard metadata and writing common fields.
 
-            QUICK START:
-              airis analyze meta photo.jpg
+                QUICK START:
+                  airis analyze meta photo.jpg
 
-            EXAMPLES:
-              # Read all metadata
-              airis analyze meta photo.jpg
+                EXAMPLES:
+                  # Read all metadata
+                  airis analyze meta photo.jpg
 
-              # Read specific category
-              airis analyze meta photo.jpg --category exif
-              airis analyze meta photo.jpg --category gps
+                  # Read specific category
+                  airis analyze meta photo.jpg --category exif
+                  airis analyze meta photo.jpg --category gps
 
-              # JSON output for scripting
-              airis analyze meta image.png --format json
+                  # JSON output for scripting
+                  airis analyze meta image.png --format json
 
-              # Write user comment (creates copy)
-              airis analyze meta photo.jpg --set-comment "My vacation photo"
+                  # Write user comment (creates copy)
+                  airis analyze meta photo.jpg --set-comment "My vacation photo"
 
-              # Write to specific output file
-              airis analyze meta photo.jpg --set-comment "Note" -o photo_new.jpg
+                  # Write to specific output file
+                  airis analyze meta photo.jpg --set-comment "Note" -o photo_new.jpg
 
-              # Clear GPS data (privacy)
-              airis analyze meta photo.jpg --clear-gps -o photo_clean.jpg
+                  # Clear GPS data (privacy)
+                  airis analyze meta photo.jpg --clear-gps -o photo_clean.jpg
 
-            OUTPUT FORMAT (table):
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📋 EXIF 元数据
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 文件: photo.jpg
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📋 EXIF 元数据
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 文件: photo.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              [EXIF]
-                拍摄日期: 2024-01-15 14:30:00
-                相机: iPhone 15 Pro
-                光圈: f/1.8
-                快门: 1/120s
-                ISO: 100
+                  [EXIF]
+                    拍摄日期: 2024-01-15 14:30:00
+                    相机: iPhone 15 Pro
+                    光圈: f/1.8
+                    快门: 1/120s
+                    ISO: 100
 
-              [GPS]
-                纬度: 31.2304° N
-                经度: 121.4737° E
-                海拔: 4m
+                  [GPS]
+                    纬度: 31.2304° N
+                    经度: 121.4737° E
+                    海拔: 4m
 
-            CATEGORIES:
-              all   - All metadata (default)
-              exif  - EXIF data (camera, exposure, date)
-              gps   - GPS location data
-              tiff  - TIFF tags (make, model, software)
-              iptc  - IPTC data (title, keywords, copyright)
+                CATEGORIES:
+                  all   - All metadata (default)
+                  exif  - EXIF data (camera, exposure, date)
+                  gps   - GPS location data
+                  tiff  - TIFF tags (make, model, software)
+                  iptc  - IPTC data (title, keywords, copyright)
 
-            SUPPORTED WRITE OPERATIONS:
-              --set-comment    Add/modify user comment
-              --clear-gps      Remove GPS location data
-              --clear-all      Remove all editable metadata
+                SUPPORTED WRITE OPERATIONS:
+                  --set-comment    Add/modify user comment
+                  --clear-gps      Remove GPS location data
+                  --clear-all      Remove all editable metadata
 
-            NOTES:
-              - Write operations create a new file (original unchanged)
-              - Some metadata is read-only (embedded by camera)
-              - JPEG supports most metadata; PNG has limited support
-            """
+                NOTES:
+                  - Write operations create a new file (original unchanged)
+                  - Some metadata is read-only (embedded by camera)
+                  - JPEG supports most metadata; PNG has limited support
+                """,
+            cn: """
+                读取、展示并修改图片中的 EXIF/GPS/TIFF/IPTC 元数据。
+
+                QUICK START:
+                  airis analyze meta photo.jpg
+
+                EXAMPLES:
+                  # 读取全部元数据
+                  airis analyze meta photo.jpg
+
+                  # 读取指定分类
+                  airis analyze meta photo.jpg --category exif
+                  airis analyze meta photo.jpg --category gps
+
+                  # JSON 输出（便于脚本解析）
+                  airis analyze meta image.png --format json
+
+                  # 写入用户注释（会创建新文件）
+                  airis analyze meta photo.jpg --set-comment "My vacation photo"
+                  airis analyze meta photo.jpg --set-comment "Note" -o photo_new.jpg
+
+                  # 清除 GPS（隐私）
+                  airis analyze meta photo.jpg --clear-gps -o photo_clean.jpg
+
+                CATEGORIES:
+                  all   - 全部（默认）
+                  exif  - EXIF（相机/曝光/日期等）
+                  gps   - GPS（位置）
+                  tiff  - TIFF（厂商/型号/软件等）
+                  iptc  - IPTC（标题/关键词/版权等）
+
+                写入操作（会创建新文件，原文件不变）：
+                  --set-comment    设置/修改用户注释
+                  --clear-gps      清除 GPS 信息
+                  --clear-all      清除全部可编辑元数据
+
+                说明：
+                  - 部分元数据为只读（相机写入）
+                  - JPEG 支持较完整；PNG 支持有限
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
     var imagePath: String
 
-    @Option(name: .long, help: "Metadata category: all (default), exif, gps, tiff, iptc")
+    @Option(
+        name: .long,
+        help: HelpTextFactory.help(
+            en: "Metadata category: all (default), exif, gps, tiff, iptc",
+            cn: "元数据分类：all（默认）、exif、gps、tiff、iptc"
+        )
+    )
     var category: String = "all"
 
-    @Option(name: .long, help: "Output format: table (default), json")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format: table (default), json", cn: "输出格式：table（默认）或 json"))
     var format: String = "table"
 
-    @Option(name: .long, help: "Set user comment")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Set user comment", cn: "设置用户注释（UserComment）"))
     var setComment: String?
 
-    @Flag(name: .long, help: "Clear GPS location data")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Clear GPS location data", cn: "清除 GPS 位置信息"))
     var clearGps: Bool = false
 
-    @Flag(name: .long, help: "Clear all editable metadata")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Clear all editable metadata", cn: "清除全部可编辑元数据"))
     var clearAll: Bool = false
 
-    @Option(name: .shortAndLong, help: "Output file path (for write operations)")
+    @Option(name: .shortAndLong, help: HelpTextFactory.help(en: "Output file path (for write operations)", cn: "输出文件路径（用于写入操作）"))
     var output: String?
 
     func run() async throws {
         let url = try FileUtils.validateImageFile(at: imagePath)
         let isTestMode = ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1"
 
-        // 显示参数总览
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📋 EXIF 元数据")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📁 文件: \(url.lastPathComponent)")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("")
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
+
+        AirisOutput.printBanner([
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "📋 EXIF 元数据",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "📁 文件: \(url.lastPathComponent)",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        ], enabled: showHumanOutput)
 
         // 判断是读取还是写入操作
         if setComment != nil || clearGps || clearAll {
-            try writeMetadata(url: url)
+            try writeMetadata(url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
         } else {
-            try readMetadata(url: url, isTestMode: isTestMode)
+            try readMetadata(url: url, isTestMode: isTestMode, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
         }
     }
 
     // MARK: - 读取元数据
 
-    private func readMetadata(url: URL, isTestMode: Bool) throws {
+    private func readMetadata(url: URL, isTestMode: Bool, outputFormat: OutputFormat, showHumanOutput: Bool) throws {
         let properties: [String: Any]
         if isTestMode {
             let useAltBranches = ProcessInfo.processInfo.environment["AIRIS_TEST_META_ALT_BRANCH"] == "1"
@@ -177,9 +233,9 @@ struct MetaCommand: AsyncParsableCommand {
             finalProperties = properties
         }
 
-        if format.lowercased() == "json" {
+        if outputFormat == .json {
             printMetadataJSON(properties: finalProperties)
-        } else {
+        } else if showHumanOutput {
             printMetadataTable(properties: finalProperties)
         }
     }
@@ -396,7 +452,7 @@ struct MetaCommand: AsyncParsableCommand {
 
     // MARK: - 写入元数据
 
-    private func writeMetadata(url: URL) throws {
+    private func writeMetadata(url: URL, outputFormat: OutputFormat, showHumanOutput: Bool) throws {
         // 确定输出路径
         let outputPath = output ?? FileUtils.generateOutputPath(
             from: url.path,
@@ -418,35 +474,45 @@ struct MetaCommand: AsyncParsableCommand {
         }
 
         // 修改元数据
+        var operation: String = "none"
         if clearAll {
             // 清除所有可编辑的元数据
             properties.removeValue(forKey: kCGImagePropertyExifDictionary as String)
             properties.removeValue(forKey: kCGImagePropertyGPSDictionary as String)
             properties.removeValue(forKey: kCGImagePropertyIPTCDictionary as String)
-            print("✅ 已清除所有元数据")
+            operation = "clear_all"
+            if showHumanOutput {
+                print("✅ 已清除所有元数据")
+            }
         } else {
             if clearGps {
                 properties.removeValue(forKey: kCGImagePropertyGPSDictionary as String)
-                print("✅ 已清除 GPS 数据")
+                operation = "clear_gps"
+                if showHumanOutput {
+                    print("✅ 已清除 GPS 数据")
+                }
             }
 
             if let comment = setComment {
                 var exifDict = properties[kCGImagePropertyExifDictionary as String] as? [String: Any] ?? [:]
                 exifDict[kCGImagePropertyExifUserComment as String] = comment
                 properties[kCGImagePropertyExifDictionary as String] = exifDict
-                print("✅ 已设置用户注释: \(comment)")
+                operation = "set_comment"
+                if showHumanOutput {
+                    print("✅ 已设置用户注释: \(comment)")
+                }
             }
         }
 
         // 确定输出格式
-        let format = getImageFormat(for: url)
+        let uti = getImageFormat(for: url)
 
         // 创建目标
         let forceDestFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_META_DEST_FAIL"] == "1"
         guard !forceDestFail,
               let destination = CGImageDestinationCreateWithURL(
                   outputURL as CFURL,
-                  format,
+                  uti,
                   1,
                   nil
               ) else {
@@ -463,8 +529,21 @@ struct MetaCommand: AsyncParsableCommand {
             throw AirisError.imageEncodeFailed
         }
 
-        print("")
-        print(Strings.get("info.saved_to", outputPath))
+        if outputFormat == .json {
+            let payload: [String: Any] = [
+                "file": url.lastPathComponent,
+                "operation": operation,
+                "output": outputPath,
+                "success": true
+            ]
+            if let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                print(jsonString)
+            }
+        } else if showHumanOutput {
+            print("")
+            print(Strings.get("info.saved_to", outputPath))
+        }
     }
 
     /// 获取图像格式 UTI

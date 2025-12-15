@@ -10,7 +10,8 @@ extension NSWorkspace {
     static func openForCLI(
         _ url: URL,
         allowInTests: Bool = false,
-        opener: (URL) -> Bool = { NSWorkspace.shared.open($0) }
+        isXCTestRuntime: Bool = NSClassFromString("XCTestCase") != nil,
+        opener: (URL) -> Bool = NSWorkspace.shared.open
     ) -> Bool {
         if !allowInTests {
             // 在 CI/无头环境下跳过实际打开，避免 GUI 依赖。
@@ -20,7 +21,7 @@ extension NSWorkspace {
 
             // 显式测试模式：跳过打开（也用于命令层覆盖测试）。
             if ProcessInfo.processInfo.environment["AIRIS_TEST_MODE"] == "1" {
-                print("(test mode: skip open \(url.lastPathComponent))")
+                AirisLog.debug("(test mode: skip open \(url.lastPathComponent))")
                 return true
             }
 
@@ -30,7 +31,7 @@ extension NSWorkspace {
             }
 
             // 在跑单元测试时，无论环境变量是否被其它并发用例临时 unset，都必须跳过 GUI 副作用。
-            if NSClassFromString("XCTestCase") != nil {
+            if isXCTestRuntime {
                 return true
             }
         }

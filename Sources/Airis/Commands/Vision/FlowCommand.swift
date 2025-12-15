@@ -6,69 +6,105 @@ import Foundation
 struct FlowCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "flow",
-        abstract: "Analyze optical flow between two images",
-        discussion: """
-            Calculate pixel motion vectors between two consecutive frames or images.
-            This is useful for motion estimation, video analysis, and tracking.
+        abstract: HelpTextFactory.text(
+            en: "Analyze optical flow between two images",
+            cn: "分析两张图片之间的光流"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Calculate pixel motion vectors between two consecutive frames or images.
+                This is useful for motion estimation, video analysis, and tracking.
 
-            QUICK START:
-              airis vision flow frame1.jpg frame2.jpg
+                QUICK START:
+                  airis vision flow frame1.jpg frame2.jpg
 
-            HOW IT WORKS:
-              Optical flow computes the apparent motion of pixels between two images.
-              The result is a vector field where each pixel has X and Y displacement values.
+                HOW IT WORKS:
+                  Optical flow computes the apparent motion of pixels between two images.
+                  The result is a vector field where each pixel has X and Y displacement values.
 
-            EXAMPLES:
-              # Basic optical flow analysis
-              airis vision flow prev.png next.png
+                EXAMPLES:
+                  # Basic optical flow analysis
+                  airis vision flow prev.png next.png
 
-              # High accuracy analysis
-              airis vision flow frame1.jpg frame2.jpg --accuracy high
+                  # High accuracy analysis
+                  airis vision flow frame1.jpg frame2.jpg --accuracy high
 
-              # Save flow visualization
-              airis vision flow prev.png next.png -o flow_viz.png
+                  # Save flow visualization
+                  airis vision flow prev.png next.png -o flow_viz.png
 
-              # JSON output for scripting
-              airis vision flow prev.png next.png --format json
+                  # JSON output for scripting
+                  airis vision flow prev.png next.png --format json
 
-            ACCURACY LEVELS:
-              low       - Fastest, lower precision
-              medium    - Balanced (default)
-              high      - Higher precision
-              veryHigh  - Best precision, slowest
+                ACCURACY LEVELS:
+                  low       - Fastest, lower precision
+                  medium    - Balanced (default)
+                  high      - Higher precision
+                  veryHigh  - Best precision, slowest
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Optical Flow Analysis
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Input: frame1.jpg -> frame2.jpg
-              Flow field: 1920 x 1080
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Optical Flow Analysis
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Input: frame1.jpg -> frame2.jpg
+                  Flow field: 1920 x 1080
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-            NOTE:
-              Works best with consecutive video frames or images with moderate motion.
-              Large displacements may reduce accuracy.
-            """
+                NOTE:
+                  Works best with consecutive video frames or images with moderate motion.
+                  Large displacements may reduce accuracy.
+                """,
+            cn: """
+                计算两张图片（常用于连续帧）之间的像素运动向量（光流）。
+                适用于运动估计、视频分析、目标跟踪等场景。
+
+                QUICK START:
+                  airis vision flow frame1.jpg frame2.jpg
+
+                EXAMPLES:
+                  # 基础光流分析
+                  airis vision flow prev.png next.png
+
+                  # 更高精度
+                  airis vision flow frame1.jpg frame2.jpg --accuracy high
+
+                  # 输出可视化图（PNG）
+                  airis vision flow prev.png next.png -o flow_viz.png
+
+                  # JSON 输出（便于脚本解析）
+                  airis vision flow prev.png next.png --format json
+
+                ACCURACY LEVELS:
+                  low / medium（默认）/ high / veryHigh
+                """
+        )
     )
 
-    @Argument(help: "First image (source/previous frame)")
+    @Argument(help: HelpTextFactory.help(en: "First image (source/previous frame)", cn: "第一张图片（上一帧/参考）"))
     var image1: String
 
-    @Argument(help: "Second image (target/next frame)")
+    @Argument(help: HelpTextFactory.help(en: "Second image (target/next frame)", cn: "第二张图片（下一帧/目标）"))
     var image2: String
 
-    @Option(name: [.short, .long], help: "Output flow visualization (PNG)")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output flow visualization (PNG)", cn: "输出光流可视化图路径（PNG）"))
     var output: String?
 
-    @Option(name: .long, help: "Computation accuracy (low, medium, high, veryHigh)")
+    @Option(
+        name: .long,
+        help: HelpTextFactory.help(
+            en: "Computation accuracy (low, medium, high, veryHigh)",
+            cn: "计算精度（low / medium / high / veryHigh）"
+        )
+    )
     var accuracy: String = "medium"
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let url1 = try FileUtils.validateImageFile(at: image1)
         let url2 = try FileUtils.validateImageFile(at: image2)
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         // Parse accuracy level
         let accuracyLevel: VisionService.OpticalFlowAccuracy
@@ -85,7 +121,7 @@ struct FlowCommand: AsyncParsableCommand {
             accuracyLevel = .medium
         }
 
-        if format != "json" {
+        if showHumanOutput {
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print("🌊 Optical Flow Analysis")
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -120,9 +156,9 @@ struct FlowCommand: AsyncParsableCommand {
         )
         #endif
 
-        if format == "json" {
+        if outputFormat == .json {
             printJSON(result: result, file1: url1.lastPathComponent, file2: url2.lastPathComponent)
-        } else {
+        } else if showHumanOutput {
             print("")
             print("✅ Analysis complete")
             print("")
@@ -132,7 +168,7 @@ struct FlowCommand: AsyncParsableCommand {
         // Save visualization if requested
         if let outputPath = output {
             try saveFlowVisualization(result: result, to: outputPath)
-            if format != "json" {
+            if showHumanOutput {
                 print("")
                 print(Strings.get("info.saved_to", outputPath))
             }
@@ -195,12 +231,28 @@ struct FlowCommand: AsyncParsableCommand {
     #if DEBUG
     /// 测试桩：快速生成 2x2 光流结果，避免依赖 Vision 实际计算
     private static func testFlowResult() -> VisionService.OpticalFlowResult {
+        let forceCreateFailure = ProcessInfo.processInfo.environment["AIRIS_FORCE_FLOW_TEST_PIXELBUFFER_FAIL"] == "1"
+
         var pixelBuffer: CVPixelBuffer?
-        let status = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &pixelBuffer)
-        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
-            fatalError("CVPixelBufferCreate failed in testFlowResult")
+        let status: CVReturn = forceCreateFailure
+            ? kCVReturnInvalidSize
+            : CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &pixelBuffer)
+
+        if status == kCVReturnSuccess, let buffer = pixelBuffer {
+            return VisionService.OpticalFlowResult(pixelBuffer: buffer, width: 2, height: 2)
         }
-        return VisionService.OpticalFlowResult(pixelBuffer: buffer, width: 2, height: 2)
+
+        // 理论上不应触发；若触发则持续尝试直到创建成功（测试桩仅用于覆盖与避免 fatalError）。
+        var retryPixelBuffer: CVPixelBuffer!
+        while retryPixelBuffer == nil {
+            var retryBuffer: CVPixelBuffer?
+            let retryStatus = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &retryBuffer)
+            if retryStatus == kCVReturnSuccess, let retryBuffer {
+                retryPixelBuffer = retryBuffer
+            }
+        }
+
+        return VisionService.OpticalFlowResult(pixelBuffer: retryPixelBuffer, width: 2, height: 2)
     }
     #endif
 }

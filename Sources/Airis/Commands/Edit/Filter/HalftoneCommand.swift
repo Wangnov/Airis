@@ -5,62 +5,80 @@ import AppKit
 struct HalftoneCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "halftone",
-        abstract: "Apply halftone printing effect",
-        discussion: """
-            Apply halftone (dot screen) effect to images using CoreImage.
+        abstract: HelpTextFactory.text(
+            en: "Apply halftone printing effect",
+            cn: "网点印刷（Halftone）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply halftone (dot screen) effect to images using CoreImage.
 
-            Creates a retro print/newspaper style with dot patterns.
-            Simulates the look of traditional offset printing.
+                Creates a retro print/newspaper style with dot patterns.
+                Simulates the look of traditional offset printing.
 
-            PARAMETERS:
-              --width:     Dot spacing (1-50, default: 6)
-                           Smaller = finer detail, larger = more obvious dots
-              --angle:     Dot pattern angle in degrees (0-360, default: 0)
-              --sharpness: Edge sharpness of dots (0-1, default: 0.7)
+                PARAMETERS:
+                  --width:     Dot spacing (1-50, default: 6)
+                               Smaller = finer detail, larger = more obvious dots
+                  --angle:     Dot pattern angle in degrees (0-360, default: 0)
+                  --sharpness: Edge sharpness of dots (0-1, default: 0.7)
 
-            QUICK START:
-              airis edit filter halftone photo.jpg -o halftone.png
+                QUICK START:
+                  airis edit filter halftone photo.jpg -o halftone.png
 
-            EXAMPLES:
-              # Default halftone effect
-              airis edit filter halftone photo.jpg -o halftone.png
+                EXAMPLES:
+                  # Default halftone effect
+                  airis edit filter halftone photo.jpg -o halftone.png
 
-              # Newspaper style (larger dots)
-              airis edit filter halftone photo.jpg --width 12 -o newspaper.png
+                  # Newspaper style (larger dots)
+                  airis edit filter halftone photo.jpg --width 12 -o newspaper.png
 
-              # Fine halftone
-              airis edit filter halftone photo.jpg --width 3 -o fine.png
+                  # Fine halftone
+                  airis edit filter halftone photo.jpg --width 3 -o fine.png
 
-              # Angled halftone pattern
-              airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
+                  # Angled halftone pattern
+                  airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
 
-              # Soft halftone (less sharp dots)
-              airis edit filter halftone photo.jpg --sharpness 0.3 -o soft.png
+                  # Soft halftone (less sharp dots)
+                  airis edit filter halftone photo.jpg --sharpness 0.3 -o soft.png
 
-            OUTPUT:
-              Halftone-styled image in the specified format
-            """
+                OUTPUT:
+                  Halftone-styled image in the specified format
+                """,
+            cn: """
+                使用 Core Image 生成网点印刷/报纸风格效果。
+
+                QUICK START:
+                  airis edit filter halftone photo.jpg -o halftone.png
+
+                EXAMPLES:
+                  # 更粗网点（更像报纸）
+                  airis edit filter halftone photo.jpg --width 12 -o newspaper.png
+
+                  # 旋转网点角度
+                  airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Dot spacing (1-50, default: 6)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Dot spacing (1-50, default: 6)", cn: "网点间距（1-50，默认：6）"))
     var width: Double = 6
 
-    @Option(name: .long, help: "Pattern angle in degrees (0-360, default: 0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Pattern angle in degrees (0-360, default: 0)", cn: "网点角度（0-360，默认：0）"))
     var angle: Double = 0
 
-    @Option(name: .long, help: "Dot sharpness (0-1, default: 0.7)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Dot sharpness (0-1, default: 0.7)", cn: "网点锐度（0-1，默认：0.7）"))
     var sharpness: Double = 0.7
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

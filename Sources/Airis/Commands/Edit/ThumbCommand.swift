@@ -4,60 +4,100 @@ import AppKit
 import ImageIO
 
 struct ThumbCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "thumb",
-        abstract: "Generate thumbnails from images",
-        discussion: """
-            Create optimized thumbnails with automatic aspect ratio preservation.
-            Uses efficient ImageIO downsampling for best performance.
+        abstract: HelpTextFactory.text(
+            en: "Generate thumbnails from images",
+            cn: "生成图片缩略图"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Create optimized thumbnails with automatic aspect ratio preservation.
+                Uses efficient ImageIO downsampling for best performance.
 
-            QUICK START:
-              airis edit thumb photo.jpg --size 256 -o thumb.jpg
+                QUICK START:
+                  airis edit thumb photo.jpg --size 256 -o thumb.jpg
 
-            EXAMPLES:
-              # Generate 256px thumbnail
-              airis edit thumb photo.jpg --size 256 -o thumb.jpg
+                EXAMPLES:
+                  # Generate 256px thumbnail
+                  airis edit thumb photo.jpg --size 256 -o thumb.jpg
 
-              # Generate larger preview (512px)
-              airis edit thumb image.png --size 512 -o preview.png
+                  # Generate larger preview (512px)
+                  airis edit thumb image.png --size 512 -o preview.png
 
-              # Generate small icon (64px)
-              airis edit thumb logo.png --size 64 -o icon.png
+                  # Generate small icon (64px)
+                  airis edit thumb logo.png --size 64 -o icon.png
 
-              # With custom quality (for JPEG output)
-              airis edit thumb photo.jpg --size 200 --quality 0.8 -o thumb.jpg
+                  # With custom quality (for JPEG output)
+                  airis edit thumb photo.jpg --size 200 --quality 0.8 -o thumb.jpg
 
-            PARAMETERS:
-              --size: Maximum dimension in pixels (default: 256)
-                      Both width and height will fit within this size
-              --quality: JPEG quality 0.0-1.0 (default: 0.85)
+                PARAMETERS:
+                  --size: Maximum dimension in pixels (default: 256)
+                          Both width and height will fit within this size
+                  --quality: JPEG quality 0.0-1.0 (default: 0.85)
 
-            OUTPUT:
-              Thumbnail image maintaining original aspect ratio
+                OUTPUT:
+                  Thumbnail image maintaining original aspect ratio
 
-            NOTE:
-              - Aspect ratio is always preserved
-              - EXIF orientation is automatically applied
-              - Works efficiently even with very large source images
-            """
+                NOTE:
+                  - Aspect ratio is always preserved
+                  - EXIF orientation is automatically applied
+                  - Works efficiently even with very large source images
+                """,
+            cn: """
+                生成缩略图并自动保持宽高比。
+                通过 ImageIO Downsampling 高效处理大图，速度更快、内存占用更低。
+
+                QUICK START:
+                  airis edit thumb photo.jpg --size 256 -o thumb.jpg
+
+                EXAMPLES:
+                  # 256px 缩略图
+                  airis edit thumb photo.jpg --size 256 -o thumb.jpg
+
+                  # 512px 预览图
+                  airis edit thumb image.png --size 512 -o preview.png
+
+                  # 64px 图标
+                  airis edit thumb logo.png --size 64 -o icon.png
+
+                  # JPEG 自定义质量
+                  airis edit thumb photo.jpg --size 200 --quality 0.8 -o thumb.jpg
+
+                PARAMETERS:
+                  --size: 最大边长（像素，默认：256）
+                          输出宽高都会限制在该范围内
+                  --quality: JPEG 输出质量 0.0-1.0（默认：0.85）
+
+                OUTPUT:
+                  输出为保持原始宽高比的缩略图
+
+                NOTE:
+                  - 永远保持宽高比
+                  - 自动应用 EXIF 方向
+                  - 即使源图很大也能高效处理
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Maximum dimension in pixels (default: 256)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Maximum dimension in pixels (default: 256)", cn: "最大边长（像素，默认：256）"))
     var size: Int = 256
 
-    @Option(name: .long, help: "JPEG quality 0.0-1.0 (default: 0.85)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "JPEG quality 0.0-1.0 (default: 0.85)", cn: "JPEG 输出质量 0.0-1.0（默认：0.85）"))
     var quality: Float = 0.85
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

@@ -3,80 +3,114 @@ import ArgumentParser
 import Foundation
 
 struct PoseCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "pose",
-        abstract: "Detect human body pose (2D, 19 keypoints)",
-        discussion: """
-            Detect human body poses in images using Apple's Vision framework.
-            Returns 19 body keypoints with normalized coordinates and confidence.
+        abstract: HelpTextFactory.text(
+            en: "Detect human body pose (2D, 19 keypoints)",
+            cn: "检测人体 2D 姿态（19 个关键点）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect human body poses in images using Apple's Vision framework.
+                Returns 19 body keypoints with normalized coordinates and confidence.
 
-            QUICK START:
-              airis detect pose photo.jpg
+                QUICK START:
+                  airis detect pose photo.jpg
 
-            KEYPOINTS (19 total):
-              HEAD:  nose, leftEye, rightEye, leftEar, rightEar, neck
-              ARMS:  leftShoulder, leftElbow, leftWrist
-                     rightShoulder, rightElbow, rightWrist
-              TORSO: root (waist center)
-              LEGS:  leftHip, leftKnee, leftAnkle
-                     rightHip, rightKnee, rightAnkle
+                KEYPOINTS (19 total):
+                  HEAD:  nose, leftEye, rightEye, leftEar, rightEar, neck
+                  ARMS:  leftShoulder, leftElbow, leftWrist
+                         rightShoulder, rightElbow, rightWrist
+                  TORSO: root (waist center)
+                  LEGS:  leftHip, leftKnee, leftAnkle
+                         rightHip, rightKnee, rightAnkle
 
-            COORDINATE SYSTEM:
-              • Normalized coordinates (0.0 - 1.0)
-              • Origin at bottom-left corner
-              • Use --pixels to convert to pixel coordinates
+                COORDINATE SYSTEM:
+                  • Normalized coordinates (0.0 - 1.0)
+                  • Origin at bottom-left corner
+                  • Use --pixels to convert to pixel coordinates
 
-            EXAMPLES:
-              # Basic pose detection
-              airis detect pose yoga.jpg
+                EXAMPLES:
+                  # Basic pose detection
+                  airis detect pose yoga.jpg
 
-              # Show pixel coordinates
-              airis detect pose dance.png --pixels
+                  # Show pixel coordinates
+                  airis detect pose dance.png --pixels
 
-              # Filter by confidence threshold
-              airis detect pose action.jpg --threshold 0.5
+                  # Filter by confidence threshold
+                  airis detect pose action.jpg --threshold 0.5
 
-              # JSON output for scripting
-              airis detect pose sport.jpg --format json
+                  # JSON output for scripting
+                  airis detect pose sport.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              🤸 Human Body Pose Detection (2D)
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 File: yoga.jpg
-              🎯 Threshold: 0.30
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🤸 Human Body Pose Detection (2D)
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 File: yoga.jpg
+                  🎯 Threshold: 0.30
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              Detected 1 person(s)
+                  Detected 1 person(s)
 
-              [1] Person
-                  Keypoints (19):
-                    nose:          (0.52, 0.85) - conf: 0.95
-                    leftShoulder:  (0.45, 0.72) - conf: 0.92
-                    rightShoulder: (0.59, 0.71) - conf: 0.93
-                    ...
+                  [1] Person
+                      Keypoints (19):
+                        nose:          (0.52, 0.85) - conf: 0.95
+                        leftShoulder:  (0.45, 0.72) - conf: 0.92
+                        rightShoulder: (0.59, 0.71) - conf: 0.93
+                        ...
 
-            OPTIONS:
-              --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.3)
-              --pixels           Show pixel coordinates instead of normalized
-              --format <fmt>     Output format: table (default), json
-            """
+                OPTIONS:
+                  --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.3)
+                  --pixels           Show pixel coordinates instead of normalized
+                  --format <fmt>     Output format: table (default), json
+                """,
+            cn: """
+                使用 Apple Vision 框架检测人体 2D 姿态（19 个关键点）。
+                默认输出归一化坐标（0.0-1.0），可用 --pixels 输出像素坐标。
+
+                QUICK START:
+                  airis detect pose photo.jpg
+
+                EXAMPLES:
+                  # 基础检测
+                  airis detect pose yoga.jpg
+
+                  # 输出像素坐标
+                  airis detect pose dance.png --pixels
+
+                  # 置信度阈值过滤
+                  airis detect pose action.jpg --threshold 0.5
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect pose sport.jpg --format json
+
+                OPTIONS:
+                  --threshold <val>  置信度阈值（0.0-1.0，默认：0.3）
+                  --pixels           输出像素坐标（默认输出归一化）
+                  --format <fmt>     输出格式：table（默认）或 json
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Option(name: .long, help: "Minimum confidence threshold (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Minimum confidence threshold (0.0-1.0)", cn: "置信度阈值（0.0-1.0）"))
     var threshold: Float = 0.3
 
-    @Flag(name: .long, help: "Show pixel coordinates instead of normalized")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Show pixel coordinates instead of normalized", cn: "输出像素坐标（默认输出归一化坐标）"))
     var pixels: Bool = false
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let vision = ServiceContainer.shared.visionService
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         for imagePath in imagePaths {
             let url = try FileUtils.validateImageFile(at: imagePath)
@@ -92,32 +126,33 @@ struct PoseCommand: AsyncParsableCommand {
                 }
             }
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("🤸 Human Body Pose Detection (2D)")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
-            print("🎯 Threshold: \(String(format: "%.2f", threshold))")
-            if pixels && imageWidth > 0 {
-                print("📐 Image Size: \(imageWidth)×\(imageHeight) px")
-            }
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+            AirisOutput.printBanner([
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "🤸 Human Body Pose Detection (2D)",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)",
+                "🎯 Threshold: \(String(format: "%.2f", threshold))",
+            ] + ((pixels && imageWidth > 0) ? ["📐 Image Size: \(imageWidth)×\(imageHeight) px"] : []) + [
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ], enabled: showHumanOutput)
 
             // 执行检测
             let results = try await vision.detectHumanBodyPose(at: url)
 
             if results.isEmpty {
-                print("No human body poses detected.")
-                print("")
+                if outputFormat == .json {
+                    printJSON(results: [], file: url.lastPathComponent, imageWidth: imageWidth, imageHeight: imageHeight)
+                } else if showHumanOutput {
+                    print("No human body poses detected.")
+                    print("")
+                }
                 continue
             }
 
             // 输出结果
-            if format == "json" {
-                printJSON(results: results, file: url.lastPathComponent,
-                          imageWidth: imageWidth, imageHeight: imageHeight)
-            } else {
+            if outputFormat == .json {
+                printJSON(results: results, file: url.lastPathComponent, imageWidth: imageWidth, imageHeight: imageHeight)
+            } else if showHumanOutput {
                 printTable(results: results, imageWidth: imageWidth, imageHeight: imageHeight)
             }
         }

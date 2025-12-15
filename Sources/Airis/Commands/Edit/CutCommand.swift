@@ -3,49 +3,89 @@ import Foundation
 import AppKit
 
 struct CutCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "cut",
-        abstract: "Remove background from images",
-        discussion: """
-            Remove image background using Vision's foreground segmentation.
-            The subject is automatically detected and extracted with transparency.
+        abstract: HelpTextFactory.text(
+            en: "Remove background from images",
+            cn: "背景移除（抠图）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Remove image background using Vision's foreground segmentation.
+                The subject is automatically detected and extracted with transparency.
 
-            REQUIREMENTS:
-              macOS 14.0+
-              Output must be PNG format (for transparency)
+                REQUIREMENTS:
+                  macOS 14.0+
+                  Output must be PNG format (for transparency)
 
-            QUICK START:
-              airis edit cut photo.jpg -o cutout.png
+                QUICK START:
+                  airis edit cut photo.jpg -o cutout.png
 
-            EXAMPLES:
-              # Basic background removal
-              airis edit cut photo.jpg -o cutout.png
+                EXAMPLES:
+                  # Basic background removal
+                  airis edit cut photo.jpg -o cutout.png
 
-              # Process and open result
-              airis edit cut product.jpg -o product_nobg.png --open
+                  # Process and open result
+                  airis edit cut product.jpg -o product_nobg.png --open
 
-              # Overwrite existing file
-              airis edit cut portrait.heic -o portrait_nobg.png --force
+                  # Overwrite existing file
+                  airis edit cut portrait.heic -o portrait_nobg.png --force
 
-            OUTPUT:
-              PNG image with transparent background (alpha channel)
+                OUTPUT:
+                  PNG image with transparent background (alpha channel)
 
-            NOTE:
-              Works best with clear subject/background separation.
-              For complex scenes, results may vary.
-            """
+                NOTE:
+                  Works best with clear subject/background separation.
+                  For complex scenes, results may vary.
+                """,
+            cn: """
+                使用 Vision 的前景分割能力移除图片背景。
+                会自动检测主体并导出带透明通道的抠图结果。
+
+                REQUIREMENTS:
+                  macOS 14.0+
+                  输出必须是 PNG（用于透明背景）
+
+                QUICK START:
+                  airis edit cut photo.jpg -o cutout.png
+
+                EXAMPLES:
+                  # 基础抠图
+                  airis edit cut photo.jpg -o cutout.png
+
+                  # 处理后自动打开
+                  airis edit cut product.jpg -o product_nobg.png --open
+
+                  # 覆盖输出文件
+                  airis edit cut portrait.heic -o portrait_nobg.png --force
+
+                OUTPUT:
+                  带透明背景（alpha 通道）的 PNG 图片
+
+                NOTE:
+                  对“主体与背景分离明显”的图片效果更好；复杂场景结果会有差异。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path (must be .png for transparency)")
+    @Option(
+        name: [.short, .long],
+        help: HelpTextFactory.help(
+            en: "Output path (must be .png for transparency)",
+            cn: "输出路径（必须为 .png 才能保留透明背景）"
+        )
+    )
     var output: String
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

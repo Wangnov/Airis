@@ -3,100 +3,138 @@ import ArgumentParser
 import Foundation
 
 struct HandCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "hand",
-        abstract: "Detect hand pose (21 keypoints per hand)",
-        discussion: """
-            Detect hand poses in images using Apple's Vision framework.
-            Returns 21 keypoints per hand with normalized coordinates.
+        abstract: HelpTextFactory.text(
+            en: "Detect hand pose (21 keypoints per hand)",
+            cn: "检测手部关键点（每只手 21 点）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect hand poses in images using Apple's Vision framework.
+                Returns 21 keypoints per hand with normalized coordinates.
 
-            QUICK START:
-              airis detect hand photo.jpg
+                QUICK START:
+                  airis detect hand photo.jpg
 
-            KEYPOINTS (21 per hand):
-              WRIST:  wrist
-              THUMB:  thumbCMC, thumbMP, thumbIP, thumbTip
-              INDEX:  indexMCP, indexPIP, indexDIP, indexTip
-              MIDDLE: middleMCP, middlePIP, middleDIP, middleTip
-              RING:   ringMCP, ringPIP, ringDIP, ringTip
-              LITTLE: littleMCP, littlePIP, littleDIP, littleTip
+                KEYPOINTS (21 per hand):
+                  WRIST:  wrist
+                  THUMB:  thumbCMC, thumbMP, thumbIP, thumbTip
+                  INDEX:  indexMCP, indexPIP, indexDIP, indexTip
+                  MIDDLE: middleMCP, middlePIP, middleDIP, middleTip
+                  RING:   ringMCP, ringPIP, ringDIP, ringTip
+                  LITTLE: littleMCP, littlePIP, littleDIP, littleTip
 
-            JOINT NAMING:
-              CMC = Carpometacarpal (base)
-              MCP = Metacarpophalangeal (knuckle)
-              MP  = Metacarpophalangeal (thumb knuckle)
-              PIP = Proximal Interphalangeal (middle joint)
-              IP  = Interphalangeal (thumb middle)
-              DIP = Distal Interphalangeal (near tip)
-              Tip = Fingertip
+                JOINT NAMING:
+                  CMC = Carpometacarpal (base)
+                  MCP = Metacarpophalangeal (knuckle)
+                  MP  = Metacarpophalangeal (thumb knuckle)
+                  PIP = Proximal Interphalangeal (middle joint)
+                  IP  = Interphalangeal (thumb middle)
+                  DIP = Distal Interphalangeal (near tip)
+                  Tip = Fingertip
 
-            CHIRALITY:
-              Automatically detects left/right hand
+                CHIRALITY:
+                  Automatically detects left/right hand
 
-            EXAMPLES:
-              # Basic hand detection
-              airis detect hand gesture.jpg
+                EXAMPLES:
+                  # Basic hand detection
+                  airis detect hand gesture.jpg
 
-              # Detect up to 4 hands
-              airis detect hand group.png --max-hands 4
+                  # Detect up to 4 hands
+                  airis detect hand group.png --max-hands 4
 
-              # Show pixel coordinates
-              airis detect hand sign.jpg --pixels
+                  # Show pixel coordinates
+                  airis detect hand sign.jpg --pixels
 
-              # Filter by confidence threshold
-              airis detect hand action.jpg --threshold 0.5
+                  # Filter by confidence threshold
+                  airis detect hand action.jpg --threshold 0.5
 
-              # JSON output for scripting
-              airis detect hand pose.jpg --format json
+                  # JSON output for scripting
+                  airis detect hand pose.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              🤚 Hand Pose Detection
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 File: gesture.jpg
-              🎯 Threshold: 0.30
-              🔢 Max hands: 2
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🤚 Hand Pose Detection
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 File: gesture.jpg
+                  🎯 Threshold: 0.30
+                  🔢 Max hands: 2
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              Detected 2 hand(s)
+                  Detected 2 hand(s)
 
-              [1] Right Hand
-                  Keypoints (21):
-                    wrist:     (0.45, 0.32) - conf: 0.95
-                    thumbTip:  (0.52, 0.45) - conf: 0.92
-                    indexTip:  (0.48, 0.58) - conf: 0.94
-                    ...
+                  [1] Right Hand
+                      Keypoints (21):
+                        wrist:     (0.45, 0.32) - conf: 0.95
+                        thumbTip:  (0.52, 0.45) - conf: 0.92
+                        indexTip:  (0.48, 0.58) - conf: 0.94
+                        ...
 
-              [2] Left Hand
-                  Keypoints (21):
-                    wrist:     (0.65, 0.30) - conf: 0.93
-                    ...
+                  [2] Left Hand
+                      Keypoints (21):
+                        wrist:     (0.65, 0.30) - conf: 0.93
+                        ...
 
-            OPTIONS:
-              --threshold <val>   Minimum confidence threshold (0.0-1.0, default: 0.3)
-              --max-hands <num>   Maximum number of hands to detect (default: 2)
-              --pixels            Show pixel coordinates instead of normalized
-              --format <fmt>      Output format: table (default), json
-            """
+                OPTIONS:
+                  --threshold <val>   Minimum confidence threshold (0.0-1.0, default: 0.3)
+                  --max-hands <num>   Maximum number of hands to detect (default: 2)
+                  --pixels            Show pixel coordinates instead of normalized
+                  --format <fmt>      Output format: table (default), json
+                """,
+            cn: """
+                使用 Apple Vision 框架检测图片中的手部关键点（每只手 21 个点）。
+                默认输出归一化坐标（0.0-1.0），可用 --pixels 输出像素坐标。
+
+                QUICK START:
+                  airis detect hand photo.jpg
+
+                EXAMPLES:
+                  # 基础检测
+                  airis detect hand gesture.jpg
+
+                  # 最多检测 4 只手
+                  airis detect hand group.png --max-hands 4
+
+                  # 输出像素坐标
+                  airis detect hand sign.jpg --pixels
+
+                  # 置信度阈值过滤
+                  airis detect hand action.jpg --threshold 0.5
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect hand pose.jpg --format json
+
+                OPTIONS:
+                  --threshold <val>   置信度阈值（0.0-1.0，默认：0.3）
+                  --max-hands <num>   最大检测手数（默认：2）
+                  --pixels            输出像素坐标（默认输出归一化）
+                  --format <fmt>      输出格式：table（默认）或 json
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Option(name: .long, help: "Minimum confidence threshold (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Minimum confidence threshold (0.0-1.0)", cn: "置信度阈值（0.0-1.0）"))
     var threshold: Float = 0.3
 
-    @Option(name: .long, help: "Maximum number of hands to detect")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Maximum number of hands to detect", cn: "最大检测手数"))
     var maxHands: Int = 2
 
-    @Flag(name: .long, help: "Show pixel coordinates instead of normalized")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Show pixel coordinates instead of normalized", cn: "输出像素坐标（默认输出归一化坐标）"))
     var pixels: Bool = false
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let vision = ServiceContainer.shared.visionService
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         for imagePath in imagePaths {
             let url = try FileUtils.validateImageFile(at: imagePath)
@@ -112,33 +150,34 @@ struct HandCommand: AsyncParsableCommand {
                 }
             }
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("🤚 Hand Pose Detection")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
-            print("🎯 Threshold: \(String(format: "%.2f", threshold))")
-            print("🔢 Max hands: \(maxHands)")
-            if pixels && imageWidth > 0 {
-                print("📐 Image Size: \(imageWidth)×\(imageHeight) px")
-            }
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+            AirisOutput.printBanner([
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "🤚 Hand Pose Detection",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)",
+                "🎯 Threshold: \(String(format: "%.2f", threshold))",
+                "🔢 Max hands: \(maxHands)",
+            ] + ((pixels && imageWidth > 0) ? ["📐 Image Size: \(imageWidth)×\(imageHeight) px"] : []) + [
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ], enabled: showHumanOutput)
 
             // 执行检测
             let results = try await vision.detectHumanHandPose(at: url, maximumHandCount: maxHands)
 
             if results.isEmpty {
-                print("No hands detected.")
-                print("")
+                if outputFormat == .json {
+                    printJSON(results: [], file: url.lastPathComponent, imageWidth: imageWidth, imageHeight: imageHeight)
+                } else if showHumanOutput {
+                    print("No hands detected.")
+                    print("")
+                }
                 continue
             }
 
             // 输出结果
-            if format == "json" {
-                printJSON(results: results, file: url.lastPathComponent,
-                          imageWidth: imageWidth, imageHeight: imageHeight)
-            } else {
+            if outputFormat == .json {
+                printJSON(results: results, file: url.lastPathComponent, imageWidth: imageWidth, imageHeight: imageHeight)
+            } else if showHumanOutput {
                 printTable(results: results, imageWidth: imageWidth, imageHeight: imageHeight)
             }
         }

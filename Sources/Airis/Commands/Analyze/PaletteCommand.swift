@@ -5,74 +5,126 @@ import Foundation
 import AppKit
 
 struct PaletteCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "palette",
-        abstract: "Extract color palette from images",
-        discussion: """
-            Extract dominant colors from an image using K-means clustering.
-            Returns a color palette with hex codes and RGB values.
+        abstract: HelpTextFactory.text(
+            en: "Extract color palette from images",
+            cn: "提取图片主色调调色板"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Extract dominant colors from an image using K-means clustering.
+                Returns a color palette with hex codes and RGB values.
 
-            QUICK START:
-              airis analyze palette photo.jpg
+                QUICK START:
+                  airis analyze palette photo.jpg
 
-            EXAMPLES:
-              # Extract 5 colors (default)
-              airis analyze palette photo.jpg
+                EXAMPLES:
+                  # Extract 5 colors (default)
+                  airis analyze palette photo.jpg
 
-              # Extract custom number of colors
-              airis analyze palette sunset.jpg --count 8
+                  # Extract custom number of colors
+                  airis analyze palette sunset.jpg --count 8
 
-              # JSON output for scripting
-              airis analyze palette image.png --format json
+                  # JSON output for scripting
+                  airis analyze palette image.png --format json
 
-              # Include average color
-              airis analyze palette photo.jpg --include-average
+                  # Include average color
+                  airis analyze palette photo.jpg --include-average
 
-            OUTPUT FORMAT (table):
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              🎨 色彩提取
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 文件: sunset.jpg
-              🔢 提取数量: 5
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🎨 色彩提取
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 文件: sunset.jpg
+                  🔢 提取数量: 5
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              主色调:
-                1. #FF6B35  RGB(255, 107, 53)   ████
-                2. #3498DB  RGB(52, 152, 219)   ████
-                3. #2ECC71  RGB(46, 204, 113)   ████
-                4. #F39C12  RGB(243, 156, 18)   ████
-                5. #9B59B6  RGB(155, 89, 182)   ████
+                  主色调:
+                    1. #FF6B35  RGB(255, 107, 53)   ████
+                    2. #3498DB  RGB(52, 152, 219)   ████
+                    3. #2ECC71  RGB(46, 204, 113)   ████
+                    4. #F39C12  RGB(243, 156, 18)   ████
+                    5. #9B59B6  RGB(155, 89, 182)   ████
 
-            OUTPUT FORMAT (json):
-              {
-                "colors": [
-                  {"hex": "#FF6B35", "rgb": [255, 107, 53]},
-                  ...
-                ]
-              }
+                OUTPUT FORMAT (json):
+                  {
+                    "colors": [
+                      {"hex": "#FF6B35", "rgb": [255, 107, 53]},
+                      ...
+                    ]
+                  }
 
-            ALGORITHM:
-              Uses K-means clustering (CIKMeans) for perceptually accurate
-              color extraction. The algorithm groups similar pixels and
-              returns cluster centroids as dominant colors.
+                ALGORITHM:
+                  Uses K-means clustering (CIKMeans) for perceptually accurate
+                  color extraction. The algorithm groups similar pixels and
+                  returns cluster centroids as dominant colors.
 
-            NOTES:
-              - Colors are sorted by dominance/frequency
-              - Count range: 1-16 (more colors = longer processing)
-              - All processing is done locally using CoreImage
-            """
+                NOTES:
+                  - Colors are sorted by dominance/frequency
+                  - Count range: 1-16 (more colors = longer processing)
+                  - All processing is done locally using CoreImage
+                """,
+            cn: """
+                使用 K-means 聚类从图片中提取主色调，输出 hex 与 RGB 值。
+
+                QUICK START:
+                  airis analyze palette photo.jpg
+
+                EXAMPLES:
+                  # 提取 5 个颜色（默认）
+                  airis analyze palette photo.jpg
+
+                  # 自定义数量
+                  airis analyze palette sunset.jpg --count 8
+
+                  # JSON 输出（便于脚本解析）
+                  airis analyze palette image.png --format json
+
+                  # 额外输出平均颜色
+                  airis analyze palette photo.jpg --include-average
+
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🎨 色彩提取
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 文件: sunset.jpg
+                  🔢 提取数量: 5
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                  主色调:
+                    1. #FF6B35  RGB(255, 107, 53)   ████
+                    2. #3498DB  RGB(52, 152, 219)   ████
+                    ...
+
+                OUTPUT FORMAT (json):
+                  {
+                    "colors": [
+                      {"hex": "#FF6B35", "rgb": [255, 107, 53]},
+                      ...
+                    ]
+                  }
+
+                说明：
+                  - 颜色按出现频率/占比排序
+                  - count 范围：1-16（越大越慢）
+                  - 全部本地计算（Core Image）
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
     var imagePath: String
 
-    @Option(name: .shortAndLong, help: "Number of colors to extract (1-16, default: 5)")
+    @Option(name: .shortAndLong, help: HelpTextFactory.help(en: "Number of colors to extract (1-16, default: 5)", cn: "提取颜色数量（1-16，默认：5）"))
     var count: Int = 5
 
-    @Option(name: .long, help: "Output format: table (default), json")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format: table (default), json", cn: "输出格式：table（默认）或 json"))
     var format: String = "table"
 
-    @Flag(name: .long, help: "Include average color in output")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Include average color in output", cn: "输出平均颜色"))
     var includeAverage: Bool = false
 
     func run() async throws {
@@ -81,14 +133,17 @@ struct PaletteCommand: AsyncParsableCommand {
         // 验证颜色数量
         let colorCount = max(1, min(16, count))
 
-        // 显示参数总览
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("🎨 色彩提取")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📁 文件: \(url.lastPathComponent)")
-        print("🔢 提取数量: \(colorCount)")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("")
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
+
+        AirisOutput.printBanner([
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "🎨 色彩提取",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "📁 文件: \(url.lastPathComponent)",
+            "🔢 提取数量: \(colorCount)",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        ], enabled: showHumanOutput)
 
         // 加载图像
         guard let ciImage = CIImage(contentsOf: url) else {
@@ -110,9 +165,9 @@ struct PaletteCommand: AsyncParsableCommand {
         }
 
         // 输出结果
-        if format.lowercased() == "json" {
+        if outputFormat == .json {
             printJSON(result: result)
-        } else {
+        } else if showHumanOutput {
             printTable(result: result)
         }
     }

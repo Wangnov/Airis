@@ -5,58 +5,77 @@ import AppKit
 struct ExposureCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "exposure",
-        abstract: "Adjust image exposure (EV value)",
-        discussion: """
-            Adjust image exposure using CIExposureAdjust filter.
-            Uses logarithmic adjustment similar to camera EV settings.
+        abstract: HelpTextFactory.text(
+            en: "Adjust image exposure (EV value)",
+            cn: "调整曝光（EV）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Adjust image exposure using CIExposureAdjust filter.
+                Uses logarithmic adjustment similar to camera EV settings.
 
-            PARAMETERS:
-              EV: -10.0 to 10.0 (0 = unchanged)
-                  Each +1.0 EV doubles the brightness
-                  Each -1.0 EV halves the brightness
+                PARAMETERS:
+                  EV: -10.0 to 10.0 (0 = unchanged)
+                      Each +1.0 EV doubles the brightness
+                      Each -1.0 EV halves the brightness
 
-            QUICK START:
-              airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
+                QUICK START:
+                  airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
 
-            EXAMPLES:
-              # Brighten underexposed photo (+1.5 EV)
-              airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
+                EXAMPLES:
+                  # Brighten underexposed photo (+1.5 EV)
+                  airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
 
-              # Darken overexposed photo (-1.0 EV)
-              airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
+                  # Darken overexposed photo (-1.0 EV)
+                  airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
 
-              # Subtle brightness increase (+0.5 EV)
-              airis edit adjust exposure photo.jpg --ev 0.5 -o enhanced.jpg
+                  # Subtle brightness increase (+0.5 EV)
+                  airis edit adjust exposure photo.jpg --ev 0.5 -o enhanced.jpg
 
-              # Strong exposure boost for very dark images
-              airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
+                  # Strong exposure boost for very dark images
+                  airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
 
-            NOTE:
-              Exposure adjustment is more natural than brightness adjustment
-              as it simulates camera exposure behavior.
+                NOTE:
+                  Exposure adjustment is more natural than brightness adjustment
+                  as it simulates camera exposure behavior.
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                使用 CIExposureAdjust 调整曝光值（EV），更接近相机曝光行为。
+
+                参数范围：
+                  EV: -10.0 ~ 10.0（默认：0）
+                  +1.0 EV 亮度约翻倍；-1.0 EV 亮度约减半
+
+                QUICK START:
+                  airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
+
+                EXAMPLES:
+                  airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
+                  airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Exposure value in EV (-10.0 to 10.0, default: 0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Exposure value in EV (-10.0 to 10.0, default: 0)", cn: "曝光 EV（-10.0~10.0，默认：0）"))
     var ev: Double = 0
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

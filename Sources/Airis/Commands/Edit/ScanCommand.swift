@@ -3,45 +3,75 @@ import Foundation
 import AppKit
 
 struct ScanCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "scan",
-        abstract: "Scan documents with perspective correction",
-        discussion: """
-            Detect document edges and apply perspective correction.
-            Automatically finds rectangular documents and corrects for angle/perspective.
+        abstract: HelpTextFactory.text(
+            en: "Scan documents with perspective correction",
+            cn: "文档扫描（自动透视矫正）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect document edges and apply perspective correction.
+                Automatically finds rectangular documents and corrects for angle/perspective.
 
-            QUICK START:
-              airis edit scan document.jpg -o scanned.png
+                QUICK START:
+                  airis edit scan document.jpg -o scanned.png
 
-            EXAMPLES:
-              # Basic document scanning
-              airis edit scan photo_of_document.jpg -o scanned.png
+                EXAMPLES:
+                  # Basic document scanning
+                  airis edit scan photo_of_document.jpg -o scanned.png
 
-              # Scan and open result
-              airis edit scan receipt.png -o receipt_scan.png --open
+                  # Scan and open result
+                  airis edit scan receipt.png -o receipt_scan.png --open
 
-              # Force overwrite existing file
-              airis edit scan page.heic -o page_scan.png --force
+                  # Force overwrite existing file
+                  airis edit scan page.heic -o page_scan.png --force
 
-            OUTPUT:
-              Corrected rectangular document image with perspective fixed
+                OUTPUT:
+                  Corrected rectangular document image with perspective fixed
 
-            NOTE:
-              Works best with documents on contrasting backgrounds.
-              The document should be clearly visible in the image.
-            """
+                NOTE:
+                  Works best with documents on contrasting backgrounds.
+                  The document should be clearly visible in the image.
+                """,
+            cn: """
+                检测文档边缘并进行透视校正，生成“扫描件”效果。
+                会自动寻找矩形文档区域，并纠正拍摄角度/透视畸变。
+
+                QUICK START:
+                  airis edit scan document.jpg -o scanned.png
+
+                EXAMPLES:
+                  # 基础扫描
+                  airis edit scan photo_of_document.jpg -o scanned.png
+
+                  # 扫描并自动打开
+                  airis edit scan receipt.png -o receipt_scan.png --open
+
+                  # 覆盖已存在文件
+                  airis edit scan page.heic -o page_scan.png --force
+
+                OUTPUT:
+                  输出为已透视矫正的矩形文档图片
+
+                NOTE:
+                  对“文档与背景对比明显、文档边缘清晰可见”的图片效果更好。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

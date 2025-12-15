@@ -3,86 +3,119 @@ import ArgumentParser
 import Foundation
 
 struct BarcodeCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "barcode",
-        abstract: "Detect barcodes and QR codes in images",
-        discussion: """
-            Detect and decode various barcode types including QR codes, EAN, \
-            Code 128, and more.
+        abstract: HelpTextFactory.text(
+            en: "Detect barcodes and QR codes in images",
+            cn: "识别图片中的条码/二维码"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect and decode various barcode types including QR codes, EAN, \
+                Code 128, and more.
 
-            QUICK START:
-              airis detect barcode image.jpg
+                QUICK START:
+                  airis detect barcode image.jpg
 
-            SUPPORTED BARCODE TYPES:
-              QR          - QR Code (most common 2D code)
-              Aztec       - Aztec Code
-              Code128     - Code 128 (logistics, shipping)
-              Code39      - Code 39 (industrial)
-              Code93      - Code 93
-              EAN8        - EAN-8 (small products)
-              EAN13       - EAN-13 (retail products)
-              PDF417      - PDF417 (ID cards, tickets)
-              DataMatrix  - Data Matrix (electronics)
-              ITF14       - ITF-14 (shipping containers)
-              UPCE        - UPC-E (small retail items)
+                SUPPORTED BARCODE TYPES:
+                  QR          - QR Code (most common 2D code)
+                  Aztec       - Aztec Code
+                  Code128     - Code 128 (logistics, shipping)
+                  Code39      - Code 39 (industrial)
+                  Code93      - Code 93
+                  EAN8        - EAN-8 (small products)
+                  EAN13       - EAN-13 (retail products)
+                  PDF417      - PDF417 (ID cards, tickets)
+                  DataMatrix  - Data Matrix (electronics)
+                  ITF14       - ITF-14 (shipping containers)
+                  UPCE        - UPC-E (small retail items)
 
-            EXAMPLES:
-              # Detect all barcode types
-              airis detect barcode photo.jpg
+                EXAMPLES:
+                  # Detect all barcode types
+                  airis detect barcode photo.jpg
 
-              # Filter by type (QR codes only)
-              airis detect barcode scan.png --type qr
+                  # Filter by type (QR codes only)
+                  airis detect barcode scan.png --type qr
 
-              # JSON output for scripting
-              airis detect barcode receipt.jpg --format json
+                  # JSON output for scripting
+                  airis detect barcode receipt.jpg --format json
 
-              # Multiple images
-              airis detect barcode *.jpg
+                  # Multiple images
+                  airis detect barcode *.jpg
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Detected 2 barcode(s)
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Detected 2 barcode(s)
 
-              [1] QR Code
-                  Data: https://example.com
-                  Confidence: 0.98
+                  [1] QR Code
+                      Data: https://example.com
+                      Confidence: 0.98
 
-              [2] EAN-13
-                  Data: 4006381333931
-                  Confidence: 0.95
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  [2] EAN-13
+                      Data: 4006381333931
+                      Confidence: 0.95
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-            OPTIONS:
-              --type <type>    Filter by barcode type (qr, ean13, code128, etc.)
-              --format <fmt>   Output format: table (default), json
-            """
+                OPTIONS:
+                  --type <type>    Filter by barcode type (qr, ean13, code128, etc.)
+                  --format <fmt>   Output format: table (default), json
+                """,
+            cn: """
+                使用 Apple Vision 框架识别并解码图片中的条码/二维码（QR、EAN、Code128 等）。
+
+                QUICK START:
+                  airis detect barcode image.jpg
+
+                EXAMPLES:
+                  # 识别全部类型
+                  airis detect barcode photo.jpg
+
+                  # 仅识别二维码（QR）
+                  airis detect barcode scan.png --type qr
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect barcode receipt.jpg --format json
+
+                  # 多张图片
+                  airis detect barcode *.jpg
+
+                OPTIONS:
+                  --type <type>    类型过滤（qr、ean13、code128 等）
+                  --format <fmt>   输出格式：table（默认）或 json
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Option(name: .long, help: "Filter by barcode type (qr, aztec, code128, code39, ean8, ean13, pdf417, datamatrix, itf14, upce)")
+    @Option(name: .long, help: HelpTextFactory.help(
+        en: "Filter by barcode type (qr, aztec, code128, code39, ean8, ean13, pdf417, datamatrix, itf14, upce)",
+        cn: "按类型过滤（qr、aztec、code128、code39、ean8、ean13、pdf417、datamatrix、itf14、upce）"
+    ))
     var type: String?
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let vision = ServiceContainer.shared.visionService
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         for imagePath in imagePaths {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("🔍 Barcode Detection")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
-            if let type = type {
-                print("🔖 Type filter: \(type.uppercased())")
-            }
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+            AirisOutput.printBanner([
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "🔍 Barcode Detection",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)",
+            ] + (type.map { ["🔖 Type filter: \($0.uppercased())"] } ?? []) + [
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ], enabled: showHumanOutput)
 
             // 获取符号类型过滤
             let symbologies = type.flatMap { parseSymbology($0) }
@@ -99,15 +132,19 @@ struct BarcodeCommand: AsyncParsableCommand {
             }
 
             if filteredResults.isEmpty {
-                print("No barcodes detected.")
-                print("")
+                if outputFormat == .json {
+                    printJSON(results: [], file: url.lastPathComponent)
+                } else if showHumanOutput {
+                    print("No barcodes detected.")
+                    print("")
+                }
                 continue
             }
 
             // 输出结果
-            if format == "json" {
+            if outputFormat == .json {
                 printJSON(results: filteredResults, file: url.lastPathComponent)
-            } else {
+            } else if showHumanOutput {
                 printTable(results: filteredResults)
             }
         }

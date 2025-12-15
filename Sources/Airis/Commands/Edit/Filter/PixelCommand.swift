@@ -5,51 +5,69 @@ import AppKit
 struct PixelCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "pixel",
-        abstract: "Pixelate images",
-        discussion: """
-            Apply pixelation effect to images using CoreImage.
+        abstract: HelpTextFactory.text(
+            en: "Pixelate images",
+            cn: "马赛克像素化（Pixelate）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply pixelation effect to images using CoreImage.
 
-            Creates a mosaic/pixelated appearance by grouping pixels into larger blocks.
-            Useful for privacy (blurring faces/info) or creating retro/8-bit style effects.
+                Creates a mosaic/pixelated appearance by grouping pixels into larger blocks.
+                Useful for privacy (blurring faces/info) or creating retro/8-bit style effects.
 
-            PARAMETERS:
-              --scale: Pixel block size (1-100, default: 8)
-                       1 = no effect, larger = more pixelated
+                PARAMETERS:
+                  --scale: Pixel block size (1-100, default: 8)
+                           1 = no effect, larger = more pixelated
 
-            QUICK START:
-              airis edit filter pixel photo.jpg -o pixelated.png
+                QUICK START:
+                  airis edit filter pixel photo.jpg -o pixelated.png
 
-            EXAMPLES:
-              # Default pixelation (8px blocks)
-              airis edit filter pixel photo.jpg -o pixelated.png
+                EXAMPLES:
+                  # Default pixelation (8px blocks)
+                  airis edit filter pixel photo.jpg -o pixelated.png
 
-              # Stronger pixelation for privacy
-              airis edit filter pixel face.jpg --scale 20 -o blurred_face.png
+                  # Stronger pixelation for privacy
+                  airis edit filter pixel face.jpg --scale 20 -o blurred_face.png
 
-              # Retro 8-bit style (large blocks)
-              airis edit filter pixel photo.jpg --scale 32 -o retro.png
+                  # Retro 8-bit style (large blocks)
+                  airis edit filter pixel photo.jpg --scale 32 -o retro.png
 
-              # Subtle pixelation
-              airis edit filter pixel photo.jpg --scale 4 -o subtle.png
+                  # Subtle pixelation
+                  airis edit filter pixel photo.jpg --scale 4 -o subtle.png
 
-            OUTPUT:
-              Pixelated image in the specified format
-            """
+                OUTPUT:
+                  Pixelated image in the specified format
+                """,
+            cn: """
+                使用 Core Image 将图片像素化/马赛克化（常用于隐私遮挡或复古风格）。
+
+                QUICK START:
+                  airis edit filter pixel photo.jpg -o pixelated.png
+
+                EXAMPLES:
+                  # 更强马赛克
+                  airis edit filter pixel face.jpg --scale 20 -o blurred_face.png
+
+                  # 更细马赛克
+                  airis edit filter pixel photo.jpg --scale 4 -o subtle.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Pixel block size (1-100, default: 8)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Pixel block size (1-100, default: 8)", cn: "像素块大小（1-100，默认：8）"))
     var scale: Double = 8
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

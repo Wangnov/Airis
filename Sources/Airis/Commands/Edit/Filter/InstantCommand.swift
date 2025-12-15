@@ -5,43 +5,57 @@ import AppKit
 struct InstantCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "instant",
-        abstract: "Apply Polaroid/instant camera effect",
-        discussion: """
-            Apply Instant Camera photo effect using CoreImage.
+        abstract: HelpTextFactory.text(
+            en: "Apply Polaroid/instant camera effect",
+            cn: "拍立得风格（Instant）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply Instant Camera photo effect using CoreImage.
 
-            Creates a vintage Polaroid-style look:
-            - Warm color cast
-            - Slightly desaturated
-            - Soft contrast
-            - Nostalgic feel
+                Creates a vintage Polaroid-style look:
+                - Warm color cast
+                - Slightly desaturated
+                - Soft contrast
+                - Nostalgic feel
 
-            This is a one-click effect with no adjustable parameters.
+                This is a one-click effect with no adjustable parameters.
 
-            QUICK START:
-              airis edit filter instant photo.jpg -o polaroid.png
+                QUICK START:
+                  airis edit filter instant photo.jpg -o polaroid.png
 
-            EXAMPLES:
-              # Apply instant camera effect
-              airis edit filter instant photo.jpg -o instant.png
+                EXAMPLES:
+                  # Apply instant camera effect
+                  airis edit filter instant photo.jpg -o instant.png
 
-              # Process and open result
-              airis edit filter instant vacation.jpg -o retro.png --open
+                  # Process and open result
+                  airis edit filter instant vacation.jpg -o retro.png --open
 
-            OUTPUT:
-              Instant camera styled image in the specified format
-            """
+                OUTPUT:
+                  Instant camera styled image in the specified format
+                """,
+            cn: """
+                使用 Photo Effect Instant 一键生成拍立得/复古风格（偏暖、对比柔和）。
+
+                QUICK START:
+                  airis edit filter instant photo.jpg -o polaroid.png
+
+                EXAMPLES:
+                  airis edit filter instant vacation.jpg -o retro.png --open
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

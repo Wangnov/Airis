@@ -5,46 +5,63 @@ import AppKit
 struct NoirCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "noir",
-        abstract: "Apply film noir effect",
-        discussion: """
-            Apply Film Noir photo effect using CoreImage.
+        abstract: HelpTextFactory.text(
+            en: "Apply film noir effect",
+            cn: "黑白高对比（Noir）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply Film Noir photo effect using CoreImage.
 
-            Creates a dramatic, high-contrast black and white look:
-            - Deep blacks
-            - Bright highlights
-            - Dramatic shadows
-            - Classic cinema aesthetic
+                Creates a dramatic, high-contrast black and white look:
+                - Deep blacks
+                - Bright highlights
+                - Dramatic shadows
+                - Classic cinema aesthetic
 
-            This is a one-click effect with no adjustable parameters.
+                This is a one-click effect with no adjustable parameters.
 
-            QUICK START:
-              airis edit filter noir photo.jpg -o noir.png
+                QUICK START:
+                  airis edit filter noir photo.jpg -o noir.png
 
-            EXAMPLES:
-              # Apply noir effect
-              airis edit filter noir photo.jpg -o noir.png
+                EXAMPLES:
+                  # Apply noir effect
+                  airis edit filter noir photo.jpg -o noir.png
 
-              # Process and open result
-              airis edit filter noir portrait.jpg -o dramatic.png --open
+                  # Process and open result
+                  airis edit filter noir portrait.jpg -o dramatic.png --open
 
-            OUTPUT:
-              Noir-styled image in the specified format
+                OUTPUT:
+                  Noir-styled image in the specified format
 
-            SEE ALSO:
-              Use 'airis edit filter mono' for softer B&W
-            """
+                SEE ALSO:
+                  Use 'airis edit filter mono' for softer B&W
+                """,
+            cn: """
+                使用 Photo Effect Noir 一键生成高对比黑白风格（更“电影感”）。
+
+                QUICK START:
+                  airis edit filter noir photo.jpg -o noir.png
+
+                EXAMPLES:
+                  airis edit filter noir portrait.jpg -o dramatic.png --open
+
+                SEE ALSO:
+                  更柔和黑白：airis edit filter mono
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

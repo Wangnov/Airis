@@ -5,64 +5,75 @@ import AppKit
 struct FlipCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "flip",
-        abstract: "Flip image horizontally or vertically",
-        discussion: """
-            Flip (mirror) the image horizontally and/or vertically.
+        abstract: HelpTextFactory.text(
+            en: "Flip image horizontally or vertically",
+            cn: "翻转图片（水平/垂直）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Flip (mirror) the image horizontally and/or vertically.
 
-            OPTIONS:
-              --horizontal, -h   Flip horizontally (left-right mirror)
-              --vertical, -v     Flip vertically (top-bottom mirror)
+                OPTIONS:
+                  --horizontal, -h   Flip horizontally (left-right mirror)
+                  --vertical, -v     Flip vertically (top-bottom mirror)
 
-            At least one flip direction must be specified.
-            Both can be specified for 180-degree rotation effect.
+                At least one flip direction must be specified.
+                Both can be specified for 180-degree rotation effect.
 
-            QUICK START:
-              airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
+                QUICK START:
+                  airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
 
-            EXAMPLES:
-              # Horizontal flip (mirror)
-              airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
+                EXAMPLES:
+                  # Horizontal flip (mirror)
+                  airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
 
-              # Vertical flip
-              airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
+                  # Vertical flip
+                  airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
 
-              # Both horizontal and vertical (180 degree rotation)
-              airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
+                  # Both horizontal and vertical (180 degree rotation)
+                  airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
 
-              # Short form
-              airis edit adjust flip photo.jpg -h -o mirror.jpg
+                  # Short form
+                  airis edit adjust flip photo.jpg -h -o mirror.jpg
+                """,
+            cn: """
+                水平/垂直镜像翻转图片。
 
-            USE CASES:
-              - Correcting mirrored selfies
-              - Creating symmetric compositions
-              - Preparing images for printing (mirror for transfer)
-              - Artistic effects
+                QUICK START:
+                  airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                EXAMPLES:
+                  # 水平翻转（镜像）
+                  airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
+
+                  # 垂直翻转
+                  airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
+
+                  # 同时水平+垂直（等价 180°）
+                  airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: [.customShort("h"), .long], help: "Flip horizontally (left-right)")
+    @Flag(name: [.customShort("h"), .long], help: HelpTextFactory.help(en: "Flip horizontally (left-right)", cn: "水平翻转（左右镜像）"))
     var horizontal: Bool = false
 
-    @Flag(name: [.customShort("v"), .long], help: "Flip vertically (top-bottom)")
+    @Flag(name: [.customShort("v"), .long], help: HelpTextFactory.help(en: "Flip vertically (top-bottom)", cn: "垂直翻转（上下镜像）"))
     var vertical: Bool = false
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

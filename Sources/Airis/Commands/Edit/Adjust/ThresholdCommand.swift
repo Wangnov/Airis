@@ -5,67 +5,72 @@ import AppKit
 struct ThresholdCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "threshold",
-        abstract: "Convert to black and white based on threshold",
-        discussion: """
-            Apply threshold effect using CIColorThreshold filter.
-            Converts image to pure black and white based on luminance threshold.
+        abstract: HelpTextFactory.text(
+            en: "Convert to black and white based on threshold",
+            cn: "阈值化黑白（Threshold）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply threshold effect using CIColorThreshold filter.
+                Converts image to pure black and white based on luminance threshold.
 
-            PARAMETERS:
-              Threshold: 0.0 to 1.0 (default: 0.5)
-                        Pixels brighter than threshold become white
-                        Pixels darker than threshold become black
+                PARAMETERS:
+                  Threshold: 0.0 to 1.0 (default: 0.5)
+                            Pixels brighter than threshold become white
+                            Pixels darker than threshold become black
 
-            QUICK START:
-              airis edit adjust threshold photo.jpg -o bw.jpg
+                QUICK START:
+                  airis edit adjust threshold photo.jpg -o bw.jpg
 
-            EXAMPLES:
-              # Standard threshold (50%)
-              airis edit adjust threshold photo.jpg -o bw.jpg
+                EXAMPLES:
+                  # Standard threshold (50%)
+                  airis edit adjust threshold photo.jpg -o bw.jpg
 
-              # Lower threshold (more white areas)
-              airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
+                  # Lower threshold (more white areas)
+                  airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
 
-              # Higher threshold (more black areas)
-              airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
+                  # Higher threshold (more black areas)
+                  airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
 
-              # Create silhouette effect
-              airis edit adjust threshold portrait.jpg --threshold 0.4 -o silhouette.png
+                  # Create silhouette effect
+                  airis edit adjust threshold portrait.jpg --threshold 0.4 -o silhouette.png
 
-            EFFECT:
-              - Creates pure black and white image (no grays)
-              - Lower threshold = more of image becomes white
-              - Higher threshold = more of image becomes black
-              - Useful for creating high-contrast graphic effects
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                使用 CIColorThreshold 将图片按阈值转换为纯黑白（无灰度）。
 
-            USE CASES:
-              - Document scanning (clean up text)
-              - Creating stencils
-              - Logo and icon preparation
-              - High-contrast artistic effects
-              - QR code cleanup
+                参数范围：
+                  threshold: 0.0 ~ 1.0（默认：0.5；越小越“白”）
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                QUICK START:
+                  airis edit adjust threshold photo.jpg -o bw.jpg
+
+                EXAMPLES:
+                  airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
+                  airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Threshold value (0.0 to 1.0, default: 0.5)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Threshold value (0.0 to 1.0, default: 0.5)", cn: "阈值（0.0~1.0，默认：0.5）"))
     var threshold: Double = 0.5
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

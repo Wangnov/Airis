@@ -5,65 +5,84 @@ import AppKit
 struct VignetteCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "vignette",
-        abstract: "Add vignette effect (darkened edges)",
-        discussion: """
-            Add artistic vignette effect using CIVignette filter.
-            Darkens the edges of the image to draw attention to the center.
+        abstract: HelpTextFactory.text(
+            en: "Add vignette effect (darkened edges)",
+            cn: "添加暗角效果（边缘变暗）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Add artistic vignette effect using CIVignette filter.
+                Darkens the edges of the image to draw attention to the center.
 
-            PARAMETERS:
-              Intensity: 0.0 to 2.0 (0 = no effect, higher = darker edges)
-              Radius:    0.0 to 2.0 (controls where darkening starts)
-                         Lower values = larger dark area
-                         Higher values = smaller dark area (more subtle)
+                PARAMETERS:
+                  Intensity: 0.0 to 2.0 (0 = no effect, higher = darker edges)
+                  Radius:    0.0 to 2.0 (controls where darkening starts)
+                             Lower values = larger dark area
+                             Higher values = smaller dark area (more subtle)
 
-            QUICK START:
-              airis edit adjust vignette photo.jpg --intensity 1.0 -o vignetted.jpg
+                QUICK START:
+                  airis edit adjust vignette photo.jpg --intensity 1.0 -o vignetted.jpg
 
-            EXAMPLES:
-              # Standard vignette effect
-              airis edit adjust vignette photo.jpg --intensity 1.0 -o vignetted.jpg
+                EXAMPLES:
+                  # Standard vignette effect
+                  airis edit adjust vignette photo.jpg --intensity 1.0 -o vignetted.jpg
 
-              # Strong dramatic vignette
-              airis edit adjust vignette portrait.jpg --intensity 1.8 --radius 0.8 -o dramatic.jpg
+                  # Strong dramatic vignette
+                  airis edit adjust vignette portrait.jpg --intensity 1.8 --radius 0.8 -o dramatic.jpg
 
-              # Subtle vignette
-              airis edit adjust vignette landscape.jpg --intensity 0.5 --radius 1.5 -o subtle.jpg
+                  # Subtle vignette
+                  airis edit adjust vignette landscape.jpg --intensity 0.5 --radius 1.5 -o subtle.jpg
 
-              # Wide vignette (larger darkened area)
-              airis edit adjust vignette photo.jpg --intensity 1.2 --radius 0.5 -o wide.jpg
+                  # Wide vignette (larger darkened area)
+                  airis edit adjust vignette photo.jpg --intensity 1.2 --radius 0.5 -o wide.jpg
 
-              # Tight center focus
-              airis edit adjust vignette photo.jpg --intensity 1.5 --radius 1.8 -o focused.jpg
+                  # Tight center focus
+                  airis edit adjust vignette photo.jpg --intensity 1.5 --radius 1.8 -o focused.jpg
 
-            NOTE:
-              Vignette is commonly used in portrait and artistic photography
-              to draw the viewer's eye to the subject in the center.
+                NOTE:
+                  Vignette is commonly used in portrait and artistic photography
+                  to draw the viewer's eye to the subject in the center.
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                使用 CIVignette 添加暗角效果，使边缘变暗、突出画面中心。
+
+                参数范围：
+                  intensity: 0.0 ~ 2.0（默认：1.0）
+                  radius:    0.0 ~ 2.0（默认：1.0）
+
+                QUICK START:
+                  airis edit adjust vignette photo.jpg --intensity 1.0 -o vignetted.jpg
+
+                EXAMPLES:
+                  airis edit adjust vignette portrait.jpg --intensity 1.8 --radius 0.8 -o dramatic.jpg
+                  airis edit adjust vignette landscape.jpg --intensity 0.5 --radius 1.5 -o subtle.jpg
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Vignette intensity (0.0 to 2.0, default: 1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Vignette intensity (0.0 to 2.0, default: 1.0)", cn: "暗角强度（0.0~2.0，默认：1.0）"))
     var intensity: Double = 1.0
 
-    @Option(name: .long, help: "Vignette radius (0.0 to 2.0, default: 1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Vignette radius (0.0 to 2.0, default: 1.0)", cn: "暗角半径（0.0~2.0，默认：1.0）"))
     var radius: Double = 1.0
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

@@ -4,76 +4,109 @@ import Foundation
 import simd
 
 struct Pose3DCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "pose3d",
-        abstract: "Detect human body pose (3D, 17 keypoints)",
-        discussion: """
-            Detect human body poses in 3D using Apple's Vision framework.
-            Returns 17 body keypoints with 3D coordinates relative to camera.
+        abstract: HelpTextFactory.text(
+            en: "Detect human body pose (3D, 17 keypoints)",
+            cn: "检测人体 3D 姿态（17 个关键点）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect human body poses in 3D using Apple's Vision framework.
+                Returns 17 body keypoints with 3D coordinates relative to camera.
 
-            REQUIREMENTS:
-              macOS 14.0 or later
+                REQUIREMENTS:
+                  macOS 14.0 or later
 
-            QUICK START:
-              airis detect pose3d photo.jpg
+                QUICK START:
+                  airis detect pose3d photo.jpg
 
-            KEYPOINTS (17 total):
-              HEAD:   topHead, centerHead
-              TORSO:  centerShoulder, spine
-              ARMS:   leftShoulder, leftElbow, leftWrist
-                      rightShoulder, rightElbow, rightWrist
-              ROOT:   root (hip center)
-              LEGS:   leftHip, leftKnee, leftAnkle
-                      rightHip, rightKnee, rightAnkle
+                KEYPOINTS (17 total):
+                  HEAD:   topHead, centerHead
+                  TORSO:  centerShoulder, spine
+                  ARMS:   leftShoulder, leftElbow, leftWrist
+                          rightShoulder, rightElbow, rightWrist
+                  ROOT:   root (hip center)
+                  LEGS:   leftHip, leftKnee, leftAnkle
+                          rightHip, rightKnee, rightAnkle
 
-            COORDINATE SYSTEM:
-              • 3D coordinates in meters
-              • Origin at root joint (hip center)
-              • Camera-relative positioning
+                COORDINATE SYSTEM:
+                  • 3D coordinates in meters
+                  • Origin at root joint (hip center)
+                  • Camera-relative positioning
 
-            EXAMPLES:
-              # Basic 3D pose detection
-              airis detect pose3d person.jpg
+                EXAMPLES:
+                  # Basic 3D pose detection
+                  airis detect pose3d person.jpg
 
-              # Filter by confidence threshold
-              airis detect pose3d action.jpg --threshold 0.5
+                  # Filter by confidence threshold
+                  airis detect pose3d action.jpg --threshold 0.5
 
-              # JSON output for scripting
-              airis detect pose3d sport.jpg --format json
+                  # JSON output for scripting
+                  airis detect pose3d sport.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              🧍 Human Body Pose Detection (3D)
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 File: person.jpg
-              🎯 Threshold: 0.30
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🧍 Human Body Pose Detection (3D)
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 File: person.jpg
+                  🎯 Threshold: 0.30
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              Detected 1 person(s)
+                  Detected 1 person(s)
 
-              [1] Person
-                  Estimated Height: 1.72 m
-                  Keypoints (17):
-                    topHead:        (0.02, 0.86, -1.50) m - conf: 0.92
-                    centerShoulder: (0.00, 0.68, -1.48) m - conf: 0.95
-                    ...
+                  [1] Person
+                      Estimated Height: 1.72 m
+                      Keypoints (17):
+                        topHead:        (0.02, 0.86, -1.50) m - conf: 0.92
+                        centerShoulder: (0.00, 0.68, -1.48) m - conf: 0.95
+                        ...
 
-            OPTIONS:
-              --format <fmt>     Output format: table (default), json
+                OPTIONS:
+                  --format <fmt>     Output format: table (default), json
 
-            NOTE:
-              3D pose detection returns all detected joints without
-              confidence filtering (3D points have no confidence scores).
-            """
+                NOTE:
+                  3D pose detection returns all detected joints without
+                  confidence filtering (3D points have no confidence scores).
+                """,
+            cn: """
+                使用 Apple Vision 框架检测人体 3D 姿态（17 个关键点），输出相机相对的 3D 坐标（单位：米）。
+
+                REQUIREMENTS:
+                  macOS 14.0+
+
+                QUICK START:
+                  airis detect pose3d photo.jpg
+
+                EXAMPLES:
+                  # 基础检测
+                  airis detect pose3d person.jpg
+
+                  # 置信度阈值过滤（用于 2D 关键点）
+                  airis detect pose3d action.jpg --threshold 0.5
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect pose3d sport.jpg --format json
+
+                OPTIONS:
+                  --threshold <val>  置信度阈值（0.0-1.0，默认：0.3）
+                  --format <fmt>     输出格式：table（默认）或 json
+
+                说明：
+                  - 3D 点本身没有置信度分数，命令会输出所有可用关节点
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Option(name: .long, help: "Minimum confidence threshold (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Minimum confidence threshold (0.0-1.0)", cn: "置信度阈值（0.0-1.0）"))
     var threshold: Float = 0.3
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
@@ -83,10 +116,25 @@ struct Pose3DCommand: AsyncParsableCommand {
         #else
         let forceEmpty = false
         #endif
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
+
         // 检查 macOS 版本
         guard #available(macOS 14.0, *), !forceUnsupported else {
-            print(Strings.get("error.requires_macos", "3D pose detection", "14.0"))
-            print(Strings.get("error.feature_unsupported"))
+            if outputFormat == .json {
+                let payload: [String: Any] = [
+                    "supported": false,
+                    "required_macos": "14.0",
+                    "error": "unsupported_os_version"
+                ]
+                if let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    print(jsonString)
+                }
+            } else if showHumanOutput {
+                print(Strings.get("error.requires_macos", "3D pose detection", "14.0"))
+                print(Strings.get("error.feature_unsupported"))
+            }
             return
         }
 
@@ -95,14 +143,14 @@ struct Pose3DCommand: AsyncParsableCommand {
         for imagePath in imagePaths {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("🧍 Human Body Pose Detection (3D)")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
-            print("🎯 Threshold: \(String(format: "%.2f", threshold))")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+            AirisOutput.printBanner([
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "🧍 Human Body Pose Detection (3D)",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)",
+                "🎯 Threshold: \(String(format: "%.2f", threshold))",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ], enabled: showHumanOutput)
 
             // 执行检测
             let results: [VNHumanBodyPose3DObservation]
@@ -117,15 +165,19 @@ struct Pose3DCommand: AsyncParsableCommand {
             #endif
 
             if results.isEmpty {
-                print("No human body poses detected.")
-                print("")
+                if outputFormat == .json {
+                    printJSON(results: [], file: url.lastPathComponent)
+                } else if showHumanOutput {
+                    print("No human body poses detected.")
+                    print("")
+                }
                 continue
             }
 
             // 输出结果
-            if format == "json" {
+            if outputFormat == .json {
                 printJSON(results: results, file: url.lastPathComponent)
-            } else {
+            } else if showHumanOutput {
                 printTable(results: results)
             }
         }

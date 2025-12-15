@@ -3,60 +3,103 @@ import Foundation
 import AppKit
 
 struct TraceCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "trace",
-        abstract: "Apply vector tracing effect to images",
-        discussion: """
-            Convert images to a line art or sketch-like appearance.
-            Uses edge detection filters to create a traced/outlined effect.
+        abstract: HelpTextFactory.text(
+            en: "Apply vector tracing effect to images",
+            cn: "为图片应用描摹/线稿效果"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Convert images to a line art or sketch-like appearance.
+                Uses edge detection filters to create a traced/outlined effect.
 
-            QUICK START:
-              airis edit trace photo.jpg -o traced.png
+                QUICK START:
+                  airis edit trace photo.jpg -o traced.png
 
-            STYLES:
-              edges    - Basic edge detection (default)
-              sketch   - Line overlay effect (sketch-like)
-              work     - Edge work effect (woodcut-like)
+                STYLES:
+                  edges    - Basic edge detection (default)
+                  sketch   - Line overlay effect (sketch-like)
+                  work     - Edge work effect (woodcut-like)
 
-            EXAMPLES:
-              # Basic edge trace
-              airis edit trace photo.jpg -o traced.png
+                EXAMPLES:
+                  # Basic edge trace
+                  airis edit trace photo.jpg -o traced.png
 
-              # Sketch-style effect
-              airis edit trace portrait.jpg --style sketch -o sketch.png
+                  # Sketch-style effect
+                  airis edit trace portrait.jpg --style sketch -o sketch.png
 
-              # Woodcut-style effect with custom radius
-              airis edit trace image.jpg --style work --radius 5 -o woodcut.png
+                  # Woodcut-style effect with custom radius
+                  airis edit trace image.jpg --style work --radius 5 -o woodcut.png
 
-            PARAMETERS:
-              --style: Tracing style (edges, sketch, work)
-              --intensity: Effect intensity (0.1-5.0, default: 1.0)
-              --radius: Edge thickness for 'work' style (1-10, default: 3)
+                PARAMETERS:
+                  --style: Tracing style (edges, sketch, work)
+                  --intensity: Effect intensity (0.1-5.0, default: 1.0)
+                  --radius: Edge thickness for 'work' style (1-10, default: 3)
 
-            OUTPUT:
-              Image with line art / traced effect applied
-            """
+                OUTPUT:
+                  Image with line art / traced effect applied
+                """,
+            cn: """
+                将图片转换为线稿/素描风格效果。
+                基于边缘检测相关滤镜生成描边与轮廓效果。
+
+                QUICK START:
+                  airis edit trace photo.jpg -o traced.png
+
+                STYLES:
+                  edges    - 基础边缘描边（默认）
+                  sketch   - 素描线条叠加
+                  work     - 木刻/版画风格（Edge Work）
+
+                EXAMPLES:
+                  # 基础描边
+                  airis edit trace photo.jpg -o traced.png
+
+                  # 素描效果
+                  airis edit trace portrait.jpg --style sketch -o sketch.png
+
+                  # 木刻风格并自定义半径
+                  airis edit trace image.jpg --style work --radius 5 -o woodcut.png
+
+                PARAMETERS:
+                  --style: 风格（edges, sketch, work）
+                  --intensity: 强度（0.1-5.0，默认：1.0）
+                  --radius: work 风格的边缘厚度（1-10，默认：3）
+
+                OUTPUT:
+                  输出为已应用线稿/描摹效果的图片
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Tracing style: edges, sketch, work (default: edges)")
+    @Option(
+        name: .long,
+        help: HelpTextFactory.help(
+            en: "Tracing style: edges, sketch, work (default: edges)",
+            cn: "描摹风格：edges, sketch, work（默认：edges）"
+        )
+    )
     var style: String = "edges"
 
-    @Option(name: .long, help: "Effect intensity (0.1-5.0, default: 1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Effect intensity (0.1-5.0, default: 1.0)", cn: "效果强度（0.1-5.0，默认：1.0）"))
     var intensity: Double = 1.0
 
-    @Option(name: .long, help: "Edge thickness for 'work' style (1-10, default: 3)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Edge thickness for 'work' style (1-10, default: 3)", cn: "work 风格的边缘厚度（1-10，默认：3）"))
     var radius: Double = 3.0
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

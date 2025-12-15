@@ -5,56 +5,74 @@ import AppKit
 struct NoiseCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "noise",
-        abstract: "Reduce noise in images",
-        discussion: """
-            Apply noise reduction to images using CoreImage's noise reduction filter.
+        abstract: HelpTextFactory.text(
+            en: "Reduce noise in images",
+            cn: "降噪"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply noise reduction to images using CoreImage's noise reduction filter.
 
-            Reduces digital noise (grain) while attempting to preserve image sharpness.
-            Best for photos taken in low light or at high ISO settings.
+                Reduces digital noise (grain) while attempting to preserve image sharpness.
+                Best for photos taken in low light or at high ISO settings.
 
-            PARAMETERS:
-              --level:     Noise level estimation (0-0.1, default: 0.02)
-                           Higher values = more aggressive noise reduction
-              --sharpness: Edge sharpness preservation (0-2, default: 0.4)
-                           Higher values = more detail preserved but more noise remains
+                PARAMETERS:
+                  --level:     Noise level estimation (0-0.1, default: 0.02)
+                               Higher values = more aggressive noise reduction
+                  --sharpness: Edge sharpness preservation (0-2, default: 0.4)
+                               Higher values = more detail preserved but more noise remains
 
-            QUICK START:
-              airis edit filter noise photo.jpg -o denoised.png
+                QUICK START:
+                  airis edit filter noise photo.jpg -o denoised.png
 
-            EXAMPLES:
-              # Default noise reduction
-              airis edit filter noise noisy.jpg -o clean.png
+                EXAMPLES:
+                  # Default noise reduction
+                  airis edit filter noise noisy.jpg -o clean.png
 
-              # Aggressive noise reduction (may lose some detail)
-              airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
+                  # Aggressive noise reduction (may lose some detail)
+                  airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
 
-              # Gentle noise reduction (preserve detail)
-              airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
+                  # Gentle noise reduction (preserve detail)
+                  airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
 
-              # Heavy noise reduction for very noisy images
-              airis edit filter noise highiso.jpg --level 0.08 -o cleaned.png
+                  # Heavy noise reduction for very noisy images
+                  airis edit filter noise highiso.jpg --level 0.08 -o cleaned.png
 
-            OUTPUT:
-              Denoised image in the specified format
-            """
+                OUTPUT:
+                  Denoised image in the specified format
+                """,
+            cn: """
+                使用 Core Image 降噪滤镜减少图片噪点（颗粒），并尽量保留边缘细节。
+
+                QUICK START:
+                  airis edit filter noise photo.jpg -o denoised.png
+
+                EXAMPLES:
+                  # 更强降噪（可能损失细节）
+                  airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
+
+                  # 更温和降噪（保留细节）
+                  airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Noise level (0-0.1, default: 0.02)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Noise level (0-0.1, default: 0.02)", cn: "噪声水平（0-0.1，默认：0.02）"))
     var level: Double = 0.02
 
-    @Option(name: .long, help: "Sharpness preservation (0-2, default: 0.4)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Sharpness preservation (0-2, default: 0.4)", cn: "细节保留（0-2，默认：0.4）"))
     var sharpness: Double = 0.4
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

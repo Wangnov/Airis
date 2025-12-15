@@ -3,98 +3,129 @@ import ArgumentParser
 import Foundation
 
 struct FaceCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "face",
-        abstract: "Detect faces and facial landmarks in images",
-        discussion: """
-            Detect faces in images with optional facial landmark detection.
+        abstract: HelpTextFactory.text(
+            en: "Detect faces and facial landmarks in images",
+            cn: "检测图片中的人脸（可选关键点）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect faces in images with optional facial landmark detection.
 
-            QUICK START:
-              airis detect face photo.jpg
+                QUICK START:
+                  airis detect face photo.jpg
 
-            DETECTION MODES:
-              • Rectangle only (--fast)
-                Fast detection, returns bounding boxes only
+                DETECTION MODES:
+                  • Rectangle only (--fast)
+                    Fast detection, returns bounding boxes only
 
-              • Full landmarks (default)
-                Detailed 76-point facial landmarks including:
-                - Face contour
-                - Left/right eyebrow
-                - Left/right eye
-                - Left/right pupil
-                - Nose
-                - Nose crest
-                - Median line
-                - Outer/inner lips
+                  • Full landmarks (default)
+                    Detailed 76-point facial landmarks including:
+                    - Face contour
+                    - Left/right eyebrow
+                    - Left/right eye
+                    - Left/right pupil
+                    - Nose
+                    - Nose crest
+                    - Median line
+                    - Outer/inner lips
 
-            EXAMPLES:
-              # Detect faces with landmarks
-              airis detect face portrait.jpg
+                EXAMPLES:
+                  # Detect faces with landmarks
+                  airis detect face portrait.jpg
 
-              # Fast detection (bounding boxes only)
-              airis detect face group.jpg --fast
+                  # Fast detection (bounding boxes only)
+                  airis detect face group.jpg --fast
 
-              # JSON output
-              airis detect face photo.png --format json
+                  # JSON output
+                  airis detect face photo.png --format json
 
-              # Set minimum confidence threshold
-              airis detect face crowd.jpg --threshold 0.7
+                  # Set minimum confidence threshold
+                  airis detect face crowd.jpg --threshold 0.7
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Detected 2 face(s)
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Detected 2 face(s)
 
-              [1] Face
-                  Confidence: 0.95
-                  Bounding Box: (0.23, 0.45) - 0.31×0.42
-                  Roll: -2.3°
-                  Yaw: 5.1°
-                  Landmarks: 76 points detected
+                  [1] Face
+                      Confidence: 0.95
+                      Bounding Box: (0.23, 0.45) - 0.31×0.42
+                      Roll: -2.3°
+                      Yaw: 5.1°
+                      Landmarks: 76 points detected
 
-              [2] Face
-                  Confidence: 0.87
-                  Bounding Box: (0.58, 0.40) - 0.28×0.38
-                  Roll: 1.2°
-                  Yaw: -3.8°
-                  Landmarks: 76 points detected
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  [2] Face
+                      Confidence: 0.87
+                      Bounding Box: (0.58, 0.40) - 0.28×0.38
+                      Roll: 1.2°
+                      Yaw: -3.8°
+                      Landmarks: 76 points detected
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-            OPTIONS:
-              --fast             Fast mode (bounding boxes only, no landmarks)
-              --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.0)
-              --format <fmt>     Output format: table (default), json
-            """
+                OPTIONS:
+                  --fast             Fast mode (bounding boxes only, no landmarks)
+                  --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.0)
+                  --format <fmt>     Output format: table (default), json
+                """,
+            cn: """
+                使用 Apple Vision 框架检测图片中的人脸，可选择输出人脸关键点。
+
+                QUICK START:
+                  airis detect face photo.jpg
+
+                EXAMPLES:
+                  # 默认模式：输出关键点（landmarks）
+                  airis detect face portrait.jpg
+
+                  # 快速模式：仅输出 bounding box
+                  airis detect face group.jpg --fast
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect face photo.png --format json
+
+                  # 置信度阈值过滤
+                  airis detect face crowd.jpg --threshold 0.7
+
+                OPTIONS:
+                  --fast             快速模式（不输出关键点）
+                  --threshold <val>  置信度阈值（0.0-1.0，默认：0.0）
+                  --format <fmt>     输出格式：table（默认）或 json
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Flag(name: .long, help: "Fast detection mode (no landmarks)")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Fast detection mode (no landmarks)", cn: "快速模式（不输出关键点）"))
     var fast: Bool = false
 
-    @Option(name: .long, help: "Minimum confidence threshold (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Minimum confidence threshold (0.0-1.0)", cn: "置信度阈值（0.0-1.0）"))
     var threshold: Float = 0.0
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let vision = ServiceContainer.shared.visionService
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
         for imagePath in imagePaths {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("👤 Face Detection")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
-            print("⚡ Mode: \(fast ? "Fast (rectangles only)" : "Full (with landmarks)")")
-            if threshold > 0 {
-                print("🎯 Threshold: \(String(format: "%.2f", threshold))")
-            }
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+            AirisOutput.printBanner([
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "👤 Face Detection",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)",
+                "⚡ Mode: \(fast ? "Fast (rectangles only)" : "Full (with landmarks)")",
+            ] + (threshold > 0 ? ["🎯 Threshold: \(String(format: "%.2f", threshold))"] : []) + [
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ], enabled: showHumanOutput)
 
             // 执行检测
             let results: [VNFaceObservation]
@@ -108,15 +139,19 @@ struct FaceCommand: AsyncParsableCommand {
             let filteredResults = results.filter { $0.confidence >= threshold }
 
             if filteredResults.isEmpty {
-                print("No faces detected.")
-                print("")
+                if outputFormat == .json {
+                    printJSON(results: [], file: url.lastPathComponent, hasLandmarks: !fast)
+                } else if showHumanOutput {
+                    print("No faces detected.")
+                    print("")
+                }
                 continue
             }
 
             // 输出结果
-            if format == "json" {
+            if outputFormat == .json {
                 printJSON(results: filteredResults, file: url.lastPathComponent, hasLandmarks: !fast)
-            } else {
+            } else if showHumanOutput {
                 printTable(results: filteredResults, hasLandmarks: !fast)
             }
         }

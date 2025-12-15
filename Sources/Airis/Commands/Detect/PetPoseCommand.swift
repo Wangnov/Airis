@@ -3,97 +3,146 @@ import ArgumentParser
 import Foundation
 
 struct PetPoseCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "petpose",
-        abstract: "Detect pet body pose (cats and dogs, 25 keypoints)",
-        discussion: """
-            Detect body poses of cats and dogs using Apple's Vision framework.
-            Returns 25 keypoints per animal with normalized coordinates.
+        abstract: HelpTextFactory.text(
+            en: "Detect pet body pose (cats and dogs, 25 keypoints)",
+            cn: "检测宠物姿态（猫/狗，25 个关键点）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect body poses of cats and dogs using Apple's Vision framework.
+                Returns 25 keypoints per animal with normalized coordinates.
 
-            REQUIREMENTS:
-              macOS 14.0 or later
+                REQUIREMENTS:
+                  macOS 14.0 or later
 
-            QUICK START:
-              airis detect petpose pet.jpg
+                QUICK START:
+                  airis detect petpose pet.jpg
 
-            SUPPORTED ANIMALS:
-              • Cats
-              • Dogs
+                SUPPORTED ANIMALS:
+                  • Cats
+                  • Dogs
 
-            KEYPOINTS (25 total):
-              HEAD (10):
-                nose, leftEye, rightEye
-                leftEarTop, leftEarMiddle, leftEarBottom
-                rightEarTop, rightEarMiddle, rightEarBottom
-                neck
+                KEYPOINTS (25 total):
+                  HEAD (10):
+                    nose, leftEye, rightEye
+                    leftEarTop, leftEarMiddle, leftEarBottom
+                    rightEarTop, rightEarMiddle, rightEarBottom
+                    neck
 
-              FRONT LEGS (6):
-                leftFrontElbow, leftFrontKnee, leftFrontPaw
-                rightFrontElbow, rightFrontKnee, rightFrontPaw
+                  FRONT LEGS (6):
+                    leftFrontElbow, leftFrontKnee, leftFrontPaw
+                    rightFrontElbow, rightFrontKnee, rightFrontPaw
 
-              BACK LEGS (6):
-                leftBackElbow, leftBackKnee, leftBackPaw
-                rightBackElbow, rightBackKnee, rightBackPaw
+                  BACK LEGS (6):
+                    leftBackElbow, leftBackKnee, leftBackPaw
+                    rightBackElbow, rightBackKnee, rightBackPaw
 
-              TAIL (3):
-                tailTop, tailMiddle, tailBottom
+                  TAIL (3):
+                    tailTop, tailMiddle, tailBottom
 
-            EXAMPLES:
-              # Basic pet pose detection
-              airis detect petpose dog.jpg
+                EXAMPLES:
+                  # Basic pet pose detection
+                  airis detect petpose dog.jpg
 
-              # Show pixel coordinates
-              airis detect petpose cat.png --pixels
+                  # Show pixel coordinates
+                  airis detect petpose cat.png --pixels
 
-              # Filter by confidence threshold
-              airis detect petpose pet.jpg --threshold 0.5
+                  # Filter by confidence threshold
+                  airis detect petpose pet.jpg --threshold 0.5
 
-              # JSON output for scripting
-              airis detect petpose animals.jpg --format json
+                  # JSON output for scripting
+                  airis detect petpose animals.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              🐾 Pet Body Pose Detection
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 File: dog.jpg
-              🎯 Threshold: 0.30
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🐾 Pet Body Pose Detection
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 File: dog.jpg
+                  🎯 Threshold: 0.30
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              Detected 1 animal(s)
+                  Detected 1 animal(s)
 
-              [1] Animal
-                  Keypoints (25):
-                    nose:           (0.52, 0.65) - conf: 0.95
-                    leftEye:        (0.48, 0.68) - conf: 0.93
-                    rightEye:       (0.56, 0.67) - conf: 0.92
-                    leftFrontPaw:   (0.35, 0.25) - conf: 0.88
-                    ...
+                  [1] Animal
+                      Keypoints (25):
+                        nose:           (0.52, 0.65) - conf: 0.95
+                        leftEye:        (0.48, 0.68) - conf: 0.93
+                        rightEye:       (0.56, 0.67) - conf: 0.92
+                        leftFrontPaw:   (0.35, 0.25) - conf: 0.88
+                        ...
 
-            OPTIONS:
-              --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.3)
-              --pixels           Show pixel coordinates instead of normalized
-              --format <fmt>     Output format: table (default), json
-            """
+                OPTIONS:
+                  --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.3)
+                  --pixels           Show pixel coordinates instead of normalized
+                  --format <fmt>     Output format: table (default), json
+                """,
+            cn: """
+                使用 Apple Vision 框架检测猫/狗的身体姿态（25 个关键点）。
+
+                REQUIREMENTS:
+                  macOS 14.0+
+
+                QUICK START:
+                  airis detect petpose pet.jpg
+
+                EXAMPLES:
+                  # 基础检测
+                  airis detect petpose dog.jpg
+
+                  # 输出像素坐标
+                  airis detect petpose cat.png --pixels
+
+                  # 置信度阈值过滤
+                  airis detect petpose pet.jpg --threshold 0.5
+
+                  # JSON 输出（便于脚本解析）
+                  airis detect petpose animals.jpg --format json
+
+                OPTIONS:
+                  --threshold <val>  置信度阈值（0.0-1.0，默认：0.3）
+                  --pixels           输出像素坐标（默认输出归一化）
+                  --format <fmt>     输出格式：table（默认）或 json
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the image file(s)")
+    @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
     var imagePaths: [String]
 
-    @Option(name: .long, help: "Minimum confidence threshold (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Minimum confidence threshold (0.0-1.0)", cn: "置信度阈值（0.0-1.0）"))
     var threshold: Float = 0.3
 
-    @Flag(name: .long, help: "Show pixel coordinates instead of normalized")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Show pixel coordinates instead of normalized", cn: "输出像素坐标（默认输出归一化坐标）"))
     var pixels: Bool = false
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
+
         // 检查 macOS 版本（测试可通过环境变量强制触发降级分支）
         let forceUnsupported = ProcessInfo.processInfo.environment["AIRIS_FORCE_PETPOSE_UNSUPPORTED"] == "1"
         guard #available(macOS 14.0, *), !forceUnsupported else {
-            print(Strings.get("error.requires_macos", "Pet pose detection", "14.0"))
-            print(Strings.get("error.feature_unsupported"))
+            if outputFormat == .json {
+                let payload: [String: Any] = [
+                    "supported": false,
+                    "required_macos": "14.0",
+                    "error": "unsupported_os_version"
+                ]
+                if let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    print(jsonString)
+                }
+            } else if showHumanOutput {
+                print(Strings.get("error.requires_macos", "Pet pose detection", "14.0"))
+                print(Strings.get("error.feature_unsupported"))
+            }
             return
         }
 
@@ -113,33 +162,34 @@ struct PetPoseCommand: AsyncParsableCommand {
                 }
             }
 
-            // 显示参数
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("🐾 Pet Body Pose Detection")
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("📁 File: \(url.lastPathComponent)")
-            print("🎯 Threshold: \(String(format: "%.2f", threshold))")
-            if pixels && imageWidth > 0 {
-                print("📐 Image Size: \(imageWidth)×\(imageHeight) px")
-            }
-            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            print("")
+            AirisOutput.printBanner([
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "🐾 Pet Body Pose Detection",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                "📁 File: \(url.lastPathComponent)",
+                "🎯 Threshold: \(String(format: "%.2f", threshold))",
+            ] + ((pixels && imageWidth > 0) ? ["📐 Image Size: \(imageWidth)×\(imageHeight) px"] : []) + [
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ], enabled: showHumanOutput)
 
             // 执行检测
             let results = try await vision.detectAnimalBodyPose(at: url)
 
             if results.isEmpty {
-                print("No pet poses detected.")
-                print("Note: This feature works best with cats and dogs.")
-                print("")
+                if outputFormat == .json {
+                    printJSON(results: [], file: url.lastPathComponent, imageWidth: imageWidth, imageHeight: imageHeight)
+                } else if showHumanOutput {
+                    print("No pet poses detected.")
+                    print("Note: This feature works best with cats and dogs.")
+                    print("")
+                }
                 continue
             }
 
             // 输出结果
-            if format == "json" {
-                printJSON(results: results, file: url.lastPathComponent,
-                          imageWidth: imageWidth, imageHeight: imageHeight)
-            } else {
+            if outputFormat == .json {
+                printJSON(results: results, file: url.lastPathComponent, imageWidth: imageWidth, imageHeight: imageHeight)
+            } else if showHumanOutput {
                 printTable(results: results, imageWidth: imageWidth, imageHeight: imageHeight)
             }
         }

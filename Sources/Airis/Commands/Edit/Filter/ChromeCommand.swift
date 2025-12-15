@@ -5,42 +5,56 @@ import AppKit
 struct ChromeCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "chrome",
-        abstract: "Apply chrome photo effect",
-        discussion: """
-            Apply Chrome photo effect using CoreImage.
+        abstract: HelpTextFactory.text(
+            en: "Apply chrome photo effect",
+            cn: "鲜艳对比（Chrome）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply Chrome photo effect using CoreImage.
 
-            Creates a dramatic look with:
-            - Enhanced contrast
-            - Boosted colors
-            - Vivid, punchy appearance
+                Creates a dramatic look with:
+                - Enhanced contrast
+                - Boosted colors
+                - Vivid, punchy appearance
 
-            This is a one-click effect with no adjustable parameters.
+                This is a one-click effect with no adjustable parameters.
 
-            QUICK START:
-              airis edit filter chrome photo.jpg -o chrome.png
+                QUICK START:
+                  airis edit filter chrome photo.jpg -o chrome.png
 
-            EXAMPLES:
-              # Apply chrome effect
-              airis edit filter chrome photo.jpg -o chrome.png
+                EXAMPLES:
+                  # Apply chrome effect
+                  airis edit filter chrome photo.jpg -o chrome.png
 
-              # Process and open result
-              airis edit filter chrome landscape.jpg -o vivid.png --open
+                  # Process and open result
+                  airis edit filter chrome landscape.jpg -o vivid.png --open
 
-            OUTPUT:
-              Chrome-styled image in the specified format
-            """
+                OUTPUT:
+                  Chrome-styled image in the specified format
+                """,
+            cn: """
+                使用 Photo Effect Chrome 一键增强对比与色彩饱和度（更“鲜艳”）。
+
+                QUICK START:
+                  airis edit filter chrome photo.jpg -o chrome.png
+
+                EXAMPLES:
+                  airis edit filter chrome landscape.jpg -o vivid.png --open
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

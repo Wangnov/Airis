@@ -5,59 +5,83 @@ import AppKit
 struct SharpenCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "sharpen",
-        abstract: "Sharpen images",
-        discussion: """
-            Apply sharpening effects to enhance image details using CoreImage filters.
+        abstract: HelpTextFactory.text(
+            en: "Sharpen images",
+            cn: "锐化"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply sharpening effects to enhance image details using CoreImage filters.
 
-            SHARPEN METHODS:
-              luminance  Sharpen luminance channel only (default, preserves colors)
-              unsharp    Unsharp mask (traditional, more control)
+                SHARPEN METHODS:
+                  luminance  Sharpen luminance channel only (default, preserves colors)
+                  unsharp    Unsharp mask (traditional, more control)
 
-            PARAMETERS:
-              --intensity: Sharpening strength (0-2, default: 0.5)
-              --radius:    Affected area radius for unsharp mask (0-10, default: 2.5)
-              --method:    Sharpening algorithm (luminance, unsharp)
+                PARAMETERS:
+                  --intensity: Sharpening strength (0-2, default: 0.5)
+                  --radius:    Affected area radius for unsharp mask (0-10, default: 2.5)
+                  --method:    Sharpening algorithm (luminance, unsharp)
 
-            QUICK START:
-              airis edit filter sharpen photo.jpg -o sharpened.png
+                QUICK START:
+                  airis edit filter sharpen photo.jpg -o sharpened.png
 
-            EXAMPLES:
-              # Default luminance sharpening
-              airis edit filter sharpen photo.jpg -o sharp.png
+                EXAMPLES:
+                  # Default luminance sharpening
+                  airis edit filter sharpen photo.jpg -o sharp.png
 
-              # Stronger sharpening
-              airis edit filter sharpen photo.jpg --intensity 1.0 -o sharp.png
+                  # Stronger sharpening
+                  airis edit filter sharpen photo.jpg --intensity 1.0 -o sharp.png
 
-              # Unsharp mask with custom radius
-              airis edit filter sharpen photo.jpg --method unsharp --radius 3.0 --intensity 0.8 -o sharp.png
+                  # Unsharp mask with custom radius
+                  airis edit filter sharpen photo.jpg --method unsharp --radius 3.0 --intensity 0.8 -o sharp.png
 
-              # Subtle sharpening for portraits
-              airis edit filter sharpen portrait.jpg --intensity 0.3 -o portrait_sharp.png
+                  # Subtle sharpening for portraits
+                  airis edit filter sharpen portrait.jpg --intensity 0.3 -o portrait_sharp.png
 
-            OUTPUT:
-              Sharpened image in the specified format
-            """
+                OUTPUT:
+                  Sharpened image in the specified format
+                """,
+            cn: """
+                使用 Core Image 锐化图片细节，支持 luminance（默认）与 unsharp 两种方法。
+
+                QUICK START:
+                  airis edit filter sharpen photo.jpg -o sharpened.png
+
+                EXAMPLES:
+                  # 更强锐化
+                  airis edit filter sharpen photo.jpg --intensity 1.0 -o sharp.png
+
+                  # Unsharp mask
+                  airis edit filter sharpen photo.jpg --method unsharp --radius 3.0 --intensity 0.8 -o sharp.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Sharpening intensity (0-2, default: 0.5)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Sharpening intensity (0-2, default: 0.5)", cn: "锐化强度（0-2，默认：0.5）"))
     var intensity: Double = 0.5
 
-    @Option(name: .long, help: "Radius for unsharp mask (0-10, default: 2.5)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Radius for unsharp mask (0-10, default: 2.5)", cn: "Unsharp 半径（0-10，默认：2.5）"))
     var radius: Double = 2.5
 
-    @Option(name: .long, help: "Sharpening method: luminance, unsharp (default: luminance)")
+    @Option(
+        name: .long,
+        help: HelpTextFactory.help(
+            en: "Sharpening method: luminance, unsharp (default: luminance)",
+            cn: "方法：luminance / unsharp（默认：luminance）"
+        )
+    )
     var method: String = "luminance"
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

@@ -3,52 +3,86 @@ import Foundation
 import AppKit
 
 struct DefringeCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "defringe",
-        abstract: "Remove chromatic aberration (purple/green fringing)",
-        discussion: """
-            Reduce color fringing artifacts around high-contrast edges.
-            Common in images with chromatic aberration from lenses.
+        abstract: HelpTextFactory.text(
+            en: "Remove chromatic aberration (purple/green fringing)",
+            cn: "去色散/紫边绿边（色边）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Reduce color fringing artifacts around high-contrast edges.
+                Common in images with chromatic aberration from lenses.
 
-            QUICK START:
-              airis edit defringe photo.jpg -o fixed.jpg
+                QUICK START:
+                  airis edit defringe photo.jpg -o fixed.jpg
 
-            EXAMPLES:
-              # Basic defringe with default amount
-              airis edit defringe photo.jpg -o defringed.jpg
+                EXAMPLES:
+                  # Basic defringe with default amount
+                  airis edit defringe photo.jpg -o defringed.jpg
 
-              # Strong defringe effect
-              airis edit defringe image.jpg --amount 1.0 -o fixed.jpg
+                  # Strong defringe effect
+                  airis edit defringe image.jpg --amount 1.0 -o fixed.jpg
 
-              # Light defringe
-              airis edit defringe portrait.png --amount 0.3 -o clean.png
+                  # Light defringe
+                  airis edit defringe portrait.png --amount 0.3 -o clean.png
 
-            PARAMETERS:
-              --amount: Defringe intensity (0.0-1.0, default: 0.5)
-                        0.0 = no effect, 1.0 = maximum correction
+                PARAMETERS:
+                  --amount: Defringe intensity (0.0-1.0, default: 0.5)
+                            0.0 = no effect, 1.0 = maximum correction
 
-            OUTPUT:
-              Image with reduced chromatic aberration
+                OUTPUT:
+                  Image with reduced chromatic aberration
 
-            NOTE:
-              Works best on images with visible purple or green fringing
-              around high-contrast edges (e.g., backlit subjects, windows).
-            """
+                NOTE:
+                  Works best on images with visible purple or green fringing
+                  around high-contrast edges (e.g., backlit subjects, windows).
+                """,
+            cn: """
+                减少高反差边缘周围的紫边/绿边等色散伪影。
+                常见于镜头色散（chromatic aberration）导致的色边问题。
+
+                QUICK START:
+                  airis edit defringe photo.jpg -o fixed.jpg
+
+                EXAMPLES:
+                  # 默认强度去色边
+                  airis edit defringe photo.jpg -o defringed.jpg
+
+                  # 强烈去色边
+                  airis edit defringe image.jpg --amount 1.0 -o fixed.jpg
+
+                  # 轻度去色边
+                  airis edit defringe portrait.png --amount 0.3 -o clean.png
+
+                PARAMETERS:
+                  --amount: 强度（0.0-1.0，默认：0.5）
+                            0.0 = 无效果，1.0 = 最大校正
+
+                OUTPUT:
+                  输出为已减少色散/色边的图片
+
+                NOTE:
+                  对“背光人物、窗框”等高反差边缘明显的紫边/绿边场景效果更好。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Defringe intensity (0.0-1.0, default: 0.5)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Defringe intensity (0.0-1.0, default: 0.5)", cn: "去色边强度（0.0-1.0，默认：0.5）"))
     var amount: Double = 0.5
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

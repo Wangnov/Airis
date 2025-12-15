@@ -54,11 +54,11 @@ final class ConfigManager: Sendable {
         return computeDefaultConfigDirectory(environment: environment).appendingPathComponent("config.json")
     }
 
-    /// 默认配置目录
-    static let defaultConfigDirectory: URL = computeDefaultConfigDirectory()
+    /// 默认配置目录（使用计算属性确保环境变量覆盖在运行时生效）
+    static var defaultConfigDirectory: URL { computeDefaultConfigDirectory() }
 
-    /// 默认配置文件路径
-    static let defaultConfigFile: URL = computeDefaultConfigFile()
+    /// 默认配置文件路径（使用计算属性确保环境变量覆盖在运行时生效）
+    static var defaultConfigFile: URL { computeDefaultConfigFile() }
 
     /// 默认 Provider 配置
     static let defaultConfigs: [String: ProviderConfig] = [

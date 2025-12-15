@@ -3,61 +3,98 @@ import Foundation
 import AppKit
 
 struct EnhanceCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "enhance",
-        abstract: "Auto-enhance images with one click",
-        discussion: """
-            Automatically enhance images using CoreImage's intelligent adjustment.
-            Applies optimal filters based on image analysis.
+        abstract: HelpTextFactory.text(
+            en: "Auto-enhance images with one click",
+            cn: "一键自动增强图片"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Automatically enhance images using CoreImage's intelligent adjustment.
+                Applies optimal filters based on image analysis.
 
-            APPLIED ADJUSTMENTS:
-              • Red-eye correction (if faces detected)
-              • Face balance (skin tone optimization)
-              • Vibrance (natural saturation boost)
-              • Tone curve (contrast and exposure)
-              • Highlight/shadow adjustment
+                APPLIED ADJUSTMENTS:
+                  • Red-eye correction (if faces detected)
+                  • Face balance (skin tone optimization)
+                  • Vibrance (natural saturation boost)
+                  • Tone curve (contrast and exposure)
+                  • Highlight/shadow adjustment
 
-            QUICK START:
-              airis edit enhance photo.jpg -o enhanced.jpg
+                QUICK START:
+                  airis edit enhance photo.jpg -o enhanced.jpg
 
-            EXAMPLES:
-              # Basic enhancement
-              airis edit enhance photo.jpg -o enhanced.jpg
+                EXAMPLES:
+                  # Basic enhancement
+                  airis edit enhance photo.jpg -o enhanced.jpg
 
-              # Enhancement without red-eye correction
-              airis edit enhance landscape.jpg -o enhanced.jpg --no-redeye
+                  # Enhancement without red-eye correction
+                  airis edit enhance landscape.jpg -o enhanced.jpg --no-redeye
 
-              # High quality output
-              airis edit enhance portrait.heic -o enhanced.heic --quality 0.95
+                  # High quality output
+                  airis edit enhance portrait.heic -o enhanced.heic --quality 0.95
 
-              # Process and open result
-              airis edit enhance photo.jpg -o enhanced.jpg --open
+                  # Process and open result
+                  airis edit enhance photo.jpg -o enhanced.jpg --open
 
-            NOTE:
-              Enhancement is non-destructive and can be applied multiple times,
-              but results may become over-processed with repeated applications.
-            """
+                NOTE:
+                  Enhancement is non-destructive and can be applied multiple times,
+                  but results may become over-processed with repeated applications.
+                """,
+            cn: """
+                使用 Core Image 的自动增强能力对图片进行一键优化。
+                会根据图像内容分析自动选择合适的滤镜组合。
+
+                可能应用的调整：
+                  • 红眼修复（检测到人脸时）
+                  • Face Balance（肤色/人像平衡）
+                  • Vibrance（自然饱和度增强）
+                  • Tone Curve（对比度/曝光曲线）
+                  • 高光/阴影调整
+
+                QUICK START:
+                  airis edit enhance photo.jpg -o enhanced.jpg
+
+                EXAMPLES:
+                  # 基础增强
+                  airis edit enhance photo.jpg -o enhanced.jpg
+
+                  # 不进行红眼修复
+                  airis edit enhance landscape.jpg -o enhanced.jpg --no-redeye
+
+                  # 更高质量输出（JPEG/HEIC）
+                  airis edit enhance portrait.heic -o enhanced.heic --quality 0.95
+
+                  # 处理后自动打开
+                  airis edit enhance photo.jpg -o enhanced.jpg --open
+
+                NOTE:
+                  自动增强是非破坏性的，但重复多次可能会出现“过度处理”的效果。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: .long, help: "Disable red-eye correction")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Disable red-eye correction", cn: "禁用红眼修复"))
     var noRedeye: Bool = false
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
-    @Flag(name: .long, help: "Show which filters will be applied")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Show which filters will be applied", cn: "显示将要应用的滤镜列表"))
     var verbose: Bool = false
 
     func run() async throws {

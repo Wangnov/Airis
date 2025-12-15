@@ -3,51 +3,83 @@ import Foundation
 import AppKit
 
 struct StraightenCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "straighten",
-        abstract: "Automatically straighten tilted images",
-        discussion: """
-            Detect and correct image tilt using horizon detection.
-            Automatically finds the horizon line and rotates to level.
+        abstract: HelpTextFactory.text(
+            en: "Automatically straighten tilted images",
+            cn: "自动拉直倾斜的图片"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Detect and correct image tilt using horizon detection.
+                Automatically finds the horizon line and rotates to level.
 
-            QUICK START:
-              airis edit straighten tilted.jpg -o straight.jpg
+                QUICK START:
+                  airis edit straighten tilted.jpg -o straight.jpg
 
-            EXAMPLES:
-              # Auto-straighten a photo
-              airis edit straighten landscape.jpg -o leveled.jpg
+                EXAMPLES:
+                  # Auto-straighten a photo
+                  airis edit straighten landscape.jpg -o leveled.jpg
 
-              # Straighten and open result
-              airis edit straighten photo.png -o corrected.png --open
+                  # Straighten and open result
+                  airis edit straighten photo.png -o corrected.png --open
 
-              # Manual angle override (in degrees, positive = counterclockwise)
-              airis edit straighten image.jpg --angle 2.5 -o fixed.jpg
+                  # Manual angle override (in degrees, positive = counterclockwise)
+                  airis edit straighten image.jpg --angle 2.5 -o fixed.jpg
 
-            PARAMETERS:
-              --angle: Manual rotation angle in degrees (overrides auto-detection)
+                PARAMETERS:
+                  --angle: Manual rotation angle in degrees (overrides auto-detection)
 
-            OUTPUT:
-              Rotated image with corrected horizon
+                OUTPUT:
+                  Rotated image with corrected horizon
 
-            NOTE:
-              Works best with images containing clear horizon lines or
-              strong horizontal/vertical features.
-            """
+                NOTE:
+                  Works best with images containing clear horizon lines or
+                  strong horizontal/vertical features.
+                """,
+            cn: """
+                通过地平线/水平线检测自动校正照片倾斜角度，并旋转到水平。
+
+                QUICK START:
+                  airis edit straighten tilted.jpg -o straight.jpg
+
+                EXAMPLES:
+                  # 自动拉直
+                  airis edit straighten landscape.jpg -o leveled.jpg
+
+                  # 拉直并自动打开
+                  airis edit straighten photo.png -o corrected.png --open
+
+                  # 手动指定角度（度；正数=逆时针）
+                  airis edit straighten image.jpg --angle 2.5 -o fixed.jpg
+
+                PARAMETERS:
+                  --angle: 手动旋转角度（将覆盖自动检测结果）
+
+                OUTPUT:
+                  输出为已校正地平线的旋转图片
+
+                NOTE:
+                  对包含明显地平线，或有明显水平/垂直结构的图片效果更好。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Manual rotation angle in degrees (overrides auto-detection)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Manual rotation angle in degrees (overrides auto-detection)", cn: "手动旋转角度（度，将覆盖自动检测）"))
     var angle: Double?
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

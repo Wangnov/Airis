@@ -5,41 +5,58 @@ import AppKit
 struct MonoCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "mono",
-        abstract: "Apply black and white effect",
-        discussion: """
-            Convert images to black and white using CoreImage's Photo Effect Mono.
+        abstract: HelpTextFactory.text(
+            en: "Apply black and white effect",
+            cn: "黑白（Mono）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Convert images to black and white using CoreImage's Photo Effect Mono.
 
-            Creates a clean, classic monochrome look with balanced tones.
-            This is a one-click effect with no adjustable parameters.
+                Creates a clean, classic monochrome look with balanced tones.
+                This is a one-click effect with no adjustable parameters.
 
-            QUICK START:
-              airis edit filter mono photo.jpg -o bw.png
+                QUICK START:
+                  airis edit filter mono photo.jpg -o bw.png
 
-            EXAMPLES:
-              # Convert to black and white
-              airis edit filter mono photo.jpg -o mono.png
+                EXAMPLES:
+                  # Convert to black and white
+                  airis edit filter mono photo.jpg -o mono.png
 
-              # Process and open result
-              airis edit filter mono portrait.jpg -o bw_portrait.png --open
+                  # Process and open result
+                  airis edit filter mono portrait.jpg -o bw_portrait.png --open
 
-            OUTPUT:
-              Black and white image in the specified format
+                OUTPUT:
+                  Black and white image in the specified format
 
-            SEE ALSO:
-              Use 'airis edit filter noir' for high-contrast B&W
-            """
+                SEE ALSO:
+                  Use 'airis edit filter noir' for high-contrast B&W
+                """,
+            cn: """
+                使用 Photo Effect Mono 一键将图片转换为黑白效果（更柔和、均衡）。
+
+                QUICK START:
+                  airis edit filter mono photo.jpg -o bw.png
+
+                EXAMPLES:
+                  airis edit filter mono portrait.jpg -o bw_portrait.png --open
+
+                SEE ALSO:
+                  想要更强对比可用：airis edit filter noir
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

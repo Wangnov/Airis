@@ -6,68 +6,94 @@ import Foundation
 struct AlignCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "align",
-        abstract: "Compute image registration/alignment transform",
-        discussion: """
-            Calculate the transformation needed to align two images.
-            This is useful for image stitching, panorama creation, and motion tracking.
+        abstract: HelpTextFactory.text(
+            en: "Compute image registration/alignment transform",
+            cn: "计算两张图片的对齐/配准变换"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Calculate the transformation needed to align two images.
+                This is useful for image stitching, panorama creation, and motion tracking.
 
-            QUICK START:
-              airis vision align reference.jpg floating.jpg
+                QUICK START:
+                  airis vision align reference.jpg floating.jpg
 
-            HOW IT WORKS:
-              Image registration finds the best alignment transform between two images.
-              The reference image is the target, and the floating image is transformed to match it.
-              Returns the affine transform (translation, rotation, scale) needed to align them.
+                HOW IT WORKS:
+                  Image registration finds the best alignment transform between two images.
+                  The reference image is the target, and the floating image is transformed to match it.
+                  Returns the affine transform (translation, rotation, scale) needed to align them.
 
-            EXAMPLES:
-              # Basic alignment
-              airis vision align reference.png floating.png
+                EXAMPLES:
+                  # Basic alignment
+                  airis vision align reference.png floating.png
 
-              # Save aligned image
-              airis vision align ref.jpg target.jpg -o aligned.png
+                  # Save aligned image
+                  airis vision align ref.jpg target.jpg -o aligned.png
 
-              # JSON output for scripting
-              airis vision align ref.jpg target.jpg --format json
+                  # JSON output for scripting
+                  airis vision align ref.jpg target.jpg --format json
 
-            OUTPUT EXAMPLE:
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Image Alignment
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              Reference: reference.jpg
-              Floating:  floating.jpg
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT EXAMPLE:
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Image Alignment
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  Reference: reference.jpg
+                  Floating:  floating.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              Alignment Transform:
-                Translation X: 12.5 px
-                Translation Y: -8.3 px
+                  Alignment Transform:
+                    Translation X: 12.5 px
+                    Translation Y: -8.3 px
 
-            REQUIREMENTS:
-              Both images should have the same dimensions for best results.
-              Works best with images that have overlapping content.
+                REQUIREMENTS:
+                  Both images should have the same dimensions for best results.
+                  Works best with images that have overlapping content.
 
-            NOTE:
-              This uses translational registration (shifts only).
-              For perspective transforms, consider homographic registration.
-            """
+                NOTE:
+                  This uses translational registration (shifts only).
+                  For perspective transforms, consider homographic registration.
+                """,
+            cn: """
+                计算将“floating”图片对齐到“reference”图片所需的变换参数（当前实现为平移对齐）。
+
+                QUICK START:
+                  airis vision align reference.jpg floating.jpg
+
+                EXAMPLES:
+                  # 基础对齐
+                  airis vision align reference.png floating.png
+
+                  # 保存对齐后的图片
+                  airis vision align ref.jpg target.jpg -o aligned.png
+
+                  # JSON 输出（便于脚本解析）
+                  airis vision align ref.jpg target.jpg --format json
+
+                说明：
+                  - 两张图尺寸一致、且内容有重叠时效果最佳
+                """
+        )
     )
 
-    @Argument(help: "Reference image (alignment target)")
+    @Argument(help: HelpTextFactory.help(en: "Reference image (alignment target)", cn: "参考图（对齐目标）"))
     var reference: String
 
-    @Argument(help: "Floating image (to be aligned)")
+    @Argument(help: HelpTextFactory.help(en: "Floating image (to be aligned)", cn: "待对齐图片（将被变换）"))
     var floating: String
 
-    @Option(name: [.short, .long], help: "Output aligned image path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output aligned image path", cn: "输出对齐后图片路径"))
     var output: String?
 
-    @Option(name: .long, help: "Output format (table, json)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format (table, json)", cn: "输出格式（table / json）"))
     var format: String = "table"
 
     func run() async throws {
         let referenceURL = try FileUtils.validateImageFile(at: reference)
         let floatingURL = try FileUtils.validateImageFile(at: floating)
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
 
-        if format != "json" {
+        if showHumanOutput {
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print("🔗 Image Alignment")
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -100,13 +126,13 @@ struct AlignCommand: AsyncParsableCommand {
         )
         #endif
 
-        if format == "json" {
+        if outputFormat == .json {
             printJSON(
                 result: result,
                 reference: referenceURL.lastPathComponent,
                 floating: floatingURL.lastPathComponent
             )
-        } else {
+        } else if showHumanOutput {
             print("")
             print("✅ Alignment computed")
             print("")
@@ -126,7 +152,7 @@ struct AlignCommand: AsyncParsableCommand {
                 transform: result.transform,
                 to: outputPath
             )
-            if format != "json" {
+            if showHumanOutput {
                 print("")
                 print(Strings.get("info.saved_to", outputPath))
             }

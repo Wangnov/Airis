@@ -3,66 +3,101 @@ import Foundation
 import AppKit
 
 struct CropCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "crop",
-        abstract: "Crop images to a specific region",
-        discussion: """
-            Crop images by specifying a rectangular region.
-            Coordinates use top-left origin (standard screen coordinates).
+        abstract: HelpTextFactory.text(
+            en: "Crop images to a specific region",
+            cn: "裁剪图片到指定区域"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Crop images by specifying a rectangular region.
+                Coordinates use top-left origin (standard screen coordinates).
 
-            COORDINATE SYSTEM:
-              Origin (0,0) is at top-left corner
-              X increases to the right
-              Y increases downward
+                COORDINATE SYSTEM:
+                  Origin (0,0) is at top-left corner
+                  X increases to the right
+                  Y increases downward
 
-            QUICK START:
-              airis edit crop photo.jpg --x 100 --y 200 --width 800 --height 600 -o cropped.jpg
+                QUICK START:
+                  airis edit crop photo.jpg --x 100 --y 200 --width 800 --height 600 -o cropped.jpg
 
-            EXAMPLES:
-              # Crop specific region
-              airis edit crop photo.jpg --x 100 --y 200 --width 800 --height 600 -o cropped.jpg
+                EXAMPLES:
+                  # Crop specific region
+                  airis edit crop photo.jpg --x 100 --y 200 --width 800 --height 600 -o cropped.jpg
 
-              # Crop from origin
-              airis edit crop photo.jpg --width 1000 --height 1000 -o square.jpg
+                  # Crop from origin
+                  airis edit crop photo.jpg --width 1000 --height 1000 -o square.jpg
 
-              # Crop and open result
-              airis edit crop photo.jpg --x 50 --y 50 --width 500 --height 500 -o thumb.png --open
+                  # Crop and open result
+                  airis edit crop photo.jpg --x 50 --y 50 --width 500 --height 500 -o thumb.png --open
 
-            VALIDATION:
-              The crop region must be within the image bounds.
-              If the region extends beyond the image, an error is returned.
+                VALIDATION:
+                  The crop region must be within the image bounds.
+                  If the region extends beyond the image, an error is returned.
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                通过指定矩形区域裁剪图片。
+                坐标系使用“左上角为原点”的屏幕坐标：
+
+                坐标系说明：
+                  原点 (0,0) 位于左上角
+                  X 向右增大
+                  Y 向下增大
+
+                QUICK START:
+                  airis edit crop photo.jpg --x 100 --y 200 --width 800 --height 600 -o cropped.jpg
+
+                EXAMPLES:
+                  # 裁剪指定区域
+                  airis edit crop photo.jpg --x 100 --y 200 --width 800 --height 600 -o cropped.jpg
+
+                  # 从 (0,0) 开始裁剪（不填 x/y 默认 0）
+                  airis edit crop photo.jpg --width 1000 --height 1000 -o square.jpg
+
+                  # 裁剪并自动打开
+                  airis edit crop photo.jpg --x 50 --y 50 --width 500 --height 500 -o thumb.png --open
+
+                VALIDATION:
+                  裁剪区域必须在图片范围内；超出范围会返回错误。
+
+                OUTPUT:
+                  支持 PNG/JPEG/HEIC/TIFF 输出格式，格式由输出文件后缀决定。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .customLong("x"), help: "X coordinate of crop region (default: 0)")
+    @Option(name: .customLong("x"), help: HelpTextFactory.help(en: "X coordinate of crop region (default: 0)", cn: "裁剪区域的 X 坐标（默认：0）"))
     var cropX: Int = 0
 
-    @Option(name: .customLong("y"), help: "Y coordinate of crop region (default: 0)")
+    @Option(name: .customLong("y"), help: HelpTextFactory.help(en: "Y coordinate of crop region (default: 0)", cn: "裁剪区域的 Y 坐标（默认：0）"))
     var cropY: Int = 0
 
-    @Option(name: .long, help: "Width of crop region (required)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Width of crop region (required)", cn: "裁剪区域宽度（必填）"))
     var width: Int
 
-    @Option(name: .long, help: "Height of crop region (required)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Height of crop region (required)", cn: "裁剪区域高度（必填）"))
     var height: Int
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

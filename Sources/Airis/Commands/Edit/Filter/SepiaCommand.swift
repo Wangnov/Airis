@@ -5,48 +5,63 @@ import AppKit
 struct SepiaCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "sepia",
-        abstract: "Apply sepia tone effect",
-        discussion: """
-            Apply vintage sepia tone effect to images using CoreImage.
+        abstract: HelpTextFactory.text(
+            en: "Apply sepia tone effect",
+            cn: "棕褐色（Sepia）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Apply vintage sepia tone effect to images using CoreImage.
 
-            Creates a warm, brownish tint reminiscent of old photographs.
-            Adjustable intensity allows for subtle aging to full antique look.
+                Creates a warm, brownish tint reminiscent of old photographs.
+                Adjustable intensity allows for subtle aging to full antique look.
 
-            PARAMETERS:
-              --intensity: Effect strength (0-1, default: 1.0)
-                           0 = no effect, 1 = full sepia
+                PARAMETERS:
+                  --intensity: Effect strength (0-1, default: 1.0)
+                               0 = no effect, 1 = full sepia
 
-            QUICK START:
-              airis edit filter sepia photo.jpg -o vintage.png
+                QUICK START:
+                  airis edit filter sepia photo.jpg -o vintage.png
 
-            EXAMPLES:
-              # Full sepia effect
-              airis edit filter sepia photo.jpg -o sepia.png
+                EXAMPLES:
+                  # Full sepia effect
+                  airis edit filter sepia photo.jpg -o sepia.png
 
-              # Subtle sepia tint
-              airis edit filter sepia photo.jpg --intensity 0.5 -o subtle.png
+                  # Subtle sepia tint
+                  airis edit filter sepia photo.jpg --intensity 0.5 -o subtle.png
 
-              # Light vintage look
-              airis edit filter sepia photo.jpg --intensity 0.3 -o light_vintage.png
+                  # Light vintage look
+                  airis edit filter sepia photo.jpg --intensity 0.3 -o light_vintage.png
 
-            OUTPUT:
-              Sepia-toned image in the specified format
-            """
+                OUTPUT:
+                  Sepia-toned image in the specified format
+                """,
+            cn: """
+                使用 Core Image 应用复古棕褐色（Sepia）效果，可调节强度。
+
+                QUICK START:
+                  airis edit filter sepia photo.jpg -o vintage.png
+
+                EXAMPLES:
+                  airis edit filter sepia photo.jpg --intensity 0.5 -o subtle.png
+                  airis edit filter sepia photo.jpg --intensity 0.3 -o light_vintage.png
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Effect intensity (0-1, default: 1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Effect intensity (0-1, default: 1.0)", cn: "强度（0-1，默认：1.0）"))
     var intensity: Double = 1.0
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

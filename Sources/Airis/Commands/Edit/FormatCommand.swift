@@ -5,62 +5,109 @@ import ImageIO
 import UniformTypeIdentifiers
 
 struct FormatCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "fmt",
-        abstract: "Convert image format (jpg/png/heic/tiff)",
-        discussion: """
-            Convert images between different formats with quality control.
-            Supports preserving or stripping metadata.
+        abstract: HelpTextFactory.text(
+            en: "Convert image format (jpg/png/heic/tiff)",
+            cn: "转换图片格式（jpg/png/heic/tiff）"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Convert images between different formats with quality control.
+                Supports preserving or stripping metadata.
 
-            QUICK START:
-              airis edit fmt image.png --format jpg -o output.jpg
+                QUICK START:
+                  airis edit fmt image.png --format jpg -o output.jpg
 
-            SUPPORTED FORMATS:
-              jpg/jpeg  - JPEG (lossy, small file size)
-              png       - PNG (lossless, supports transparency)
-              heic      - HEIC (efficient, macOS 10.13+)
-              tiff/tif  - TIFF (lossless, large files)
+                SUPPORTED FORMATS:
+                  jpg/jpeg  - JPEG (lossy, small file size)
+                  png       - PNG (lossless, supports transparency)
+                  heic      - HEIC (efficient, macOS 10.13+)
+                  tiff/tif  - TIFF (lossless, large files)
 
-            EXAMPLES:
-              # Convert PNG to JPEG with 90% quality
-              airis edit fmt photo.png --format jpg --quality 0.9 -o photo.jpg
+                EXAMPLES:
+                  # Convert PNG to JPEG with 90% quality
+                  airis edit fmt photo.png --format jpg --quality 0.9 -o photo.jpg
 
-              # Convert to HEIC (smaller file)
-              airis edit fmt large.jpg --format heic -o smaller.heic
+                  # Convert to HEIC (smaller file)
+                  airis edit fmt large.jpg --format heic -o smaller.heic
 
-              # Convert keeping metadata
-              airis edit fmt raw_export.tiff --format jpg -o web.jpg
+                  # Convert keeping metadata
+                  airis edit fmt raw_export.tiff --format jpg -o web.jpg
 
-              # Convert to PNG for transparency
-              airis edit fmt overlay.jpg --format png -o overlay.png
+                  # Convert to PNG for transparency
+                  airis edit fmt overlay.jpg --format png -o overlay.png
 
-            PARAMETERS:
-              --format: Output format (jpg, png, heic, tiff)
-              --quality: Compression quality 0.0-1.0 (default: 0.9, for jpg/heic)
+                PARAMETERS:
+                  --format: Output format (jpg, png, heic, tiff)
+                  --quality: Compression quality 0.0-1.0 (default: 0.9, for jpg/heic)
 
-            NOTE:
-              - JPEG/HEIC: quality affects file size and detail preservation
-              - PNG/TIFF: quality is ignored (always lossless)
-              - Transparency is only preserved when converting to PNG
-            """
+                NOTE:
+                  - JPEG/HEIC: quality affects file size and detail preservation
+                  - PNG/TIFF: quality is ignored (always lossless)
+                  - Transparency is only preserved when converting to PNG
+                """,
+            cn: """
+                在不同图片格式之间转换，并支持质量参数控制（JPEG/HEIC）。
+
+                QUICK START:
+                  airis edit fmt image.png --format jpg -o output.jpg
+
+                支持格式：
+                  jpg/jpeg  - JPEG（有损，体积小）
+                  png       - PNG（无损，支持透明通道）
+                  heic      - HEIC（效率高，macOS 10.13+）
+                  tiff/tif  - TIFF（无损，文件较大）
+
+                EXAMPLES:
+                  # PNG 转 JPEG（90% 质量）
+                  airis edit fmt photo.png --format jpg --quality 0.9 -o photo.jpg
+
+                  # 转 HEIC（更小体积）
+                  airis edit fmt large.jpg --format heic -o smaller.heic
+
+                  # 转换并保持元数据
+                  airis edit fmt raw_export.tiff --format jpg -o web.jpg
+
+                  # 转 PNG（保留透明）
+                  airis edit fmt overlay.jpg --format png -o overlay.png
+
+                PARAMETERS:
+                  --format: 输出格式（jpg, png, heic, tiff）
+                  --quality: 压缩质量 0.0-1.0（默认：0.9，仅 jpg/heic 生效）
+
+                NOTE:
+                  - JPEG/HEIC：quality 影响文件大小与细节保留
+                  - PNG/TIFF：忽略 quality（始终无损）
+                  - 透明通道仅在输出为 PNG 时保留
+                """
+        )
     )
+    }
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Output format: jpg, png, heic, tiff")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format: jpg, png, heic, tiff", cn: "输出格式：jpg, png, heic, tiff"))
     var format: String
 
-    @Option(name: .long, help: "Compression quality 0.0-1.0 (default: 0.9, for jpg/heic)")
+    @Option(
+        name: .long,
+        help: HelpTextFactory.help(
+            en: "Compression quality 0.0-1.0 (default: 0.9, for jpg/heic)",
+            cn: "压缩质量 0.0-1.0（默认：0.9，仅 jpg/heic 生效）"
+        )
+    )
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {

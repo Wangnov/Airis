@@ -3,78 +3,138 @@ import ArgumentParser
 import Foundation
 
 struct SimilarCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
+    static var configuration: CommandConfiguration {
+        CommandConfiguration(
         commandName: "similar",
-        abstract: "Compare similarity between two images",
-        discussion: """
-            Calculate visual similarity between two images using Vision
-            framework's feature fingerprinting.
+        abstract: HelpTextFactory.text(
+            en: "Compare similarity between two images",
+            cn: "比较两张图片的相似度"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Calculate visual similarity between two images using Vision
+                framework's feature fingerprinting.
 
-            QUICK START:
-              airis analyze similar image1.jpg image2.jpg
+                QUICK START:
+                  airis analyze similar image1.jpg image2.jpg
 
-            EXAMPLES:
-              # Compare two images
-              airis analyze similar photo1.jpg photo2.jpg
+                EXAMPLES:
+                  # Compare two images
+                  airis analyze similar photo1.jpg photo2.jpg
 
-              # JSON output for scripting
-              airis analyze similar img1.png img2.png --format json
+                  # JSON output for scripting
+                  airis analyze similar img1.png img2.png --format json
 
-              # Find duplicates in a folder (use shell)
-              for f1 in *.jpg; do
-                for f2 in *.jpg; do
-                  if [ "$f1" != "$f2" ]; then
-                    airis analyze similar "$f1" "$f2" --format json
-                  fi
-                done
-              done
+                  # Find duplicates in a folder (use shell)
+                  for f1 in *.jpg; do
+                    for f2 in *.jpg; do
+                      if [ "$f1" != "$f2" ]; then
+                        airis analyze similar "$f1" "$f2" --format json
+                      fi
+                    done
+                  done
 
-            OUTPUT FORMAT (table):
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              🔍 图片相似度
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-              📁 图片 1: photo1.jpg
-              📁 图片 2: photo2.jpg
-              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🔍 图片相似度
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 图片 1: photo1.jpg
+                  📁 图片 2: photo2.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-              相似度: 85.3%
-              距离值: 0.29
-              评价: 非常相似
+                  相似度: 85.3%
+                  距离值: 0.29
+                  评价: 非常相似
 
-            OUTPUT FORMAT (json):
-              {
-                "image1": "photo1.jpg",
-                "image2": "photo2.jpg",
-                "similarity": 0.853,
-                "distance": 0.29,
-                "rating": "very_similar"
-              }
+                OUTPUT FORMAT (json):
+                  {
+                    "image1": "photo1.jpg",
+                    "image2": "photo2.jpg",
+                    "similarity": 0.853,
+                    "distance": 0.29,
+                    "rating": "very_similar"
+                  }
 
-            DISTANCE INTERPRETATION:
-              0.0 - 0.3  : 非常相似 (Very Similar)
-              0.3 - 0.8  : 相似 (Similar)
-              0.8 - 1.5  : 有些相似 (Somewhat Similar)
-              1.5+       : 不同 (Different)
+                DISTANCE INTERPRETATION:
+                  0.0 - 0.3  : 非常相似 (Very Similar)
+                  0.3 - 0.8  : 相似 (Similar)
+                  0.8 - 1.5  : 有些相似 (Somewhat Similar)
+                  1.5+       : 不同 (Different)
 
-            ALGORITHM:
-              Uses VNGenerateImageFeaturePrintRequest to generate visual
-              fingerprints, then computes Euclidean distance between them.
-              Lower distance means higher similarity.
+                ALGORITHM:
+                  Uses VNGenerateImageFeaturePrintRequest to generate visual
+                  fingerprints, then computes Euclidean distance between them.
+                  Lower distance means higher similarity.
 
-            NOTES:
-              - Comparison is based on visual features, not pixel values
-              - Works well for detecting similar scenes/subjects
-              - All processing is done locally using Vision framework
-            """
+                NOTES:
+                  - Comparison is based on visual features, not pixel values
+                  - Works well for detecting similar scenes/subjects
+                  - All processing is done locally using Vision framework
+                """,
+            cn: """
+                使用 Vision 的图像特征指纹（feature print）计算两张图片的视觉相似度。
+
+                QUICK START:
+                  airis analyze similar image1.jpg image2.jpg
+
+                EXAMPLES:
+                  # 对比两张图片
+                  airis analyze similar photo1.jpg photo2.jpg
+
+                  # JSON 输出（便于脚本解析）
+                  airis analyze similar img1.png img2.png --format json
+
+                  # 在文件夹中找近似重复（shell 示例）
+                  for f1 in *.jpg; do
+                    for f2 in *.jpg; do
+                      if [ "$f1" != "$f2" ]; then
+                        airis analyze similar "$f1" "$f2" --format json
+                      fi
+                    done
+                  done
+
+                OUTPUT FORMAT (table):
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  🔍 图片相似度
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  📁 图片 1: photo1.jpg
+                  📁 图片 2: photo2.jpg
+                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                  相似度: 85.3%
+                  距离值: 0.29
+                  评价: 非常相似
+
+                OUTPUT FORMAT (json):
+                  {
+                    "image1": "photo1.jpg",
+                    "image2": "photo2.jpg",
+                    "similarity": 0.853,
+                    "distance": 0.29,
+                    "rating": "very_similar"
+                  }
+
+                距离解释（distance 越小越相似）：
+                  0.0 - 0.3  : 非常相似
+                  0.3 - 0.8  : 相似
+                  0.8 - 1.5  : 有些相似
+                  1.5+       : 不同
+
+                算法说明：
+                  使用 VNGenerateImageFeaturePrintRequest 生成特征指纹，
+                  再计算两者的欧氏距离（Euclidean distance）。
+                """
+        )
     )
+    }
 
-    @Argument(help: "Path to the first image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to the first image file", cn: "第一张图片路径"))
     var image1Path: String
 
-    @Argument(help: "Path to the second image file")
+    @Argument(help: HelpTextFactory.help(en: "Path to the second image file", cn: "第二张图片路径"))
     var image2Path: String
 
-    @Option(name: .long, help: "Output format: table (default), json")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output format: table (default), json", cn: "输出格式：table（默认）或 json"))
     var format: String = "table"
 
     func run() async throws {
@@ -84,17 +144,22 @@ struct SimilarCommand: AsyncParsableCommand {
         let url1 = try FileUtils.validateImageFile(at: image1Path)
         let url2 = try FileUtils.validateImageFile(at: image2Path)
 
-        // 显示参数总览
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("🔍 图片相似度")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📁 图片 1: \(url1.lastPathComponent)")
-        print("📁 图片 2: \(url2.lastPathComponent)")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("")
+        let outputFormat = OutputFormat.parse(format)
+        let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
+
+        AirisOutput.printBanner([
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "🔍 图片相似度",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "📁 图片 1: \(url1.lastPathComponent)",
+            "📁 图片 2: \(url2.lastPathComponent)",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        ], enabled: showHumanOutput)
 
         // 生成特征指纹
-        print("⏳ 正在分析图片...")
+        if showHumanOutput {
+            print("⏳ 正在分析图片...")
+        }
 
         let distance: Float
         if testMode, let override = customDistance {
@@ -122,12 +187,14 @@ struct SimilarCommand: AsyncParsableCommand {
             similarity: similarity
         )
 
-        print("")  // 清除进度提示
+        if showHumanOutput {
+            print("")
+        }
 
         // 输出结果
-        if format.lowercased() == "json" {
+        if outputFormat == .json {
             printJSON(result: result)
-        } else {
+        } else if showHumanOutput {
             printTable(result: result)
         }
     }

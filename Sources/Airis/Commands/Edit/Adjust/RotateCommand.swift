@@ -5,68 +5,83 @@ import AppKit
 struct RotateCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "rotate",
-        abstract: "Rotate image by specified angle",
-        discussion: """
-            Rotate the image by any angle (clockwise positive).
-            The output canvas expands to contain the entire rotated image.
+        abstract: HelpTextFactory.text(
+            en: "Rotate image by specified angle",
+            cn: "按角度旋转图片"
+        ),
+        discussion: helpDiscussion(
+            en: """
+                Rotate the image by any angle (clockwise positive).
+                The output canvas expands to contain the entire rotated image.
 
-            PARAMETERS:
-              Angle: Any value in degrees (positive = clockwise)
-                     Common values: 90, 180, 270, -90
+                PARAMETERS:
+                  Angle: Any value in degrees (positive = clockwise)
+                         Common values: 90, 180, 270, -90
 
-            QUICK START:
-              airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
+                QUICK START:
+                  airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
 
-            EXAMPLES:
-              # Rotate 90 degrees clockwise
-              airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
+                EXAMPLES:
+                  # Rotate 90 degrees clockwise
+                  airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
 
-              # Rotate 90 degrees counter-clockwise
-              airis edit adjust rotate photo.jpg --angle -90 -o rotated_ccw.jpg
+                  # Rotate 90 degrees counter-clockwise
+                  airis edit adjust rotate photo.jpg --angle -90 -o rotated_ccw.jpg
 
-              # Rotate 180 degrees (upside down)
-              airis edit adjust rotate image.png --angle 180 -o flipped.png
+                  # Rotate 180 degrees (upside down)
+                  airis edit adjust rotate image.png --angle 180 -o flipped.png
 
-              # Slight rotation correction (straighten)
-              airis edit adjust rotate tilted.jpg --angle 2.5 -o straightened.jpg
+                  # Slight rotation correction (straighten)
+                  airis edit adjust rotate tilted.jpg --angle 2.5 -o straightened.jpg
 
-              # Arbitrary angle rotation
-              airis edit adjust rotate art.png --angle 45 -o diagonal.png
+                  # Arbitrary angle rotation
+                  airis edit adjust rotate art.png --angle 45 -o diagonal.png
 
-            NOTE:
-              - The image canvas expands to fit the rotated content
-              - No pixels are cropped during rotation
-              - For non-90-degree rotations, corners will extend the canvas
-              - Transparent areas (for PNG) or white areas (for JPEG) fill gaps
+                NOTE:
+                  - The image canvas expands to fit the rotated content
+                  - No pixels are cropped during rotation
+                  - For non-90-degree rotations, corners will extend the canvas
+                  - Transparent areas (for PNG) or white areas (for JPEG) fill gaps
 
-            USE CASES:
-              - Correcting camera orientation
-              - Straightening slightly tilted photos
-              - Creating artistic rotated effects
-              - Preparing images for specific layouts
+                OUTPUT:
+                  Supports PNG, JPEG, HEIC, TIFF output formats.
+                  Format is determined by output file extension.
+                """,
+            cn: """
+                按指定角度旋转图片（正数为顺时针），输出画布会自动扩展以容纳完整旋转后的内容（不裁剪）。
 
-            OUTPUT:
-              Supports PNG, JPEG, HEIC, TIFF output formats.
-              Format is determined by output file extension.
-            """
+                QUICK START:
+                  airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
+
+                EXAMPLES:
+                  # 顺时针 90°
+                  airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
+
+                  # 逆时针 90°
+                  airis edit adjust rotate photo.jpg --angle -90 -o rotated_ccw.jpg
+
+                  # 轻微矫正（拉直）
+                  airis edit adjust rotate tilted.jpg --angle 2.5 -o straightened.jpg
+                """
+        )
     )
 
-    @Argument(help: "Input image path")
+    @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
     var input: String
 
-    @Option(name: [.short, .long], help: "Output path")
+    @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output path", cn: "输出路径"))
     var output: String
 
-    @Option(name: .long, help: "Rotation angle in degrees (positive = clockwise)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Rotation angle in degrees (positive = clockwise)", cn: "旋转角度（度；正数为顺时针）"))
     var angle: Double
 
-    @Option(name: .long, help: "Output quality for JPEG/HEIC (0.0-1.0)")
+    @Option(name: .long, help: HelpTextFactory.help(en: "Output quality for JPEG/HEIC (0.0-1.0)", cn: "输出质量（JPEG/HEIC：0.0-1.0）"))
     var quality: Float = 0.9
 
-    @Flag(name: .long, help: "Open result after processing")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Open result after processing", cn: "处理完成后打开输出文件"))
     var open: Bool = false
 
-    @Flag(name: .long, help: "Overwrite existing output file")
+    @Flag(name: .long, help: HelpTextFactory.help(en: "Overwrite existing output file", cn: "覆盖已存在的输出文件"))
     var force: Bool = false
 
     func run() async throws {
