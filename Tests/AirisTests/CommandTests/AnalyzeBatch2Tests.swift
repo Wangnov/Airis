@@ -4,6 +4,18 @@ import XCTest
 /// Analyze 命令组 Batch 2 测试
 /// 测试 SafeCommand, PaletteCommand, SimilarCommand, MetaCommand
 final class AnalyzeBatch2Tests: XCTestCase {
+    private var originalLanguage: Language = .en
+
+    override func setUp() {
+        super.setUp()
+        originalLanguage = Language.current
+        Language.current = .en
+    }
+
+    override func tearDown() {
+        Language.current = originalLanguage
+        super.tearDown()
+    }
 
     // MARK: - SafeCommand Configuration Tests
 

@@ -55,12 +55,22 @@ final class CommandLayerBranchTests: XCTestCase {
         // 覆盖 policy disabled 分支
         setenv("AIRIS_SAFE_POLICY_DISABLED", "1", 1)
         try await SafeCommand.parse([image, "--format", "json"]).run()
+        try await SafeCommand.parse([image, "--format", "table"]).run()
         unsetenv("AIRIS_SAFE_POLICY_DISABLED")
 
         // 覆盖敏感结果分支
         setenv("AIRIS_SAFE_FORCE_SENSITIVE", "1", 1)
         try await SafeCommand.parse([image, "--format", "table"]).run()
         unsetenv("AIRIS_SAFE_FORCE_SENSITIVE")
+    }
+
+    func testSafeCommandQuietSkipsHumanOutput() async throws {
+        let image = CommandTestHarness.fixture("medium_512x512.jpg").path
+        let originalQuiet = AirisRuntime.isQuiet
+        defer { AirisRuntime.isQuiet = originalQuiet }
+
+        AirisRuntime.isQuiet = true
+        try await SafeCommand.parse([image]).run()
     }
 
     func testSafeCommandDebugStubWithoutTestMode() async throws {
@@ -113,6 +123,13 @@ final class CommandLayerBranchTests: XCTestCase {
         setenv("AIRIS_TEST_MODE", "1", 1) // 恢复
     }
 
+    func testScoreCommandDebugFallbackWithoutTestModeJSON() async throws {
+        let image = CommandTestHarness.fixture("medium_512x512.jpg").path
+        unsetenv("AIRIS_TEST_MODE") // 走 DEBUG 降级 JSON 分支
+        try await ScoreCommand.parse([image, "--format", "json"]).run()
+        setenv("AIRIS_TEST_MODE", "1", 1) // 恢复
+    }
+
     func testOCRCommandJSONWithBounds() async throws {
         let image = CommandTestHarness.fixture("document_text_512x512.png").path
         try await OCRCommand.parse([image, "--format", "json", "--show-bounds", "--languages", "en"]).run()
@@ -121,6 +138,11 @@ final class CommandLayerBranchTests: XCTestCase {
     func testOCRCommandPlainText() async throws {
         let image = CommandTestHarness.fixture("document_text_512x512.png").path
         try await OCRCommand.parse([image, "--format", "text", "--level", "fast"]).run()
+    }
+
+    func testOCRCommandNoResultsTableBranch() async throws {
+        let image = CommandTestHarness.fixture("rectangle_512x512.png").path
+        try await OCRCommand.parse([image, "--format", "table", "--level", "fast"]).run()
     }
 
     func testSimilarCommandTable() async throws {
@@ -252,6 +274,48 @@ final class CommandLayerBranchTests: XCTestCase {
             "--open"
         ]).run()
         CommandTestHarness.cleanup(outputEnv)
+    }
+
+    func testGenDrawCommandProviderOptionBranch() async throws {
+        let output = CommandTestHarness.temporaryFile(ext: "png")
+        defer { CommandTestHarness.cleanup(output) }
+        try await DrawCommand.parse([
+            "provider option prompt",
+            "--provider", "gemini",
+            "--output", output.path
+        ]).run()
+    }
+
+    func testGenDrawCommandFallbackProviderWhenConfigHasNoDefaultProvider() async throws {
+        let configPath = try XCTUnwrap(ProcessInfo.processInfo.environment["AIRIS_CONFIG_FILE"])
+        let configURL = URL(fileURLWithPath: configPath)
+
+        // 写入一个不包含 default_provider 的配置，覆盖 provider ?? nil ?? "gemini" 的最后兜底分支
+        let json = #"{"providers":{}}"#
+        let data = try XCTUnwrap(json.data(using: .utf8))
+        try data.write(to: configURL, options: [.atomic])
+        defer { try? FileManager.default.removeItem(at: configURL) }
+
+        let output = CommandTestHarness.temporaryFile(ext: "png")
+        defer { CommandTestHarness.cleanup(output) }
+        try await DrawCommand.parse([
+            "fallback provider prompt",
+            "--output", output.path
+        ]).run()
+    }
+
+    func testGenDrawCommandOpenAndRevealForceFailBranches() throws {
+        setenv("AIRIS_FORCE_DRAW_OPEN_FAIL", "1", 1)
+        setenv("AIRIS_FORCE_DRAW_REVEAL_FAIL", "1", 1)
+        defer {
+            unsetenv("AIRIS_FORCE_DRAW_OPEN_FAIL")
+            unsetenv("AIRIS_FORCE_DRAW_REVEAL_FAIL")
+        }
+
+        let cmd = try DrawCommand.parse(["open fail prompt"])
+        let dummyURL = URL(fileURLWithPath: "/tmp/airis_draw_dummy.png")
+        cmd.testOpenWithDefaultApp(dummyURL, isTestMode: true)
+        cmd.testOpenInFinder(dummyURL, isTestMode: true)
     }
 
     // MARK: Edit

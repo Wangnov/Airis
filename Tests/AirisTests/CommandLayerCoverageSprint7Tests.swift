@@ -7,11 +7,13 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         let envs = [
             "AIRIS_TEST_FLOW_FAKE_RESULT",
             "AIRIS_FORCE_FLOW_CGIMAGE_NIL",
+            "AIRIS_FORCE_FLOW_TEST_PIXELBUFFER_FAIL",
             "AIRIS_TEST_ALIGN_FAKE_RESULT",
             "AIRIS_FORCE_ALIGN_RENDER_NIL",
             "AIRIS_TEST_SALIENCY_FAKE_RESULT",
             "AIRIS_TEST_SALIENCY_EMPTY",
             "AIRIS_FORCE_SALIENCY_CGIMAGE_NIL",
+            "AIRIS_FORCE_SALIENCY_TEST_PIXELBUFFER_FAIL",
             "AIRIS_FORCE_SCAN_NO_RECT",
             "AIRIS_FORCE_SCAN_PERSPECTIVE_NIL",
             "AIRIS_FORCE_SCAN_RENDER_NIL",
@@ -64,6 +66,14 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         await XCTAssertThrowsErrorAsync(
             try await FlowCommand.parse([input1, input2, "-o", out.path]).run()
         )
+    }
+
+    func testFlowFakeResultPixelBufferFallbackBranch() async throws {
+        setenv("AIRIS_TEST_FLOW_FAKE_RESULT", "1", 1)
+        setenv("AIRIS_FORCE_FLOW_TEST_PIXELBUFFER_FAIL", "1", 1)
+        let input1 = CommandTestHarness.fixture("small_100x100.png").path
+        let input2 = CommandTestHarness.fixture("small_100x100.png").path
+        try await FlowCommand.parse([input1, input2, "--format", "json"]).run()
     }
 
     // MARK: Align
@@ -159,6 +169,13 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         try await SaliencyCommand.parse([input]).run()
     }
 
+    func testSaliencyFakeResultPixelBufferFallbackBranch() async throws {
+        setenv("AIRIS_TEST_SALIENCY_FAKE_RESULT", "1", 1)
+        setenv("AIRIS_FORCE_SALIENCY_TEST_PIXELBUFFER_FAIL", "1", 1)
+        let input = CommandTestHarness.fixture("small_100x100.png").path
+        try await SaliencyCommand.parse([input, "--format", "json"]).run()
+    }
+
     // MARK: Scan
     func testScanNoRectThrows() async {
         setenv("AIRIS_FORCE_SCAN_NO_RECT", "1", 1)
@@ -243,10 +260,22 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         try await Pose3DCommand.parse([input]).run()
     }
 
+    func testPose3DUnsupportedBranchJSON() async throws {
+        setenv("AIRIS_FORCE_POSE3D_UNSUPPORTED", "1", 1)
+        let input = CommandTestHarness.fixture("small_100x100.png").path
+        try await Pose3DCommand.parse([input, "--format", "json"]).run()
+    }
+
     func testPose3DEmptyResultsBranch() async throws {
         setenv("AIRIS_FORCE_POSE3D_EMPTY", "1", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
         try await Pose3DCommand.parse([input]).run()
+    }
+
+    func testPose3DEmptyResultsBranchJSON() async throws {
+        setenv("AIRIS_FORCE_POSE3D_EMPTY", "1", 1)
+        let input = CommandTestHarness.fixture("small_100x100.png").path
+        try await Pose3DCommand.parse([input, "--format", "json"]).run()
     }
 
     func testPose3DUnknownJointHelper() {

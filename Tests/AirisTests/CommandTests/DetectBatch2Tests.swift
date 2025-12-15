@@ -4,6 +4,18 @@ import XCTest
 /// Task 4.2 - Detect Commands Batch 2 测试
 /// 测试 pose, pose3d, hand, petpose 四个新命令
 final class DetectBatch2Tests: XCTestCase {
+    private var originalLanguage: Language = .en
+
+    override func setUp() {
+        super.setUp()
+        originalLanguage = Language.current
+        Language.current = .en
+    }
+
+    override func tearDown() {
+        Language.current = originalLanguage
+        super.tearDown()
+    }
 
     // MARK: - PoseCommand Configuration Tests
 

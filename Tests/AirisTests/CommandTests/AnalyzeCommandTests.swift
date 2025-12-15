@@ -3,6 +3,12 @@ import XCTest
 
 final class AnalyzeCommandTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        Language.current = .en
+    }
+
+
     // MARK: - AnalyzeCommand Configuration Tests
 
     func testAnalyzeCommandHasSubcommands() throws {

@@ -116,8 +116,14 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
             { try await PixelCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpeg").path]).run() },
             { try await SepiaCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpeg").path]).run() },
             { try await BlurCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpeg").path, "--radius", "2"]).run() },
-            { try await BlurCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpeg").path, "--radius", "3", "--type", "motion", "--angle", "45"]).run() },
-            { try await BlurCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpeg").path, "--radius", "4", "--type", "zoom"]).run() }
+            {
+                let out = CommandTestHarness.temporaryFile(ext: "jpeg").path
+                try await BlurCommand.parse([input, "-o", out, "--radius", "3", "--type", "motion", "--angle", "45"]).run()
+            },
+            {
+                let out = CommandTestHarness.temporaryFile(ext: "jpeg").path
+                try await BlurCommand.parse([input, "-o", out, "--radius", "4", "--type", "zoom"]).run()
+            }
         ]
 
         for task in tasks {
@@ -169,6 +175,15 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
 
         // Reveal 失败
         await withEnv(["AIRIS_FORCE_DRAW_REVEAL_FAIL": "1"]) {
+            DrawCommand().testOpenInFinder(outputURL, isTestMode: false)
+        }
+
+        // 覆盖非测试模式下的 /usr/bin/open 分支（用 override 避免真实打开）
+        await withEnv([
+            "AIRIS_DRAW_OPEN_EXECUTABLE_OVERRIDE": "/usr/bin/true",
+            "AIRIS_DRAW_REVEAL_EXECUTABLE_OVERRIDE": "/usr/bin/true"
+        ]) {
+            DrawCommand().testOpenWithDefaultApp(outputURL, isTestMode: false)
             DrawCommand().testOpenInFinder(outputURL, isTestMode: false)
         }
 
@@ -251,7 +266,8 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
     func testCropCommandNegativeCoordinatesThrow() async throws {
         let img = CommandTestHarness.fixture("small_100x100.png").path
         do {
-            try await CropCommand.parse([img, "--x", "-1", "--y", "0", "--width", "10", "--height", "10", "-o", CommandTestHarness.temporaryFile(ext: "png").path]).run()
+            let out = CommandTestHarness.temporaryFile(ext: "png").path
+            try await CropCommand.parse([img, "--x", "-1", "--y", "0", "--width", "10", "--height", "10", "-o", out]).run()
             XCTFail("应触发坐标校验错误")
         } catch { }
     }

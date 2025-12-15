@@ -33,6 +33,15 @@ final class CommandLayerCoverageSprint21Tests: XCTestCase {
         try await PersonsCommand.parse([input, "--quality", "ultra", "--format", "json"]).run()
         unsetenv("AIRIS_TEST_PERSONS_FAKE_RESULT")
     }
+
+    func testPersonsCommandFakeResultPixelBufferFallbackBranch() async throws {
+        let input = CommandTestHarness.fixture("small_100x100.png").path
+        setenv("AIRIS_TEST_PERSONS_FAKE_RESULT", "1", 1)
+        setenv("AIRIS_FORCE_PERSONS_TEST_PIXELBUFFER_FAIL", "1", 1)
+        try await PersonsCommand.parse([input, "--format", "json"]).run()
+        unsetenv("AIRIS_FORCE_PERSONS_TEST_PIXELBUFFER_FAIL")
+        unsetenv("AIRIS_TEST_PERSONS_FAKE_RESULT")
+    }
 }
 
 // MARK: - Async helper

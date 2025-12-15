@@ -188,7 +188,12 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
 
     func testFaceCommandNoResultsBranch() async throws {
         let none = CommandTestHarness.fixture("rectangle_512x512.png").path
-        try await FaceCommand.parse([none, "--threshold", "0.0"]).run()
+        try await FaceCommand.parse([none, "--format", "json", "--threshold", "2.0"]).run()
+    }
+
+    func testFaceCommandNoResultsBranchTable() async throws {
+        let none = CommandTestHarness.fixture("rectangle_512x512.png").path
+        try await FaceCommand.parse([none, "--threshold", "2.0"]).run()
     }
 
     func testHandCommandJSONPixels() async throws {
@@ -204,7 +209,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
 
     func testHandCommandNoResultsBranch() async throws {
         let none = CommandTestHarness.fixture("rectangle_512x512.png").path
-        try await HandCommand.parse([none, "--threshold", "0.0"]).run()
+        try await HandCommand.parse([none, "--threshold", "0.0", "--format", "json"]).run()
     }
 
     func testPetPoseCommandPixelsJSON() async throws {
@@ -220,6 +225,19 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
     func testPetPoseCommandNoResultsBranch() async throws {
         let none = CommandTestHarness.fixture("rectangle_512x512.png").path
         try await PetPoseCommand.parse([none]).run()
+    }
+
+    func testPetPoseCommandNoResultsBranchJSON() async throws {
+        let none = CommandTestHarness.fixture("rectangle_512x512.png").path
+        try await PetPoseCommand.parse([none, "--format", "json"]).run()
+    }
+
+    func testPetPoseCommandUnsupportedBranchJSON() async throws {
+        setenv("AIRIS_FORCE_PETPOSE_UNSUPPORTED", "1", 1)
+        defer { unsetenv("AIRIS_FORCE_PETPOSE_UNSUPPORTED") }
+
+        let input = CommandTestHarness.fixture("cat_512x512.png").path
+        try await PetPoseCommand.parse([input, "--format", "json"]).run()
     }
 
     // Face landmarks & Pose 补充分支
@@ -245,6 +263,11 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
     }
 
     func testPoseCommandNoResultsBranch() async throws {
+        let none = CommandTestHarness.fixture("rectangle_512x512.png").path
+        try await PoseCommand.parse([none, "--format", "json"]).run()
+    }
+
+    func testPoseCommandNoResultsBranchTable() async throws {
         let none = CommandTestHarness.fixture("rectangle_512x512.png").path
         try await PoseCommand.parse([none]).run()
     }

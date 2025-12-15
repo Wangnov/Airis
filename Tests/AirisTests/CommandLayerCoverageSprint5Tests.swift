@@ -96,7 +96,12 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     // MARK: Analyze / Tag
     func testTagCommandNoResultsHighThreshold() async throws {
         let img = CommandTestHarness.fixture("small_100x100.png").path
-        try await TagCommand.parse([img, "--threshold", "1.0", "--limit", "5", "--format", "table"]).run()
+        try await TagCommand.parse([img, "--threshold", "2.0", "--limit", "5", "--format", "json"]).run()
+    }
+
+    func testTagCommandNoResultsHighThresholdTable() async throws {
+        let img = CommandTestHarness.fixture("small_100x100.png").path
+        try await TagCommand.parse([img, "--threshold", "2.0", "--limit", "5", "--format", "table"]).run()
     }
 
     func testTagCommandAllResultsPrinted() async throws {
