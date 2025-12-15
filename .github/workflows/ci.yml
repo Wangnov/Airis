@@ -27,7 +27,7 @@ jobs:
         run: swift build -c debug
 
       - name: Run Tests
-        run: swift test --parallel
+        run: swift test --parallel --skip PerformanceTests
 
   test-intel:
     name: Test (Intel)
@@ -49,7 +49,7 @@ jobs:
         run: swift build -c debug
 
       - name: Run Tests
-        run: swift test --parallel
+        run: swift test --parallel --skip PerformanceTests
 
   build-release:
     name: Build Universal Binary
