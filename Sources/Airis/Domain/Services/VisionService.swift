@@ -18,6 +18,7 @@ final class VisionService: Sendable {
         AirisLog.debug("Vision classifyImage: \(url.lastPathComponent) threshold=\(threshold)")
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNClassifyImageRequest()
+        request.revision = VNClassifyImageRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -35,6 +36,7 @@ final class VisionService: Sendable {
     func classifyImage(cgImage: CGImage, threshold: Float = 0.0) async throws -> [VNClassificationObservation] {
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         let request = VNClassifyImageRequest()
+        request.revision = VNClassifyImageRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -59,6 +61,7 @@ final class VisionService: Sendable {
         AirisLog.debug("Vision recognizeText: \(url.lastPathComponent) languages=\(languages) level=\(level)")
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNRecognizeTextRequest()
+        request.revision = VNRecognizeTextRequest.currentRevision
         request.recognitionLevel = level
         request.usesLanguageCorrection = true
         request.automaticallyDetectsLanguage = languages.isEmpty
@@ -87,6 +90,7 @@ final class VisionService: Sendable {
     ) async throws -> [VNBarcodeObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectBarcodesRequest()
+        request.revision = VNDetectBarcodesRequest.currentRevision
 
         if let symbologies = symbologies {
             request.symbologies = symbologies
@@ -109,6 +113,7 @@ final class VisionService: Sendable {
     func detectFaceLandmarks(at url: URL) async throws -> [VNFaceObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectFaceLandmarksRequest()
+        request.revision = VNDetectFaceLandmarksRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -125,6 +130,7 @@ final class VisionService: Sendable {
     func detectFaceRectangles(at url: URL) async throws -> [VNFaceObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectFaceRectanglesRequest()
+        request.revision = VNDetectFaceRectanglesRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -143,6 +149,7 @@ final class VisionService: Sendable {
     func recognizeAnimals(at url: URL) async throws -> [VNRecognizedObjectObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNRecognizeAnimalsRequest()
+        request.revision = VNRecognizeAnimalsRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -161,6 +168,7 @@ final class VisionService: Sendable {
     func detectHumanBodyPose(at url: URL) async throws -> [VNHumanBodyPoseObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectHumanBodyPoseRequest()
+        request.revision = VNDetectHumanBodyPoseRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -178,6 +186,7 @@ final class VisionService: Sendable {
     func detectHumanBodyPose3D(at url: URL) async throws -> [VNHumanBodyPose3DObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectHumanBodyPose3DRequest()
+        request.revision = VNDetectHumanBodyPose3DRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -196,6 +205,7 @@ final class VisionService: Sendable {
     func detectHumanHandPose(at url: URL, maximumHandCount: Int = 2) async throws -> [VNHumanHandPoseObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectHumanHandPoseRequest()
+        request.revision = VNDetectHumanHandPoseRequest.currentRevision
         request.maximumHandCount = maximumHandCount
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -216,6 +226,7 @@ final class VisionService: Sendable {
     func detectAnimalBodyPose(at url: URL) async throws -> [VNAnimalBodyPoseObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectAnimalBodyPoseRequest()
+        request.revision = VNDetectAnimalBodyPoseRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -235,8 +246,11 @@ final class VisionService: Sendable {
         let handler = VNImageRequestHandler(url: url, options: [:])
 
         let classifyRequest = VNClassifyImageRequest()
+        classifyRequest.revision = VNClassifyImageRequest.currentRevision
         let textRequest = VNRecognizeTextRequest()
+        textRequest.revision = VNRecognizeTextRequest.currentRevision
         let barcodeRequest = VNDetectBarcodesRequest()
+        barcodeRequest.revision = VNDetectBarcodesRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -312,6 +326,7 @@ final class VisionService: Sendable {
         }
 
         let request = VNGenerateOpticalFlowRequest(targetedCIImage: targetImage, options: [:])
+        request.revision = VNGenerateOpticalFlowRequest.currentRevision
         request.computationAccuracy = accuracy.vnAccuracy
 
         let handler = VNImageRequestHandler(url: sourceURL, options: [:])
@@ -388,6 +403,7 @@ final class VisionService: Sendable {
         }
 
         let request = VNTranslationalImageRegistrationRequest(targetedCIImage: floatingImage, options: [:])
+        request.revision = VNTranslationalImageRegistrationRequest.currentRevision
         let handler = VNImageRequestHandler(url: referenceURL, options: [:])
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -437,9 +453,13 @@ final class VisionService: Sendable {
         let request: VNImageBasedRequest
         switch type {
         case .attention:
-            request = VNGenerateAttentionBasedSaliencyImageRequest()
+            let attentionRequest = VNGenerateAttentionBasedSaliencyImageRequest()
+            attentionRequest.revision = VNGenerateAttentionBasedSaliencyImageRequest.currentRevision
+            request = attentionRequest
         case .objectness:
-            request = VNGenerateObjectnessBasedSaliencyImageRequest()
+            let objectnessRequest = VNGenerateObjectnessBasedSaliencyImageRequest()
+            objectnessRequest.revision = VNGenerateObjectnessBasedSaliencyImageRequest.currentRevision
+            request = objectnessRequest
         }
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -504,6 +524,7 @@ final class VisionService: Sendable {
     ) async throws -> PersonSegmentationResult {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNGeneratePersonSegmentationRequest()
+        request.revision = VNGeneratePersonSegmentationRequest.currentRevision
         request.qualityLevel = quality.vnQuality
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -558,6 +579,7 @@ final class VisionService: Sendable {
     ) async throws -> [RectangleObservation] {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectRectanglesRequest()
+        request.revision = VNDetectRectanglesRequest.currentRevision
 
         // 配置检测参数
         request.minimumConfidence = minimumConfidence
@@ -608,6 +630,7 @@ final class VisionService: Sendable {
     func detectHorizon(at url: URL) async throws -> HorizonObservation? {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNDetectHorizonRequest()
+        request.revision = VNDetectHorizonRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
@@ -639,6 +662,7 @@ final class VisionService: Sendable {
     func generateForegroundMask(at url: URL) async throws -> CIImage {
         let handler = VNImageRequestHandler(url: url, options: [:])
         let request = VNGenerateForegroundInstanceMaskRequest()
+        request.revision = VNGenerateForegroundInstanceMaskRequest.currentRevision
 
         return try await withCheckedThrowingContinuation { continuation in
             do {

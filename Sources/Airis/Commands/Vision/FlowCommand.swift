@@ -242,17 +242,26 @@ struct FlowCommand: AsyncParsableCommand {
             return VisionService.OpticalFlowResult(pixelBuffer: buffer, width: 2, height: 2)
         }
 
-        // 理论上不应触发；若触发则持续尝试直到创建成功（测试桩仅用于覆盖与避免 fatalError）。
-        var retryPixelBuffer: CVPixelBuffer!
-        while retryPixelBuffer == nil {
-            var retryBuffer: CVPixelBuffer?
+        // 理论上不应触发；重试最多 10 次后返回最后一次尝试的结果（测试桩仅用于覆盖）。
+        var retryBuffer: CVPixelBuffer?
+        for _ in 0 ..< 10 {
             let retryStatus = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &retryBuffer)
-            if retryStatus == kCVReturnSuccess, let retryBuffer {
-                retryPixelBuffer = retryBuffer
+            if retryStatus == kCVReturnSuccess, retryBuffer != nil {
+                break
             }
         }
 
-        return VisionService.OpticalFlowResult(pixelBuffer: retryPixelBuffer, width: 2, height: 2)
+        // 如果所有重试都失败，创建一个最小的 1x1 缓冲区作为最终回退
+        if retryBuffer == nil {
+            CVPixelBufferCreate(nil, 1, 1, kCVPixelFormatType_32BGRA, nil, &retryBuffer)
+        }
+
+        // 使用 guard 确保安全解包
+        guard let finalBuffer = retryBuffer else {
+            fatalError("CVPixelBufferCreate failed after all retries - system resource exhaustion")
+        }
+
+        return VisionService.OpticalFlowResult(pixelBuffer: finalBuffer, width: 2, height: 2)
     }
     #endif
 }

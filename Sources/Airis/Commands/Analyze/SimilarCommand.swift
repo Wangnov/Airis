@@ -206,6 +206,7 @@ struct SimilarCommand: AsyncParsableCommand {
     private func generateFeaturePrint(for url: URL) async throws -> VNFeaturePrintObservation {
         let requestHandler = VNImageRequestHandler(url: url, options: [:])
         let request = VNGenerateImageFeaturePrintRequest()
+        request.revision = VNGenerateImageFeaturePrintRequest.currentRevision
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             do {
