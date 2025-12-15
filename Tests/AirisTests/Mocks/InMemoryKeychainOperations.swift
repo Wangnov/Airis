@@ -7,10 +7,10 @@ final class InMemoryKeychainOperations: KeychainOperations {
     private var store: [String: Data] = [:]
 
     func itemUpdate(query: CFDictionary, attributesToUpdate: CFDictionary) -> OSStatus {
-        let q = query as NSDictionary
+        let queryDict = query as NSDictionary
         let attrs = attributesToUpdate as NSDictionary
         guard
-            let account = q[kSecAttrAccount] as? String,
+            let account = queryDict[kSecAttrAccount] as? String,
             store[account] != nil,
             let newData = attrs[kSecValueData] as? Data
         else {
@@ -33,8 +33,8 @@ final class InMemoryKeychainOperations: KeychainOperations {
     }
 
     func itemCopyMatching(query: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
-        let q = query as NSDictionary
-        guard let account = q[kSecAttrAccount] as? String,
+        let queryDict = query as NSDictionary
+        guard let account = queryDict[kSecAttrAccount] as? String,
               let data = store[account] else {
             return errSecItemNotFound
         }
@@ -43,8 +43,8 @@ final class InMemoryKeychainOperations: KeychainOperations {
     }
 
     func itemDelete(query: CFDictionary) -> OSStatus {
-        let q = query as NSDictionary
-        if let account = q[kSecAttrAccount] as? String {
+        let queryDict = query as NSDictionary
+        if let account = queryDict[kSecAttrAccount] as? String {
             store.removeValue(forKey: account)
         }
         return errSecSuccess

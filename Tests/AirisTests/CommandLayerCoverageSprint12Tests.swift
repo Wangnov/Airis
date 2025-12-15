@@ -54,8 +54,9 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     // MARK: Crop
     func testCropNegativeCoordinatesThrow() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
+        let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--x", "-1", "--y", "0", "--width", "10", "--height", "10"]).run()
+            try await CropCommand.parse([input, "-o", out, "--x", "-1", "--y", "0", "--width", "10", "--height", "10"]).run()
         )
     }
 

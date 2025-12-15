@@ -184,4 +184,3 @@ final class LocalesTests: XCTestCase {
         Language.current = .en
     }
 }
-

@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import XCTest
 @preconcurrency import Vision
 @testable import Airis

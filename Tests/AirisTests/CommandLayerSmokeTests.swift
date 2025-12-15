@@ -65,7 +65,8 @@ final class CommandLayerSmokeTests: XCTestCase {
     }
 
     func testGenDrawCommandTestMode() async throws {
-        let cmd = try DrawCommand.parse(["test prompt", "--aspect-ratio", "1:1", "--image-size", "1K", "--output", CommandTestHarness.temporaryFile(ext: "png").path])
+        let outPath = CommandTestHarness.temporaryFile(ext: "png").path
+        let cmd = try DrawCommand.parse(["test prompt", "--aspect-ratio", "1:1", "--image-size", "1K", "--output", outPath])
         try await cmd.run()
     }
 
@@ -262,23 +263,27 @@ final class CommandLayerSmokeTests: XCTestCase {
 
     func testVisionSaliencyCommandJSON() async throws {
         let image = CommandTestHarness.fixture("medium_512x512.jpg").path
-        let cmd = try SaliencyCommand.parse([image, "--type", "attention", "--format", "json", "--output", CommandTestHarness.temporaryFile(ext: "png").path])
+        let out = CommandTestHarness.temporaryFile(ext: "png").path
+        let cmd = try SaliencyCommand.parse([image, "--type", "attention", "--format", "json", "--output", out])
         try await cmd.run()
     }
 
     func testVisionAlignFlowPersonsCommands() async throws {
         let img1 = CommandTestHarness.fixture("medium_512x512.jpg").path
         let img2 = CommandTestHarness.fixture("rectangle_512x512.png").path
+        let out1 = CommandTestHarness.temporaryFile(ext: "png").path
 
         // Align (使用相同尺寸图像，json 输出)
-        try await runCommand(AlignCommand.self, args: [img1, img2, "--format", "json", "-o", CommandTestHarness.temporaryFile(ext: "png").path])
+        try await runCommand(AlignCommand.self, args: [img1, img2, "--format", "json", "-o", out1])
 
         // Optical flow（同尺寸，低精度，json 输出）
-        try await runCommand(FlowCommand.self, args: [img1, img2, "--accuracy", "low", "--format", "json", "--output", CommandTestHarness.temporaryFile(ext: "png").path])
+        let out2 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(FlowCommand.self, args: [img1, img2, "--accuracy", "low", "--format", "json", "--output", out2])
 
         // Person segmentation
         let person = CommandTestHarness.fixture("foreground_person_indoor_512x512.jpg").path
-        try await runCommand(PersonsCommand.self, args: [person, "--format", "table", "--quality", "accurate", "--output", CommandTestHarness.temporaryFile(ext: "png").path])
+        let out3 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(PersonsCommand.self, args: [person, "--format", "table", "--quality", "accurate", "--output", out3])
     }
 
     func testDetectPetPoseAndPose3DCommands() async throws {
@@ -300,30 +305,39 @@ final class CommandLayerSmokeTests: XCTestCase {
         let doc = CommandTestHarness.fixture("document_1024x1024.png").path
         let line = CommandTestHarness.fixture("line_art_512x512.png").path
         let person = CommandTestHarness.fixture("foreground_person_beach_512x512.jpg").path
+        let horizon = CommandTestHarness.fixture("horizon_clear_512x512.jpg").path
 
         // crop 50x50
-        try await runCommand(CropCommand.self, args: [small, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--width", "50", "--height", "50", "--force"])
+        let out1 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(CropCommand.self, args: [small, "-o", out1, "--width", "50", "--height", "50", "--force"])
 
         // cut background
-        try await runCommand(CutCommand.self, args: [person, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--force"])
+        let out2 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(CutCommand.self, args: [person, "-o", out2, "--force"])
 
         // enhance
-        try await runCommand(EnhanceCommand.self, args: [small, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--force"])
+        let out3 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(EnhanceCommand.self, args: [small, "-o", out3, "--force"])
 
         // format convert to jpg
-        try await runCommand(FormatCommand.self, args: [small, "-o", CommandTestHarness.temporaryFile(ext: "jpg").path, "--format", "jpg", "--force"])
+        let out4 = CommandTestHarness.temporaryFile(ext: "jpg").path
+        try await runCommand(FormatCommand.self, args: [small, "-o", out4, "--format", "jpg", "--force"])
 
         // scan document
-        try await runCommand(ScanCommand.self, args: [doc, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--force"])
+        let out5 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(ScanCommand.self, args: [doc, "-o", out5, "--force"])
 
         // straighten horizon
-        try await runCommand(StraightenCommand.self, args: [CommandTestHarness.fixture("horizon_clear_512x512.jpg").path, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--force"])
+        let out6 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(StraightenCommand.self, args: [horizon, "-o", out6, "--force"])
 
         // thumbnail
-        try await runCommand(ThumbCommand.self, args: [small, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--size", "64", "--force"])
+        let out7 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(ThumbCommand.self, args: [small, "-o", out7, "--size", "64", "--force"])
 
         // trace line art
-        try await runCommand(TraceCommand.self, args: [line, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--force"])
+        let out8 = CommandTestHarness.temporaryFile(ext: "png").path
+        try await runCommand(TraceCommand.self, args: [line, "-o", out8, "--force"])
     }
 
     // MARK: Helpers

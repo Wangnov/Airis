@@ -552,7 +552,7 @@ final class CoreImageServiceTests: XCTestCase {
 
     func testOutputOverrideForcesFallback() throws {
         let factory = MockCoreImageFilterFactory()
-        let svc = makeService(factory: factory, outputOverride: { _, input in
+        let svc = makeService(factory: factory, outputOverride: { _, _ in
             // 强制覆盖为 nil，走回退分支
             return nil
         })

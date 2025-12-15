@@ -18,23 +18,26 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
     // MARK: Crop
     func testCropZeroWidthThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
+        let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--x", "0", "--y", "0", "--width", "0", "--height", "10"]).run()
+            try await CropCommand.parse([input, "-o", out, "--x", "0", "--y", "0", "--width", "0", "--height", "10"]).run()
         )
     }
 
     func testCropRegionExceedsBoundsThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
+        let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--x", "90", "--y", "90", "--width", "20", "--height", "20"]).run()
+            try await CropCommand.parse([input, "-o", out, "--x", "90", "--y", "90", "--width", "20", "--height", "20"]).run()
         )
     }
 
     // MARK: Trace guards
     func testTraceIntensityOutOfRangeThrows() async {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
+        let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try await TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "edges", "--intensity", "6"]).run()
+            try await TraceCommand.parse([input, "-o", out, "--style", "edges", "--intensity", "6"]).run()
         )
     }
 
@@ -56,8 +59,9 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
     // MARK: Format extra guards
     func testFormatQualityOutOfRangeThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
+        let out = CommandTestHarness.temporaryFile(ext: "jpg").path
         await XCTAssertThrowsErrorAsync(
-            try await FormatCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpg").path, "--format", "jpg", "--quality", "1.2"]).run()
+            try await FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.2"]).run()
         )
     }
 

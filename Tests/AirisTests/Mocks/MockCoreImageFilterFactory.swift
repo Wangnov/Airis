@@ -17,22 +17,6 @@ struct MockCoreImageFilterFactory: CoreImageFilterFactory {
     var hueBehavior: Behavior = .normal
     var thresholdBehavior: Behavior = .normal
 
-    init(
-        gaussianBehavior: Behavior = .normal,
-        motionBehavior: Behavior = .normal,
-        zoomBehavior: Behavior = .normal,
-        perspectiveBehavior: Behavior = .normal,
-        hueBehavior: Behavior = .normal,
-        thresholdBehavior: Behavior = .normal
-    ) {
-        self.gaussianBehavior = gaussianBehavior
-        self.motionBehavior = motionBehavior
-        self.zoomBehavior = zoomBehavior
-        self.perspectiveBehavior = perspectiveBehavior
-        self.hueBehavior = hueBehavior
-        self.thresholdBehavior = thresholdBehavior
-    }
-
     func gaussianBlur() -> CIFilter? {
         switch gaussianBehavior {
         case .normal: return CIFilter.gaussianBlur()

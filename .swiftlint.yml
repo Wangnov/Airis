@@ -48,6 +48,7 @@ disabled_rules:
   - todo                       # 允许 TODO 注释
   - missing_docs               # 可选：开源库再启用
   - explicit_top_level_acl     # internal 是默认的
+  - blanket_disable_command    # 测试文件中允许全局禁用某些规则
 
   # --- 与类型推断冲突 ---
   - explicit_type_interface
@@ -100,6 +101,10 @@ identifier_name:
     - h   # height
     - z   # 3D coordinate
 
+type_name:
+  max_length:
+    warning: 50  # 从默认 40 提高到 50，适应测试 Mock 类名
+
 # ------------------------------------------------------------------------------
 # 严格错误规则（CLI 安全性）
 # ------------------------------------------------------------------------------
@@ -109,9 +114,9 @@ force_try:
 force_cast:
   severity: error
 
-# 源代码中严格禁止强制解包，测试代码设为警告
+# 源代码中严格禁止强制解包，测试代码排除此规则
 force_unwrapping:
-  severity: warning  # 测试中改为警告而非错误
+  severity: warning
 
 # ------------------------------------------------------------------------------
 # 输出配置

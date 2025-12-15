@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import XCTest
 import Security
 @testable import Airis
@@ -8,8 +9,8 @@ final class GeminiMockURLProtocol: URLProtocol {
     typealias Handler = (URLRequest) throws -> (HTTPURLResponse, Data)
     nonisolated(unsafe) static var handler: Handler?
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override static func canInit(with request: URLRequest) -> Bool { true }
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
 
     override func startLoading() {
         guard let handler = GeminiMockURLProtocol.handler else {
@@ -162,7 +163,8 @@ final class GeminiProviderTests: XCTestCase {
             )
             let data = try JSONEncoder().encode(response)
             let responseURL = request.url ?? URL(string: "https://api.example.com")!
-            let httpResponse = HTTPURLResponse(url: responseURL, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: responseURL, statusCode: 200, httpVersion: nil, headerFields: headers)!
             expectationCall.fulfill()
             return (httpResponse, data)
         }
@@ -222,7 +224,8 @@ final class GeminiProviderTests: XCTestCase {
                 ]
             )
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
@@ -319,7 +322,8 @@ final class GeminiProviderTests: XCTestCase {
                 ]
             )
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
@@ -363,7 +367,8 @@ final class GeminiProviderTests: XCTestCase {
                 ]
             )
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
@@ -403,7 +408,8 @@ final class GeminiProviderTests: XCTestCase {
                 ]))]
             )
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
@@ -453,7 +459,8 @@ final class GeminiProviderTests: XCTestCase {
                 ]))]
             )
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
@@ -507,7 +514,8 @@ final class GeminiProviderTests: XCTestCase {
                 ]))]
             )
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
@@ -542,7 +550,8 @@ final class GeminiProviderTests: XCTestCase {
         let httpClient = makeHTTPClient { request in
             let response = GeminiGenerateResponse(candidates: [])
             let data = try JSONEncoder().encode(response)
-            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: headers)!
             return (httpResponse, data)
         }
 
