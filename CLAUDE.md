@@ -87,26 +87,31 @@ make help             # 显示帮助
 
 ## 项目架构要点
 
-### 分层架构
+### 分层架构（模块化）
 
 ```
-Sources/Airis/
-├── Commands/          # 命令层（ArgumentParser）
-│   ├── Gen/          # AI 图像生成
-│   ├── Analyze/      # 图像分析
-│   ├── Detect/       # 对象检测
-│   ├── Vision/       # 高级视觉
-│   └── Edit/         # 图像编辑
-├── Domain/           # 业务逻辑层
-│   ├── Services/     # 服务（VisionService, CoreImageService, ImageIOService）
-│   ├── Providers/    # AI Provider（GeminiProvider）
-│   └── Models/       # 数据模型
-└── Core/             # 核心基础设施
-    ├── Locales/      # 双语本地化
-    ├── Security/     # Keychain 管理
-    ├── Network/      # HTTP 客户端
-    └── Utils/        # 工具类
+Sources/
+├── AirisCore/             # 业务逻辑库（可复用）
+│   ├── Commands/          # 命令层（ArgumentParser）
+│   │   ├── Gen/          # AI 图像生成
+│   │   ├── Analyze/      # 图像分析
+│   │   ├── Detect/       # 对象检测
+│   │   ├── Vision/       # 高级视觉
+│   │   └── Edit/         # 图像编辑
+│   ├── Domain/           # 业务逻辑层
+│   │   ├── Services/     # 服务（VisionService, CoreImageService, ImageIOService）
+│   │   ├── Providers/    # AI Provider（GeminiProvider）
+│   │   └── Models/       # 数据模型
+│   └── Core/             # 核心基础设施
+│       ├── Locales/      # 双语本地化
+│       ├── Security/     # Keychain 管理
+│       ├── Network/      # HTTP 客户端
+│       └── Utils/        # 工具类
+└── Airis/                 # CLI 入口点
+    └── AirisMain.swift
 ```
+
+**注意**: 此结构支持未来扩展为 SwiftUI App（共享 AirisCore）。
 
 ### 服务单例（ServiceContainer）
 
@@ -228,9 +233,15 @@ var query: [String: Any] = [
 // ⚠️ 需要 entitlements（已添加到 Airis.entitlements）
 // com.apple.developer.sensitivecontentanalysis.client
 
-// ⚠️ 需要付费 Apple Developer Program 签名
 // ⚠️ 用户需启用系统设置 > 敏感内容警告
 ```
+
+**⚠️ 重要分发限制**:
+- ✅ App Store 版本：功能可用
+- ✅ Development 构建（Xcode）：功能可用
+- ❌ **Developer ID 分发不支持**（Homebrew、GitHub Releases）
+  - Apple Provisioning 限制，无法绕过
+  - `analyze safe` 命令会显示友好提示
 
 ---
 
@@ -416,11 +427,17 @@ for item in items where condition { ... }
 
 ### SensitiveContentAnalysis 限制
 
-⚠️ **`analyze safe` 命令需要**:
+⚠️ **`analyze safe` 命令可用性**:
+
+| 分发方式 | 功能可用 | 说明 |
+|---------|---------|------|
+| App Store | ✅ 是 | 完整功能 |
+| Development (Xcode) | ✅ 是 | 开发者自行编译 |
+| Developer ID (Homebrew/GitHub) | ❌ 否 | Apple Provisioning 限制 |
+
+**系统要求**:
 1. macOS 14.0+
-2. 付费 Apple Developer Program 签名
-3. 用户启用系统设置 > 敏感内容警告
-4. `Airis.entitlements` 文件（已添加）
+2. 用户启用：系统设置 > 敏感内容警告
 
 ### macOS 版本依赖
 
@@ -553,6 +570,48 @@ ln -sf $(pwd)/.build/release/airis ~/.local/bin/airis
 airis --version
 ```
 
+### 签名和公证（分发用）
+
+```bash
+# 1. 构建 Release
+swift build -c release
+
+# 2. Developer ID 签名（需要证书 SHA-1）
+codesign --force --sign "YOUR_DEVELOPER_ID_SHA1" \
+  --options runtime --timestamp .build/release/airis
+
+# 3. 打包
+zip airis-1.0.0.zip .build/release/airis
+
+# 4. 公证
+xcrun notarytool submit airis-1.0.0.zip \
+  --apple-id "YOUR_APPLE_ID" \
+  --team-id "YOUR_TEAM_ID" \
+  --password "APP_SPECIFIC_PASSWORD" \
+  --wait
+
+# 5. 验证
+spctl -a -vvv -t install .build/release/airis
+```
+
+### Xcode 项目（可选）
+
+```bash
+# 安装 XcodeGen（如未安装）
+brew install xcodegen
+
+# 生成 Xcode 项目
+xcodegen generate
+
+# 打开项目
+open Airis.xcodeproj
+```
+
+**用途**:
+- Xcode 自动签名管理
+- Development 构建（支持 SensitiveContentAnalysis）
+- 未来 SwiftUI App 开发
+
 ### 测试
 
 ```bash
@@ -635,7 +694,7 @@ struct NewCommand: AsyncParsableCommand {
 
 ```swift
 import XCTest
-@testable import Airis
+@testable import AirisCore
 
 final class NewCommandTests: XCTestCase {
     // ✅ 类级别共享服务
@@ -737,4 +796,4 @@ airis gen draw "test" -o test.png
 
 ---
 
-**最后更新**: 2025-12-09
+**最后更新**: 2025-12-17
