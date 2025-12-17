@@ -2,9 +2,8 @@ import ArgumentParser
 import Foundation
 import Darwin
 
-@main
-struct Airis: AsyncParsableCommand {
-    static var configuration: CommandConfiguration {
+public struct AirisCommand: AsyncParsableCommand {
+    public static var configuration: CommandConfiguration {
         // 让 --help 也能受 --lang / AIRIS_LANG 影响。
         Language.current = Language.resolve(explicit: ArgumentPreparser.parseLang(from: CommandLine.arguments))
 
@@ -170,9 +169,11 @@ struct Airis: AsyncParsableCommand {
         )
     }
 
-    @OptionGroup var globalOptions: GlobalOptions
+    @OptionGroup public var globalOptions: GlobalOptions
 
-    mutating func validate() throws {
+    public init() {}
+
+    public mutating func validate() throws {
         // 设置全局语言
         Language.current = Language.resolve(explicit: globalOptions.lang)
 
@@ -200,7 +201,9 @@ struct Airis: AsyncParsableCommand {
 }
 
 /// 全局选项（所有子命令共享）
-struct GlobalOptions: ParsableArguments {
+public struct GlobalOptions: ParsableArguments {
+    public init() {}
+
     @Option(name: .long, help: ArgumentHelp(
         HelpTextFactory.text(en: "Output language", cn: "输出语言"),
         discussion: HelpTextFactory.text(

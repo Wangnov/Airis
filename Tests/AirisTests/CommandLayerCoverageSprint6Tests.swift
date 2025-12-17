@@ -1,6 +1,8 @@
 import XCTest
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第六批覆盖补齐：专门命中默认/错误分支，推进 100%。
 final class CommandLayerCoverageSprint6Tests: XCTestCase {

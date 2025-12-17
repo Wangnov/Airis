@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 覆盖各类参数校验/异常分支，冲刺剩余命令层行覆盖。
 final class CommandLayerCoverageValidationTests: XCTestCase {

@@ -1,6 +1,8 @@
 import Foundation
 import Security
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Mock Keychain 操作 - 用于测试错误路径
 final class MockKeychainOperations: KeychainOperations {

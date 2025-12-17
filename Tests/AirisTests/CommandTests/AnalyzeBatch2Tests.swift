@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Analyze 命令组 Batch 2 测试
 /// 测试 SafeCommand, PaletteCommand, SimilarCommand, MetaCommand

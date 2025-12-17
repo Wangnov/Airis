@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十六批覆盖冲刺：补齐 Tag 命令分支（table/json 总数分支）。
 final class CommandLayerCoverageSprint16Tests: XCTestCase {

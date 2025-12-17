@@ -1,6 +1,8 @@
 import Vision
 import Foundation
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Mock Vision 操作 - 用于测试错误路径
 final class MockVisionOperations: VisionOperations {

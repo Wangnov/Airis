@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class RootCommandTests: XCTestCase {
 
@@ -29,9 +31,9 @@ final class RootCommandTests: XCTestCase {
     // MARK: - Command Configuration Tests
 
     func testRootCommandConfiguration() throws {
-        XCTAssertEqual(Airis.configuration.commandName, "airis")
-        XCTAssertEqual(Airis.configuration.version, "1.0.0")
-        XCTAssertEqual(Airis.configuration.subcommands.count, 5)
+        XCTAssertEqual(AirisCommand.configuration.commandName, "airis")
+        XCTAssertEqual(AirisCommand.configuration.version, "1.0.0")
+        XCTAssertEqual(AirisCommand.configuration.subcommands.count, 5)
     }
 
     func testGenCommandConfiguration() throws {

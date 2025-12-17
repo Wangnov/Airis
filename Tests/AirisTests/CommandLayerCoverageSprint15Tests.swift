@@ -1,7 +1,9 @@
 // swiftlint:disable force_unwrapping
 import XCTest
 import UniformTypeIdentifiers
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十五批覆盖冲刺：补齐剩余边界分支，向 100% 覆盖推进。
 final class CommandLayerCoverageSprint15Tests: XCTestCase {

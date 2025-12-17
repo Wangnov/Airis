@@ -1,6 +1,8 @@
 import Foundation
 import Security
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 内存版 KeychainOperations，用于命令/配置类测试，避免依赖系统 Keychain。
 final class InMemoryKeychainOperations: KeychainOperations {

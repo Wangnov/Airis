@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 覆盖各命令的“输出已存在”与补充分支，避免遗漏分支导致覆盖率不足。
 final class CommandLayerOutputExistsTests: XCTestCase {

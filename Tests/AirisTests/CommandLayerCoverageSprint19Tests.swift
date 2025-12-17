@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十九批覆盖冲刺：Noise 渲染失败、Trace 渲染失败/输出存在、Cut 输出存在。
 final class CommandLayerCoverageSprint19Tests: XCTestCase {

@@ -1,12 +1,14 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class AirisTests: XCTestCase {
     func testAirisVersionExists() throws {
-        XCTAssertEqual(Airis.configuration.version, "1.0.0")
+        XCTAssertEqual(AirisCommand.configuration.version, "1.0.0")
     }
 
     func testAirisCommandName() throws {
-        XCTAssertEqual(Airis.configuration.commandName, "airis")
+        XCTAssertEqual(AirisCommand.configuration.commandName, "airis")
     }
 }

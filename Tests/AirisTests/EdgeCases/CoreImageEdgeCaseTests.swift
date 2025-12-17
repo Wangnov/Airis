@@ -1,6 +1,8 @@
 import XCTest
 import CoreImage
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 边界测试 - CoreImage 服务
 ///

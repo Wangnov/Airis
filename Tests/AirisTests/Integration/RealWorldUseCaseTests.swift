@@ -1,7 +1,9 @@
 import XCTest
 import CoreImage
 import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 真实用例集成测试 - 模拟实际使用场景
 final class RealWorldUseCaseTests: XCTestCase {

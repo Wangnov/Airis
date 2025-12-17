@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// ImageUtils 测试
 final class ImageUtilsTests: XCTestCase {

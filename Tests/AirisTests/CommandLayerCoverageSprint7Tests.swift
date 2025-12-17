@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第七批覆盖补齐：聚焦 Vision 命令与高风险输出路径。
 final class CommandLayerCoverageSprint7Tests: XCTestCase {

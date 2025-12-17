@@ -1,6 +1,8 @@
 import CoreImage
 import CoreImage.CIFilterBuiltins
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 可控输出的滤镜工厂，用于触发 CoreImageService 的防御分支
 struct MockCoreImageFilterFactory: CoreImageFilterFactory {

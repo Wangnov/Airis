@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第二十一批覆盖冲刺：Cut 渲染 nil 分支、Persons 默认质量分支。
 final class CommandLayerCoverageSprint21Tests: XCTestCase {

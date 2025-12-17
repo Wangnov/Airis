@@ -1,7 +1,9 @@
 import XCTest
 import CoreImage
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 工作流集成测试 - 验证多命令组合和真实工作流
 final class WorkflowIntegrationTests: XCTestCase {

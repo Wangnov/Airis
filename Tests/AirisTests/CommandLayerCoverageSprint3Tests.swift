@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第三批命令层覆盖补充：补齐 JSON / 负角度 / 0 分支 / 输出存在等未覆盖路径。
 final class CommandLayerCoverageSprint3Tests: XCTestCase {

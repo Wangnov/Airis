@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第九批覆盖补齐：Score 非测试降级提示、Similar 非测试分支、Tag 大于显示数量、Persons 桩结果。
 final class CommandLayerCoverageSprint9Tests: XCTestCase {

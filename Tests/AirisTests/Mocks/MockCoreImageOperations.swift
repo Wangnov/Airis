@@ -2,7 +2,9 @@ import CoreImage
 import CoreGraphics
 import Metal
 import Foundation
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Mock CoreImage 操作 - 用于测试 Metal 不可用的场景
 final class MockCoreImageOperations: CoreImageOperations {

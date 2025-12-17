@@ -1,7 +1,9 @@
 import XCTest
 import CoreImage
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 命令功能完整性集成测试 - 确保所有命令底层服务都被测试覆盖
 final class CommandCoverageIntegrationTests: XCTestCase {

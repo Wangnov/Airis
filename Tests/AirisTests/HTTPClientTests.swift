@@ -1,6 +1,8 @@
 // swiftlint:disable force_unwrapping
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// HTTPClient 单元测试（使用 Mock 达到 100% 覆盖率）
 final class HTTPClientTests: XCTestCase {

@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 覆盖各命令的 --open / 成功路径，借助 openForCLI 在测试模式跳过实际打开。
 final class CommandLayerCoverageOpenPathsTests: XCTestCase {

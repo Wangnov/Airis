@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class NSWorkspaceTests: XCTestCase {
     private func withEnv(_ env: [String: String?], perform block: () throws -> Void) rethrows {

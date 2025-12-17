@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第五批覆盖冲刺：补齐剩余命令分支以逼近 100%。
 final class CommandLayerCoverageSprint5Tests: XCTestCase {

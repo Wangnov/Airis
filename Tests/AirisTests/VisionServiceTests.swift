@@ -1,7 +1,9 @@
 // swiftlint:disable force_unwrapping
 import XCTest
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class VisionServiceTests: XCTestCase {
     var service: VisionService!

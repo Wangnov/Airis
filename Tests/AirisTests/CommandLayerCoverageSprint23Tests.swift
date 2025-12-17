@@ -1,6 +1,8 @@
 import XCTest
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第 23 批覆盖补充：补齐剩余 region 分支至 100%
 final class CommandLayerCoverageSprint23Tests: XCTestCase {

@@ -7,7 +7,8 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "airis", targets: ["Airis"])
+        .executable(name: "airis", targets: ["Airis"]),
+        .library(name: "AirisCore", targets: ["AirisCore"])
     ],
     dependencies: [
         .package(
@@ -16,8 +17,8 @@ let package = Package(
         )
     ],
     targets: [
-        .executableTarget(
-            name: "Airis",
+        .target(
+            name: "AirisCore",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
@@ -26,9 +27,13 @@ let package = Package(
                 .enableExperimentalFeature("AccessLevelOnImport")
             ]
         ),
+        .executableTarget(
+            name: "Airis",
+            dependencies: ["AirisCore"]
+        ),
         .testTarget(
             name: "AirisTests",
-            dependencies: ["Airis"],
+            dependencies: ["AirisCore"],
             resources: [
                 .copy("Resources")
             ]

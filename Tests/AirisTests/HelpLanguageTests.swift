@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class HelpLanguageTests: XCTestCase {
     private var originalLanguage: Language = .en
@@ -46,14 +48,14 @@ final class HelpLanguageTests: XCTestCase {
 
     func testHelpRespectsAIRIS_LANG_CN() {
         setenv("AIRIS_LANG", "cn", 1)
-        let help = Airis.helpMessage()
+        let help = AirisCommand.helpMessage()
         XCTAssertTrue(help.contains("AI 驱动的图像处理 CLI 工具"))
         XCTAssertTrue(help.contains("输出语言"))
     }
 
     func testHelpRespectsAIRIS_LANG_EN() {
         setenv("AIRIS_LANG", "en", 1)
-        let help = Airis.helpMessage()
+        let help = AirisCommand.helpMessage()
         XCTAssertTrue(help.contains("The AI-Native Messenger for Image Operations"))
         XCTAssertTrue(help.contains("Output language"))
     }

@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class AirisRuntimeTests: XCTestCase {
     func testDebugRespectsVerboseAndQuietFlags() {

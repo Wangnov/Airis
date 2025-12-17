@@ -1,6 +1,8 @@
 import XCTest
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十一批命令层补测：收敛剩余分支（参数错误、open 分支、桩数据）。
 final class CommandLayerCoverageSprint11Tests: XCTestCase {

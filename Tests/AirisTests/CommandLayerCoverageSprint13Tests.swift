@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十三批补测：覆盖剩余错误/分支（Cut/Defringe/Trace/Blur/Format/Straighten）。
 final class CommandLayerCoverageSprint13Tests: XCTestCase {

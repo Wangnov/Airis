@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十八批覆盖冲刺：Cut 渲染失败、Format/Noise 参数异常。
 final class CommandLayerCoverageSprint18Tests: XCTestCase {

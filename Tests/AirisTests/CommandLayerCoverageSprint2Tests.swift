@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第二轮命令层覆盖冲刺：补齐 Palette/Format/Resize 及 Face/Hand/PetPose 等分支。
 final class CommandLayerCoverageSprint2Tests: XCTestCase {

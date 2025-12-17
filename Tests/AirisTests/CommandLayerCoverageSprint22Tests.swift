@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 冲刺补充：覆盖未命中的命令分支（JPEG 分支、失败分支等）
 final class CommandLayerCoverageSprint22Tests: XCTestCase {

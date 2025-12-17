@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十四批补测：继续填平剩余错误分支（Crop/Trace/Noise/Format/Hand/PetPose）。
 final class CommandLayerCoverageSprint14Tests: XCTestCase {

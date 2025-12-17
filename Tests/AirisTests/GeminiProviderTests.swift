@@ -1,7 +1,9 @@
 // swiftlint:disable force_unwrapping
 import XCTest
 import Security
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 // MARK: - URLProtocol Stub
 

@@ -1,6 +1,8 @@
 import XCTest
 import ArgumentParser
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 轻量级命令层冒烟测试，覆盖核心子命令主路径。
 final class CommandLayerSmokeTests: XCTestCase {

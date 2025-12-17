@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十二批补测：覆盖剩余分支（Blur 动态类型、裁剪/翻转错误、Straighten 调试分支、Score/Similar 低分等）。
 final class CommandLayerCoverageSprint12Tests: XCTestCase {

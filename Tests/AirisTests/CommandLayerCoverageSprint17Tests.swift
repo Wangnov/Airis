@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十七批覆盖冲刺：Animal 命令分支、Format 体积膨胀分支。
 final class CommandLayerCoverageSprint17Tests: XCTestCase {

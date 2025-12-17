@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第十批覆盖补齐：Animal 无结果 JSON、Similar 表格、Score 实用性提示。
 final class CommandLayerCoverageSprint10Tests: XCTestCase {

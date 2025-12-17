@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 补充命令层剩余分支覆盖（配置、描摹、显著性等）。
 final class CommandLayerAdditionalBranchTests: XCTestCase {

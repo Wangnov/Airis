@@ -1,6 +1,8 @@
 import XCTest
 import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 边界测试 - Vision 服务
 ///

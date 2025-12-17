@@ -1,6 +1,8 @@
 import XCTest
 import ArgumentParser
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 覆盖命令层剩余分支，配合 smoke 覆盖冲刺 100%。
 final class CommandLayerBranchTests: XCTestCase {

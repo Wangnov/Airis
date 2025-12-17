@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第四批覆盖补充：针对余下未满 100% 的命令增加分支覆盖。
 final class CommandLayerCoverageSprint4Tests: XCTestCase {

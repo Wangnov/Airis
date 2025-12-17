@@ -1,7 +1,9 @@
 import XCTest
 @preconcurrency import CoreImage
 @preconcurrency import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 并发安全测试
 ///

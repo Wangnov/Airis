@@ -2,7 +2,9 @@ import Foundation
 import ImageIO
 import CoreGraphics
 import UniformTypeIdentifiers
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Mock ImageIO 操作实现（用于测试错误路径）
 final class MockImageIOOperations: ImageIOOperations, @unchecked Sendable {

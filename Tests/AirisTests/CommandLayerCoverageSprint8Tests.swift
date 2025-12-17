@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第八批覆盖补齐：聚焦滤镜参数错误、输出格式错误，以及 Draw/Config 交互分支。
 final class CommandLayerCoverageSprint8Tests: XCTestCase {

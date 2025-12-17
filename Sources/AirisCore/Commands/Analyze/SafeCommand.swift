@@ -15,23 +15,21 @@ struct SafeCommand: AsyncParsableCommand {
                 Analyze images for sensitive content (nudity) using Apple's
                 SensitiveContentAnalysis framework.
 
-                ⚠️  IMPORTANT REQUIREMENTS:
+                ⚠️  AVAILABILITY:
                 ────────────────────────────────────────
-                This feature requires ALL of the following:
+                This feature is ONLY available in:
+                • App Store version
+                • Development build (build from source with Xcode)
 
+                NOT available in:
+                • Developer ID distribution (Homebrew, GitHub Releases)
+                  Due to Apple's provisioning restrictions.
+                ────────────────────────────────────────
+
+                REQUIREMENTS:
                 1. macOS 14.0 or later
-
                 2. System setting enabled:
                    System Settings > Privacy & Security > Sensitive Content Warning
-
-                3. App signed with PAID Apple Developer Program:
-                   - Free developer accounts CANNOT use this feature
-                   - Requires entitlement: com.apple.developer.sensitivecontentanalysis.client
-                   - CLI must be code-signed with Developer ID
-
-                If ANY requirement is not met, the command will show a warning
-                and exit without analysis.
-                ────────────────────────────────────────
 
                 QUICK START:
                   airis analyze safe photo.jpg
@@ -43,18 +41,6 @@ struct SafeCommand: AsyncParsableCommand {
                   # JSON output for scripting
                   airis analyze safe image.png --format json
 
-                  # Batch checking (use shell loop)
-                  for f in *.jpg; do airis analyze safe "$f" --format json; done
-
-                OUTPUT FORMAT (table):
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  🔒 敏感内容检测
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  📁 文件: photo.jpg
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-                  ✅ 未检测到敏感内容
-
                 OUTPUT FORMAT (json):
                   {
                     "file": "photo.jpg",
@@ -64,19 +50,25 @@ struct SafeCommand: AsyncParsableCommand {
                 PRIVACY NOTES:
                   - All analysis is performed locally on device
                   - Results are never transmitted off-device
-                  - This feature respects user privacy settings
                 """,
             cn: """
-                使用 SensitiveContentAnalysis 检测图片是否包含敏感内容（如裸露）。
+                使用 Apple SensitiveContentAnalysis 框架检测图片敏感内容。
 
-                ⚠️  重要要求（缺一不可）：
-                  1) macOS 14.0+
-                  2) 系统设置已开启：
-                     系统设置 > 隐私与安全性 > 敏感内容警告
-                  3) 需要付费 Apple Developer Program 签名：
-                     - 免费开发者账号无法使用
-                     - 需要 entitlement: com.apple.developer.sensitivecontentanalysis.client
-                     - CLI 需使用 Developer ID 进行代码签名
+                ⚠️  可用性说明：
+                ────────────────────────────────────────
+                此功能仅在以下版本可用：
+                • App Store 版本
+                • Development 构建（使用 Xcode 自行编译）
+
+                以下版本不可用：
+                • Developer ID 分发版本（Homebrew、GitHub Releases）
+                  这是 Apple 的 provisioning 限制。
+                ────────────────────────────────────────
+
+                系统要求：
+                1. macOS 14.0+
+                2. 启用系统设置：
+                   系统设置 > 隐私与安全性 > 敏感内容警告
 
                 QUICK START:
                   airis analyze safe photo.jpg
@@ -85,14 +77,11 @@ struct SafeCommand: AsyncParsableCommand {
                   # 基础检测
                   airis analyze safe photo.jpg
 
-                  # JSON 输出（便于脚本解析）
+                  # JSON 输出
                   airis analyze safe image.png --format json
 
-                  # 批量检测（shell 示例）
-                  for f in *.jpg; do airis analyze safe "$f" --format json; done
-
                 隐私说明：
-                  - 全部本地执行（不上传图片）
+                  - 全部本地执行，不上传图片
                   - 结果不会离开设备
                 """
         )

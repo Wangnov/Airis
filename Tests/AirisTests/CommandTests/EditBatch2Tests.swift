@@ -1,6 +1,8 @@
 import XCTest
 import CoreImage
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 final class EditBatch2Tests: XCTestCase {
     var coreImageService: CoreImageService!

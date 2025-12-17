@@ -1,7 +1,9 @@
 // swiftlint:disable force_unwrapping
 import XCTest
 import CoreImage
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 错误场景集成测试 - 验证各种错误情况的正确处理
 final class ErrorHandlingIntegrationTests: XCTestCase {

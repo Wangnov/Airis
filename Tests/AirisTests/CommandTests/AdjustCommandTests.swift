@@ -1,6 +1,8 @@
 import XCTest
 import CoreImage
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Task 8.1 Adjust Commands Tests
 /// 测试 CoreImageService 中新增的调整方法

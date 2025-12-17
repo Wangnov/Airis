@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// 第二十批覆盖冲刺：Noise/Trace/Cut open 分支，Format 压缩比<1，Persons 空结果。
 final class CommandLayerCoverageSprint20Tests: XCTestCase {

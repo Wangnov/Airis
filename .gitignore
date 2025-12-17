@@ -12,3 +12,5 @@ docs/
 worktrees/
 
 .vscode/
+# 构建产物
+dist/

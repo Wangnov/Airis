@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// ImageIOService 完整测试（100% 覆盖率）
 final class ImageIOServiceTests: XCTestCase {

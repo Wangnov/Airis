@@ -1,5 +1,7 @@
 import XCTest
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// Task 4.2 - Detect Commands Batch 2 测试
 /// 测试 pose, pose3d, hand, petpose 四个新命令

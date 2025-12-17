@@ -1,6 +1,8 @@
 import XCTest
 import Vision
-@testable import Airis
+#if !XCODE_BUILD
+@testable import AirisCore
+#endif
 
 /// VisionService 补充测试
 ///

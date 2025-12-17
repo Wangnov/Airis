@@ -122,24 +122,36 @@ struct Strings: Sendable {
         // ============ SensitiveContentAnalysis ============
         "safe.disabled_hint": [
             .en: """
-                ⚠️ Sensitive Content Analysis is disabled.
+                ⚠️ Sensitive Content Analysis is not available.
 
-                This feature requires:
-                1. Enable: System Settings > Privacy & Security > Sensitive Content Warning
-                2. App must be signed with Apple Developer Program (paid) entitlement:
-                   com.apple.developer.sensitivecontentanalysis.client
+                Possible reasons:
+                1. System setting not enabled:
+                   System Settings > Privacy & Security > Sensitive Content Warning
 
-                Note: Free developer accounts cannot use this feature due to Apple's restrictions.
+                2. This version does not support this feature:
+                   - Developer ID distribution does NOT support this feature
+                   - Only App Store version or Development build can use it
+
+                Solutions:
+                • Enable the system setting above, OR
+                • Use the App Store version of Airis, OR
+                • Build from source with Xcode (Development signing)
                 """,
             .cn: """
-                ⚠️ 敏感内容分析已禁用。
+                ⚠️ 敏感内容分析功能不可用。
 
-                此功能需要：
-                1. 启用：系统设置 > 隐私与安全性 > 敏感内容警告
-                2. 应用需要使用付费 Apple Developer Program 签名，并包含权限：
-                   com.apple.developer.sensitivecontentanalysis.client
+                可能原因：
+                1. 系统设置未启用：
+                   系统设置 > 隐私与安全性 > 敏感内容警告
 
-                注意：由于 Apple 的限制，免费开发者账户无法使用此功能。
+                2. 当前版本不支持此功能：
+                   - Developer ID 分发版本不支持此功能（Apple 限制）
+                   - 仅 App Store 版本或 Development 构建可用
+
+                解决方案：
+                • 启用上述系统设置，或
+                • 使用 App Store 版本的 Airis，或
+                • 使用 Xcode 自行编译（Development 签名）
                 """
         ],
         "safe.is_sensitive": [
