@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct InstantCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,38 +11,38 @@ struct InstantCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply Instant Camera photo effect using CoreImage.
+            Apply Instant Camera photo effect using CoreImage.
 
-                Creates a vintage Polaroid-style look:
-                - Warm color cast
-                - Slightly desaturated
-                - Soft contrast
-                - Nostalgic feel
+            Creates a vintage Polaroid-style look:
+            - Warm color cast
+            - Slightly desaturated
+            - Soft contrast
+            - Nostalgic feel
 
-                This is a one-click effect with no adjustable parameters.
+            This is a one-click effect with no adjustable parameters.
 
-                QUICK START:
-                  airis edit filter instant photo.jpg -o polaroid.png
+            QUICK START:
+              airis edit filter instant photo.jpg -o polaroid.png
 
-                EXAMPLES:
-                  # Apply instant camera effect
-                  airis edit filter instant photo.jpg -o instant.png
+            EXAMPLES:
+              # Apply instant camera effect
+              airis edit filter instant photo.jpg -o instant.png
 
-                  # Process and open result
-                  airis edit filter instant vacation.jpg -o retro.png --open
+              # Process and open result
+              airis edit filter instant vacation.jpg -o retro.png --open
 
-                OUTPUT:
-                  Instant camera styled image in the specified format
-                """,
+            OUTPUT:
+              Instant camera styled image in the specified format
+            """,
             cn: """
-                使用 Photo Effect Instant 一键生成拍立得/复古风格（偏暖、对比柔和）。
+            使用 Photo Effect Instant 一键生成拍立得/复古风格（偏暖、对比柔和）。
 
-                QUICK START:
-                  airis edit filter instant photo.jpg -o polaroid.png
+            QUICK START:
+              airis edit filter instant photo.jpg -o polaroid.png
 
-                EXAMPLES:
-                  airis edit filter instant vacation.jpg -o retro.png --open
-                """
+            EXAMPLES:
+              airis edit filter instant vacation.jpg -o retro.png --open
+            """
         )
     )
 
@@ -63,7 +63,7 @@ struct InstantCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

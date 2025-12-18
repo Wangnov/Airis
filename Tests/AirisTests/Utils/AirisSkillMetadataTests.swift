@@ -1,11 +1,11 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class AirisSkillMetadataTests: XCTestCase {
-    private struct UnknownCommand { }
-    private struct UnknownNonCommandType { }
+    private struct UnknownCommand {}
+    private struct UnknownNonCommandType {}
 
     func testHelpBlockForKnownCommandContainsMetadataHeader() {
         let block = AirisSkillMetadata.helpBlock(for: AirisCommand.self)

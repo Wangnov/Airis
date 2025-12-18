@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第四批覆盖补充：针对余下未满 100% 的命令增加分支覆盖。
@@ -18,6 +18,7 @@ final class CommandLayerCoverageSprint4Tests: XCTestCase {
     }
 
     // MARK: Analyze
+
     func testInfoCommandTableOrientation() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         try await InfoCommand.parse([input, "--format", "table"]).run()
@@ -48,6 +49,7 @@ final class CommandLayerCoverageSprint4Tests: XCTestCase {
     }
 
     // MARK: Detect
+
     func testBarcodeCommandNoResults() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         try await BarcodeCommand.parse([input, "--format", "table"]).run()
@@ -64,11 +66,12 @@ final class CommandLayerCoverageSprint4Tests: XCTestCase {
     }
 
     // MARK: Gen Config & Draw
+
     func testSetConfigCommandUpdate() async throws {
         try await SetConfigCommand.parse([
             "--provider", "gemini",
             "--base-url", "https://example.com",
-            "--model", "demo-model"
+            "--model", "demo-model",
         ]).run()
     }
 
@@ -78,7 +81,7 @@ final class CommandLayerCoverageSprint4Tests: XCTestCase {
             "test prompt",
             "--reveal",
             "-o", out.path,
-            "--ref", CommandTestHarness.fixture("small_100x100.png").path
+            "--ref", CommandTestHarness.fixture("small_100x100.png").path,
         ]).run()
         CommandTestHarness.cleanup(out)
     }

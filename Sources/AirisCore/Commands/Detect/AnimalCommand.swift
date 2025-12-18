@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct AnimalCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "animal",
-        abstract: HelpTextFactory.text(
-            en: "Detect animals (cats and dogs) in images",
-            cn: "检测图片中的动物（猫/狗）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "animal",
+            abstract: HelpTextFactory.text(
+                en: "Detect animals (cats and dogs) in images",
+                cn: "检测图片中的动物（猫/狗）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect cats and dogs in images using Apple's Vision framework.
 
                 QUICK START:
@@ -57,7 +57,7 @@ struct AnimalCommand: AsyncParsableCommand {
                   The Vision framework currently supports detection of cats and dogs.
                   Other animals are not recognized by this detector.
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架检测图片中的猫/狗，输出类型、置信度与 bounding box。
 
                 QUICK START:
@@ -85,8 +85,8 @@ struct AnimalCommand: AsyncParsableCommand {
                 说明：
                   - 目前仅支持猫/狗
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -113,10 +113,10 @@ struct AnimalCommand: AsyncParsableCommand {
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
                 "🐾 Animal Detection",
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-                "📁 File: \(url.lastPathComponent)"
+                "📁 File: \(url.lastPathComponent)",
             ]
 
-            if let type = type {
+            if let type {
                 bannerLines.append("🔖 Type filter: \(type.capitalized)")
             }
 
@@ -132,16 +132,16 @@ struct AnimalCommand: AsyncParsableCommand {
 
             // 执行检测
             #if DEBUG
-            if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_STUB"] == "1" {
-                let stub = Self.testObservations()
-                try await handleResults(stub, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
-                continue
-            }
-            if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_LOW_LABEL"] == "1" {
-                let stub = Self.testLowConfidenceLabelObservations()
-                try await handleResults(stub, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
-                continue
-            }
+                if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_STUB"] == "1" {
+                    let stub = Self.testObservations()
+                    try await handleResults(stub, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
+                    continue
+                }
+                if ProcessInfo.processInfo.environment["AIRIS_FORCE_ANIMAL_LOW_LABEL"] == "1" {
+                    let stub = Self.testLowConfidenceLabelObservations()
+                    try await handleResults(stub, url: url, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
+                    continue
+                }
             #endif
 
             let results = try await vision.recognizeAnimals(at: url)
@@ -158,8 +158,8 @@ struct AnimalCommand: AsyncParsableCommand {
         }
     }
 
-    private func handleResults<T: AnimalObservationLike>(
-        _ results: [T],
+    private func handleResults(
+        _ results: [some AnimalObservationLike],
         url: URL,
         outputFormat: OutputFormat,
         showHumanOutput: Bool
@@ -234,19 +234,20 @@ struct AnimalCommand: AsyncParsableCommand {
                     "x": animal.boundingBox.origin.x,
                     "y": animal.boundingBox.origin.y,
                     "width": animal.boundingBox.width,
-                    "height": animal.boundingBox.height
-                ]
+                    "height": animal.boundingBox.height,
+                ],
             ]
         }
 
         let dict: [String: Any] = [
             "file": file,
             "count": results.count,
-            "animals": items
+            "animals": items,
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
@@ -285,49 +286,49 @@ private struct VisionAnimalObservation: AnimalObservationLike {
 }
 
 #if DEBUG
-extension AnimalCommand {
-    /// 测试辅助：构造可控的识别结果，覆盖类型过滤与空结果分支
-    private static func testObservations() -> [StubAnimalObservation] {
-        func makeObservation(type: String, confidence: Float, box: CGRect) -> StubAnimalObservation {
-            let label = StubAnimalLabel(identifierValue: type, confidenceValue: confidence)
-            return StubAnimalObservation(
-                confidenceValue: confidence,
-                labelsValue: [label],
-                boundingBoxValue: box
-            )
+    extension AnimalCommand {
+        /// 测试辅助：构造可控的识别结果，覆盖类型过滤与空结果分支
+        private static func testObservations() -> [StubAnimalObservation] {
+            func makeObservation(type: String, confidence: Float, box: CGRect) -> StubAnimalObservation {
+                let label = StubAnimalLabel(identifierValue: type, confidenceValue: confidence)
+                return StubAnimalObservation(
+                    confidenceValue: confidence,
+                    labelsValue: [label],
+                    boundingBoxValue: box
+                )
+            }
+
+            return [
+                makeObservation(type: "cat", confidence: 0.92, box: CGRect(x: 0.1, y: 0.1, width: 0.3, height: 0.3)),
+                makeObservation(type: "dog", confidence: 0.85, box: CGRect(x: 0.5, y: 0.2, width: 0.25, height: 0.35)),
+            ]
         }
 
-        return [
-            makeObservation(type: "cat", confidence: 0.92, box: CGRect(x: 0.1, y: 0.1, width: 0.3, height: 0.3)),
-            makeObservation(type: "dog", confidence: 0.85, box: CGRect(x: 0.5, y: 0.2, width: 0.25, height: 0.35))
-        ]
-    }
+        /// 低标签置信度分支（覆盖 combinedConfidence < threshold）
+        private static func testLowConfidenceLabelObservations() -> [StubAnimalObservation] {
+            func makeObservation(type: String, confidence: Float, labelConfidence: Float, box: CGRect) -> StubAnimalObservation {
+                let label = StubAnimalLabel(identifierValue: type, confidenceValue: labelConfidence)
+                return StubAnimalObservation(
+                    confidenceValue: confidence,
+                    labelsValue: [label],
+                    boundingBoxValue: box
+                )
+            }
 
-    /// 低标签置信度分支（覆盖 combinedConfidence < threshold）
-    private static func testLowConfidenceLabelObservations() -> [StubAnimalObservation] {
-        func makeObservation(type: String, confidence: Float, labelConfidence: Float, box: CGRect) -> StubAnimalObservation {
-            let label = StubAnimalLabel(identifierValue: type, confidenceValue: labelConfidence)
-            return StubAnimalObservation(
-                confidenceValue: confidence,
-                labelsValue: [label],
-                boundingBoxValue: box
-            )
+            return [
+                makeObservation(type: "cat", confidence: 0.98, labelConfidence: 0.4, box: CGRect(x: 0.2, y: 0.2, width: 0.3, height: 0.3)),
+            ]
         }
-
-        return [
-            makeObservation(type: "cat", confidence: 0.98, labelConfidence: 0.4, box: CGRect(x: 0.2, y: 0.2, width: 0.3, height: 0.3))
-        ]
     }
-}
 
-private struct StubAnimalLabel: AnimalLabelLike {
-    let identifierValue: String
-    let confidenceValue: Float
-}
+    private struct StubAnimalLabel: AnimalLabelLike {
+        let identifierValue: String
+        let confidenceValue: Float
+    }
 
-private struct StubAnimalObservation: AnimalObservationLike {
-    let confidenceValue: Float
-    let labelsValue: [any AnimalLabelLike]
-    let boundingBoxValue: CGRect
-}
+    private struct StubAnimalObservation: AnimalObservationLike {
+        let confidenceValue: Float
+        let labelsValue: [any AnimalLabelLike]
+        let boundingBoxValue: CGRect
+    }
 #endif

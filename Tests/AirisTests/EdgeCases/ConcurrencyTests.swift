@@ -1,8 +1,8 @@
-import XCTest
 @preconcurrency import CoreImage
 @preconcurrency import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 并发安全测试
@@ -12,7 +12,6 @@ import XCTest
 /// - 测试并发访问不会导致崩溃
 /// - 测试并发操作的数据一致性
 final class ConcurrencyTests: XCTestCase {
-
     var testImageURL: URL!
     var tempDirectory: URL!
 
@@ -23,7 +22,6 @@ final class ConcurrencyTests: XCTestCase {
         tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("airis_concurrent_test_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
-
     }
 
     override func tearDown() async throws {
@@ -95,7 +93,7 @@ final class ConcurrencyTests: XCTestCase {
 
         // 并行执行多个滤镜
         let results = await withTaskGroup(of: CGFloat.self, returning: [CGFloat].self) { group in
-            for i in 0..<5 {
+            for i in 0 ..< 5 {
                 group.addTask { @Sendable in
                     let processed = coreImageService.gaussianBlur(ciImage: testImage, radius: Double(i + 1))
                     return processed.extent.width
@@ -114,7 +112,7 @@ final class ConcurrencyTests: XCTestCase {
     /// 测试并发渲染
     func testConcurrentRendering() async throws {
         let coreImageService = CoreImageService()
-        let testImages = (0..<3).map { i in
+        let testImages = (0 ..< 3).map { i in
             CIImage(color: CIColor(red: CGFloat(i) * 0.3, green: 0.5, blue: 0.5))
                 .cropped(to: CGRect(x: 0, y: 0, width: 200, height: 200))
         }
@@ -171,13 +169,13 @@ final class ConcurrencyTests: XCTestCase {
         let cgImage = try imageIOService.loadImage(at: url, maxDimension: 200)
 
         // 保存多个文件
-        for i in 0..<3 {
+        for i in 0 ..< 3 {
             let outputPath = tempDir.appendingPathComponent("output_\(i).png")
             try imageIOService.saveImage(cgImage, to: outputPath, format: "png")
         }
 
         // 验证所有文件都已创建
-        for i in 0..<3 {
+        for i in 0 ..< 3 {
             let outputPath = tempDir.appendingPathComponent("output_\(i).png")
             XCTAssertTrue(FileManager.default.fileExists(atPath: outputPath.path))
         }
@@ -189,7 +187,7 @@ final class ConcurrencyTests: XCTestCase {
         let url = try XCTUnwrap(testImageURL)
 
         // 多次读取元数据
-        for _ in 0..<5 {
+        for _ in 0 ..< 5 {
             let metadata = try imageIOService.loadImageMetadata(at: url)
             XCTAssertGreaterThan(metadata.count, 0)
         }
@@ -225,7 +223,7 @@ final class ConcurrencyTests: XCTestCase {
         let url = try XCTUnwrap(testImageURL)
         let tempDir = try XCTUnwrap(tempDirectory)
 
-        for i in 0..<2 {
+        for i in 0 ..< 2 {
             let outputPath = tempDir.appendingPathComponent("workflow_\(i).jpg")
             let cgImage = try imageIOService.loadImage(at: url, maxDimension: 512)
             let ciImage = CIImage(cgImage: cgImage)
@@ -237,7 +235,7 @@ final class ConcurrencyTests: XCTestCase {
             try imageIOService.saveImage(outputCGImage, to: outputPath, format: "jpg", quality: 0.9)
         }
 
-        for i in 0..<2 {
+        for i in 0 ..< 2 {
             let outputPath = tempDir.appendingPathComponent("workflow_\(i).jpg")
             XCTAssertTrue(FileManager.default.fileExists(atPath: outputPath.path))
         }
@@ -254,7 +252,7 @@ final class ConcurrencyTests: XCTestCase {
         var successCount = 0
 
         // 执行 20 次操作
-        for _ in 0..<20 {
+        for _ in 0 ..< 20 {
             let blurred = coreImageService.gaussianBlur(ciImage: testImage, radius: 5)
             if coreImageService.render(ciImage: blurred) != nil {
                 successCount += 1

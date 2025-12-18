@@ -36,17 +36,17 @@ final class ServiceContainer: Sendable {
 
     private init() {
         // 基础服务
-        self.visionService = VisionService()
-        self.imageIOService = ImageIOService()
-        self.coreImageService = CoreImageService()
+        visionService = VisionService()
+        imageIOService = ImageIOService()
+        coreImageService = CoreImageService()
 
         // 网络和存储
-        self.httpClient = HTTPClient()
-        self.keychainManager = KeychainManager()
-        self.configManager = ConfigManager()
+        httpClient = HTTPClient()
+        keychainManager = KeychainManager()
+        configManager = ConfigManager()
 
         // Provider（依赖其他服务）
-        self.geminiProvider = GeminiProvider(
+        geminiProvider = GeminiProvider(
             providerName: "gemini",
             httpClient: httpClient,
             keychainManager: keychainManager,

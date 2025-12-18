@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 冲刺补充：覆盖未命中的命令分支（JPEG 分支、失败分支等）
@@ -97,7 +97,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
 
         try await withEnv([
             "AIRIS_FORCE_ENHANCE_NO_FILTERS": "1",
-            "CI": "1"  // 防止实际打开 Finder
+            "CI": "1", // 防止实际打开 Finder
         ]) {
             try await EnhanceCommand.parse([input, "-o", output, "--verbose", "--open"]).run()
         }
@@ -125,7 +125,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
             {
                 let out = CommandTestHarness.temporaryFile(ext: "jpeg").path
                 try await BlurCommand.parse([input, "-o", out, "--radius", "4", "--type", "zoom"]).run()
-            }
+            },
         ]
 
         for task in tasks {
@@ -183,7 +183,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
         // 覆盖非测试模式下的 /usr/bin/open 分支（用 override 避免真实打开）
         await withEnv([
             "AIRIS_DRAW_OPEN_EXECUTABLE_OVERRIDE": "/usr/bin/true",
-            "AIRIS_DRAW_REVEAL_EXECUTABLE_OVERRIDE": "/usr/bin/true"
+            "AIRIS_DRAW_REVEAL_EXECUTABLE_OVERRIDE": "/usr/bin/true",
         ]) {
             DrawCommand().testOpenWithDefaultApp(outputURL, isTestMode: false)
             DrawCommand().testOpenInFinder(outputURL, isTestMode: false)
@@ -230,7 +230,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
         await withEnv([
             "AIRIS_TEST_MODE": "1",
             "AIRIS_SCORE_TEST_VALUE": "-0.25",
-            "AIRIS_SCORE_UTILITY_FALSE": "1"
+            "AIRIS_SCORE_UTILITY_FALSE": "1",
         ]) {
             try? await ScoreCommand.parse([input, "--format", "json"]).run()
         }
@@ -271,7 +271,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
             let out = CommandTestHarness.temporaryFile(ext: "png").path
             try await CropCommand.parse([img, "--x", "-1", "--y", "0", "--width", "10", "--height", "10", "-o", out]).run()
             XCTFail("应触发坐标校验错误")
-        } catch { }
+        } catch {}
     }
 
     func testDefringeRenderNilBranch() async throws {
@@ -281,7 +281,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
             do {
                 try await DefringeCommand.parse([img, "-o", out]).run()
                 XCTFail("应触发渲染错误")
-            } catch { }
+            } catch {}
         }
     }
 
@@ -292,7 +292,7 @@ final class CommandLayerCoverageSprint22Tests: XCTestCase {
             do {
                 try await StraightenCommand.parse([img, "-o", out]).run()
                 XCTFail("应触发渲染错误")
-            } catch { }
+            } catch {}
         }
     }
 

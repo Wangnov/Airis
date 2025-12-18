@@ -1,7 +1,7 @@
-import XCTest
 import CoreImage
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// ImageIO 框架性能基准测试
@@ -25,7 +25,6 @@ final class ImageIOPerformanceTests: XCTestCase {
         tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("airis_perf_test_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
-
     }
 
     override func tearDown() async throws {
@@ -73,7 +72,7 @@ final class ImageIOPerformanceTests: XCTestCase {
     func testLoadMetadata() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             _ = try? service.loadImageMetadata(at: testImageURL)
         }
@@ -83,7 +82,7 @@ final class ImageIOPerformanceTests: XCTestCase {
     func testGetImageInfo() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = try? service.getImageInfo(at: testImageURL)
         }

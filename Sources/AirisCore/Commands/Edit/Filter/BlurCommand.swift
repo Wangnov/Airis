@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct BlurCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,53 +11,53 @@ struct BlurCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply various blur effects using CoreImage filters.
+            Apply various blur effects using CoreImage filters.
 
-                BLUR TYPES:
-                  gaussian  Standard Gaussian blur (default)
-                  motion    Directional motion blur
-                  zoom      Radial zoom blur from center
+            BLUR TYPES:
+              gaussian  Standard Gaussian blur (default)
+              motion    Directional motion blur
+              zoom      Radial zoom blur from center
 
-                PARAMETERS:
-                  --radius: Blur intensity (0-100, default: 10)
-                  --type:   Blur algorithm (gaussian, motion, zoom)
-                  --angle:  Motion direction in degrees (motion blur only)
+            PARAMETERS:
+              --radius: Blur intensity (0-100, default: 10)
+              --type:   Blur algorithm (gaussian, motion, zoom)
+              --angle:  Motion direction in degrees (motion blur only)
 
-                QUICK START:
-                  airis edit filter blur photo.jpg -o blurred.png
+            QUICK START:
+              airis edit filter blur photo.jpg -o blurred.png
 
-                EXAMPLES:
-                  # Gaussian blur with radius 10
-                  airis edit filter blur photo.jpg -o blurred.png
+            EXAMPLES:
+              # Gaussian blur with radius 10
+              airis edit filter blur photo.jpg -o blurred.png
 
-                  # Stronger Gaussian blur
-                  airis edit filter blur photo.jpg --radius 25 -o soft.png
+              # Stronger Gaussian blur
+              airis edit filter blur photo.jpg --radius 25 -o soft.png
 
-                  # Motion blur (horizontal, 20px)
-                  airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
+              # Motion blur (horizontal, 20px)
+              airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
 
-                  # Diagonal motion blur
-                  airis edit filter blur photo.jpg --type motion --radius 15 --angle 45 -o diagonal.png
+              # Diagonal motion blur
+              airis edit filter blur photo.jpg --type motion --radius 15 --angle 45 -o diagonal.png
 
-                  # Zoom blur from center
-                  airis edit filter blur photo.jpg --type zoom --radius 15 -o zoom.png
+              # Zoom blur from center
+              airis edit filter blur photo.jpg --type zoom --radius 15 -o zoom.png
 
-                OUTPUT:
-                  Blurred image in the specified format (png, jpg, heic)
-                """,
+            OUTPUT:
+              Blurred image in the specified format (png, jpg, heic)
+            """,
             cn: """
-                使用 Core Image 对图片进行模糊处理（高斯/运动/缩放模糊）。
+            使用 Core Image 对图片进行模糊处理（高斯/运动/缩放模糊）。
 
-                QUICK START:
-                  airis edit filter blur photo.jpg -o blurred.png
+            QUICK START:
+              airis edit filter blur photo.jpg -o blurred.png
 
-                EXAMPLES:
-                  # 更强高斯模糊
-                  airis edit filter blur photo.jpg --radius 25 -o soft.png
+            EXAMPLES:
+              # 更强高斯模糊
+              airis edit filter blur photo.jpg --radius 25 -o soft.png
 
-                  # 运动模糊
-                  airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
-                """
+              # 运动模糊
+              airis edit filter blur photo.jpg --type motion --radius 20 --angle 0 -o motion.png
+            """
         )
     )
 
@@ -96,12 +96,12 @@ struct BlurCommand: AsyncParsableCommand {
         }
 
         // 验证半径参数
-        guard radius >= 0 && radius <= 100 else {
+        guard radius >= 0, radius <= 100 else {
             throw AirisError.invalidPath("Blur radius must be 0-100, got: \(radius)")
         }
 
         // 验证角度参数
-        guard angle >= 0 && angle <= 360 else {
+        guard angle >= 0, angle <= 360 else {
             throw AirisError.invalidPath("Angle must be 0-360 degrees, got: \(angle)")
         }
 
@@ -109,7 +109,7 @@ struct BlurCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -148,11 +148,11 @@ struct BlurCommand: AsyncParsableCommand {
             filterBlock: { ciImage in
                 switch type.lowercased() {
                 case "motion":
-                    return coreImage.motionBlur(ciImage: ciImage, radius: radius, angle: angle)
+                    coreImage.motionBlur(ciImage: ciImage, radius: radius, angle: angle)
                 case "zoom":
-                    return coreImage.zoomBlur(ciImage: ciImage, amount: radius)
+                    coreImage.zoomBlur(ciImage: ciImage, amount: radius)
                 default:
-                    return coreImage.gaussianBlur(ciImage: ciImage, radius: radius)
+                    coreImage.gaussianBlur(ciImage: ciImage, radius: radius)
                 }
             }
         )

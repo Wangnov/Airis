@@ -1,7 +1,7 @@
-import XCTest
 import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 边界测试 - Vision 服务
@@ -12,7 +12,6 @@ import Vision
 /// - 测试极端情况
 /// - 测试正向检测能力
 final class VisionEdgeCaseTests: XCTestCase {
-
     // ✅ Apple 最佳实践：类级别共享服务
     static let sharedVisionService = VisionService()
 

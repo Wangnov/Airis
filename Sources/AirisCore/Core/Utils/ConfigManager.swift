@@ -24,8 +24,8 @@ struct AppConfig: Codable, Sendable {
     }
 
     init() {
-        self.providers = [:]
-        self.defaultProvider = "gemini"
+        providers = [:]
+        defaultProvider = "gemini"
     }
 }
 
@@ -66,7 +66,7 @@ final class ConfigManager: Sendable {
             baseURL: "https://generativelanguage.googleapis.com",
             model: "gemini-3-pro-image-preview",
             customHeaders: nil
-        )
+        ),
     ]
 
     // MARK: - Instance Properties
@@ -79,10 +79,10 @@ final class ConfigManager: Sendable {
     init(configFile: URL? = nil) {
         if let customFile = configFile {
             self.configFile = customFile
-            self.configDirectory = customFile.deletingLastPathComponent()
+            configDirectory = customFile.deletingLastPathComponent()
         } else {
             self.configFile = Self.defaultConfigFile
-            self.configDirectory = Self.defaultConfigDirectory
+            configDirectory = Self.defaultConfigDirectory
         }
     }
 
@@ -141,10 +141,10 @@ final class ConfigManager: Sendable {
         var config = try loadConfig()
         var providerConfig = config.providers[provider] ?? Self.defaultConfigs[provider] ?? ProviderConfig()
 
-        if let baseURL = baseURL {
+        if let baseURL {
             providerConfig.baseURL = baseURL
         }
-        if let model = model {
+        if let model {
             providerConfig.model = model
         }
 

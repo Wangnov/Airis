@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct DefringeCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "defringe",
-        abstract: HelpTextFactory.text(
-            en: "Remove chromatic aberration (purple/green fringing)",
-            cn: "去色散/紫边绿边（色边）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "defringe",
+            abstract: HelpTextFactory.text(
+                en: "Remove chromatic aberration (purple/green fringing)",
+                cn: "去色散/紫边绿边（色边）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Reduce color fringing artifacts around high-contrast edges.
                 Common in images with chromatic aberration from lenses.
 
@@ -39,7 +39,7 @@ struct DefringeCommand: AsyncParsableCommand {
                   Works best on images with visible purple or green fringing
                   around high-contrast edges (e.g., backlit subjects, windows).
                 """,
-            cn: """
+                cn: """
                 减少高反差边缘周围的紫边/绿边等色散伪影。
                 常见于镜头色散（chromatic aberration）导致的色边问题。
 
@@ -66,8 +66,8 @@ struct DefringeCommand: AsyncParsableCommand {
                 NOTE:
                   对“背光人物、窗框”等高反差边缘明显的紫边/绿边场景效果更好。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -87,7 +87,7 @@ struct DefringeCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 验证参数
-        guard amount >= 0 && amount <= 1.0 else {
+        guard amount >= 0, amount <= 1.0 else {
             throw AirisError.invalidPath("Amount must be 0.0-1.0, got: \(amount)")
         }
 
@@ -95,7 +95,7 @@ struct DefringeCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -122,12 +122,12 @@ struct DefringeCommand: AsyncParsableCommand {
         let defringed = coreImage.defringe(ciImage: ciImage, amount: amount)
 
         // 渲染并保存
-#if DEBUG
-        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_DEFRINGE_RENDER_NIL"] == "1"
-        let rendered = forceNil ? nil : coreImage.render(ciImage: defringed)
-#else
-        let rendered = coreImage.render(ciImage: defringed)
-#endif
+        #if DEBUG
+            let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_DEFRINGE_RENDER_NIL"] == "1"
+            let rendered = forceNil ? nil : coreImage.render(ciImage: defringed)
+        #else
+            let rendered = coreImage.render(ciImage: defringed)
+        #endif
 
         guard let outputCGImage = rendered else {
             throw AirisError.imageEncodeFailed

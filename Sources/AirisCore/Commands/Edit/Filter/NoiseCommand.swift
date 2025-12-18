@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct NoiseCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,49 +11,49 @@ struct NoiseCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply noise reduction to images using CoreImage's noise reduction filter.
+            Apply noise reduction to images using CoreImage's noise reduction filter.
 
-                Reduces digital noise (grain) while attempting to preserve image sharpness.
-                Best for photos taken in low light or at high ISO settings.
+            Reduces digital noise (grain) while attempting to preserve image sharpness.
+            Best for photos taken in low light or at high ISO settings.
 
-                PARAMETERS:
-                  --level:     Noise level estimation (0-0.1, default: 0.02)
-                               Higher values = more aggressive noise reduction
-                  --sharpness: Edge sharpness preservation (0-2, default: 0.4)
-                               Higher values = more detail preserved but more noise remains
+            PARAMETERS:
+              --level:     Noise level estimation (0-0.1, default: 0.02)
+                           Higher values = more aggressive noise reduction
+              --sharpness: Edge sharpness preservation (0-2, default: 0.4)
+                           Higher values = more detail preserved but more noise remains
 
-                QUICK START:
-                  airis edit filter noise photo.jpg -o denoised.png
+            QUICK START:
+              airis edit filter noise photo.jpg -o denoised.png
 
-                EXAMPLES:
-                  # Default noise reduction
-                  airis edit filter noise noisy.jpg -o clean.png
+            EXAMPLES:
+              # Default noise reduction
+              airis edit filter noise noisy.jpg -o clean.png
 
-                  # Aggressive noise reduction (may lose some detail)
-                  airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
+              # Aggressive noise reduction (may lose some detail)
+              airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
 
-                  # Gentle noise reduction (preserve detail)
-                  airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
+              # Gentle noise reduction (preserve detail)
+              airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
 
-                  # Heavy noise reduction for very noisy images
-                  airis edit filter noise highiso.jpg --level 0.08 -o cleaned.png
+              # Heavy noise reduction for very noisy images
+              airis edit filter noise highiso.jpg --level 0.08 -o cleaned.png
 
-                OUTPUT:
-                  Denoised image in the specified format
-                """,
+            OUTPUT:
+              Denoised image in the specified format
+            """,
             cn: """
-                使用 Core Image 降噪滤镜减少图片噪点（颗粒），并尽量保留边缘细节。
+            使用 Core Image 降噪滤镜减少图片噪点（颗粒），并尽量保留边缘细节。
 
-                QUICK START:
-                  airis edit filter noise photo.jpg -o denoised.png
+            QUICK START:
+              airis edit filter noise photo.jpg -o denoised.png
 
-                EXAMPLES:
-                  # 更强降噪（可能损失细节）
-                  airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
+            EXAMPLES:
+              # 更强降噪（可能损失细节）
+              airis edit filter noise noisy.jpg --level 0.05 --sharpness 0.2 -o smooth.png
 
-                  # 更温和降噪（保留细节）
-                  airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
-                """
+              # 更温和降噪（保留细节）
+              airis edit filter noise photo.jpg --level 0.01 --sharpness 0.6 -o gentle.png
+            """
         )
     )
 
@@ -77,12 +77,12 @@ struct NoiseCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 验证噪声级别参数
-        guard level >= 0 && level <= 0.1 else {
+        guard level >= 0, level <= 0.1 else {
             throw AirisError.invalidPath("Noise level must be 0-0.1, got: \(level)")
         }
 
         // 验证锐度参数
-        guard sharpness >= 0 && sharpness <= 2 else {
+        guard sharpness >= 0, sharpness <= 2 else {
             throw AirisError.invalidPath("Sharpness must be 0-2, got: \(sharpness)")
         }
 
@@ -90,7 +90,7 @@ struct NoiseCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -119,11 +119,11 @@ struct NoiseCommand: AsyncParsableCommand {
         // 应用滤镜
         let coreImage = ServiceContainer.shared.coreImageService
 
-#if DEBUG
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_NOISE_RENDER_FAIL"] == "1" {
-            throw AirisError.imageEncodeFailed
-        }
-#endif
+        #if DEBUG
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_NOISE_RENDER_FAIL"] == "1" {
+                throw AirisError.imageEncodeFailed
+            }
+        #endif
 
         try coreImage.applyAndSave(
             inputURL: inputURL,

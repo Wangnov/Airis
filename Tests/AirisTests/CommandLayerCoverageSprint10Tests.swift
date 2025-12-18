@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第十批覆盖补齐：Animal 无结果 JSON、Similar 表格、Score 实用性提示。
@@ -10,7 +10,7 @@ final class CommandLayerCoverageSprint10Tests: XCTestCase {
             "AIRIS_TEST_MODE",
             "AIRIS_SIMILAR_TEST_DISTANCE",
             "AIRIS_SCORE_TEST_VALUE",
-            "AIRIS_SCORE_UTILITY_FALSE"
+            "AIRIS_SCORE_UTILITY_FALSE",
         ]
         envs.forEach { unsetenv($0) }
         super.tearDown()
@@ -22,7 +22,7 @@ final class CommandLayerCoverageSprint10Tests: XCTestCase {
             input,
             "--type", "cat",
             "--threshold", "0.5",
-            "--format", "json"
+            "--format", "json",
         ]).run()
     }
 

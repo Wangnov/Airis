@@ -1,18 +1,16 @@
-import XCTest
 import CoreImage
 @preconcurrency import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 命令功能完整性集成测试 - 确保所有命令底层服务都被测试覆盖
 final class CommandCoverageIntegrationTests: XCTestCase {
-
     // ✅ Apple 最佳实践：类级别共享服务
     static let sharedVisionService = VisionService()
     static let sharedCoreImageService = CoreImageService()
     static let sharedImageIOService = ImageIOService()
-
 
     // MARK: - Properties
 
@@ -424,7 +422,7 @@ final class CommandCoverageIntegrationTests: XCTestCase {
             ("pixellate", coreImageService.pixellate(ciImage: ciImage)),
             ("posterize", coreImageService.posterize(ciImage: ciImage)),
             ("edges", coreImageService.edges(ciImage: ciImage) ?? ciImage),
-            ("lineOverlay", coreImageService.lineOverlay(ciImage: ciImage))
+            ("lineOverlay", coreImageService.lineOverlay(ciImage: ciImage)),
         ]
 
         for (name, filtered) in effects {

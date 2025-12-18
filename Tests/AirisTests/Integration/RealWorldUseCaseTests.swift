@@ -1,18 +1,16 @@
-import XCTest
 import CoreImage
 import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 真实用例集成测试 - 模拟实际使用场景
 final class RealWorldUseCaseTests: XCTestCase {
-
     // ✅ Apple 最佳实践：类级别共享服务
     static let sharedVisionService = VisionService()
     static let sharedCoreImageService = CoreImageService()
     static let sharedImageIOService = ImageIOService()
-
 
     // MARK: - Properties
 
@@ -88,7 +86,7 @@ final class RealWorldUseCaseTests: XCTestCase {
             "large": 600,
             "medium": 300,
             "small": 150,
-            "icon": 64
+            "icon": 64,
         ]
 
         // 加载原图
@@ -185,7 +183,7 @@ final class RealWorldUseCaseTests: XCTestCase {
         let pageCount = 3
         var processedPages: [URL] = []
 
-        for pageNum in 1...pageCount {
+        for pageNum in 1 ... pageCount {
             // 1. 加载页面
             let cgImage = try imageIOService.loadImage(at: documentURL)
             var ciImage = CIImage(cgImage: cgImage)
@@ -220,7 +218,7 @@ final class RealWorldUseCaseTests: XCTestCase {
         var imageTags: [[String]] = []
 
         // 为每张图片生成标签
-        for _ in 0..<imageCount {
+        for _ in 0 ..< imageCount {
             let classifications = try await visionService.classifyImage(at: imageURL, threshold: 0.3)
             let tags = classifications.prefix(5).map { classification in
                 classification.identifier
@@ -259,7 +257,7 @@ final class RealWorldUseCaseTests: XCTestCase {
 
         // 4. 分类
         let classifications = try await visionService.classifyImage(at: imageURL, threshold: 0.5)
-        let topCategories = classifications.prefix(3).map { $0.identifier }
+        let topCategories = classifications.prefix(3).map(\.identifier)
 
         // 生成审核结果
         let result = ModerationResult(
@@ -347,7 +345,7 @@ final class RealWorldUseCaseTests: XCTestCase {
                 var img = $0
                 img = self.coreImageService.adjustSaturation(ciImage: img, saturation: 0.8)
                 return self.coreImageService.adjustColors(ciImage: img, brightness: -0.05, contrast: 1.1, saturation: 0.9)
-            })
+            }),
         ]
 
         var generatedPreviews: [String: URL] = [:]
@@ -450,7 +448,7 @@ final class RealWorldUseCaseTests: XCTestCase {
         let imageURL = TestResources.image("line_art.png")
 
         // 处理多张图片，每次处理后清理缓存
-        for i in 1...5 {
+        for i in 1 ... 5 {
             autoreleasepool {
                 do {
                     let cgImage = try imageIOService.loadImage(at: imageURL)
@@ -554,7 +552,8 @@ final class RealWorldUseCaseTests: XCTestCase {
 
         // 渲染两个版本
         guard let originalRendered = coreImageService.render(ciImage: originalCIImage),
-              let editedRendered = coreImageService.render(ciImage: editedCIImage) else {
+              let editedRendered = coreImageService.render(ciImage: editedCIImage)
+        else {
             XCTFail("Failed to render comparison images")
             return
         }

@@ -5,13 +5,13 @@ import ImageIO
 struct InfoCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "info",
-        abstract: HelpTextFactory.text(
-            en: "Display basic image information",
-            cn: "显示图像基础信息"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "info",
+            abstract: HelpTextFactory.text(
+                en: "Display basic image information",
+                cn: "显示图像基础信息"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Show image dimensions, DPI, color space, and file metadata.
 
                 QUICK START:
@@ -56,7 +56,7 @@ struct InfoCommand: AsyncParsableCommand {
                 SUPPORTED FORMATS:
                   JPEG, PNG, HEIC, HEIF, TIFF, WebP, GIF, BMP
                 """,
-            cn: """
+                cn: """
                 显示图像尺寸、DPI、色彩模型、位深度、透明通道与文件大小等信息。
 
                 QUICK START:
@@ -101,8 +101,8 @@ struct InfoCommand: AsyncParsableCommand {
                 SUPPORTED FORMATS:
                   JPEG, PNG, HEIC, HEIF, TIFF, WebP, GIF, BMP
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -154,7 +154,8 @@ struct InfoCommand: AsyncParsableCommand {
         // 方向信息
         var orientationToDescribe = info.orientation
         if ProcessInfo.processInfo.environment["AIRIS_FORCE_UNKNOWN_ORIENTATION"] == "1",
-           let unknown = CGImagePropertyOrientation(rawValue: 999) {
+           let unknown = CGImagePropertyOrientation(rawValue: 999)
+        {
             orientationToDescribe = unknown
         }
 
@@ -178,7 +179,7 @@ struct InfoCommand: AsyncParsableCommand {
             "dpi_width": info.dpiWidth,
             "dpi_height": info.dpiHeight,
             "has_alpha": info.hasAlpha,
-            "orientation": info.orientation.rawValue
+            "orientation": info.orientation.rawValue,
         ]
 
         if let colorModel = info.colorModel {
@@ -194,7 +195,8 @@ struct InfoCommand: AsyncParsableCommand {
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
@@ -209,15 +211,15 @@ struct InfoCommand: AsyncParsableCommand {
             .leftMirrored: "逆时针90°+水平翻转",
             .right: "顺时针90°",
             .rightMirrored: "顺时针90°+水平翻转",
-            .left: "逆时针90°"
+            .left: "逆时针90°",
         ]
         return mapping[orientation] ?? "未知"
     }
 
     #if DEBUG
-    /// 测试辅助
-    static func testDescribeOrientation(_ orientation: CGImagePropertyOrientation) -> String {
-        InfoCommand().describeOrientation(orientation)
-    }
+        /// 测试辅助
+        static func testDescribeOrientation(_ orientation: CGImagePropertyOrientation) -> String {
+            InfoCommand().describeOrientation(orientation)
+        }
     #endif
 }

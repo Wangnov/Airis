@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第九批覆盖补齐：Score 非测试降级提示、Similar 非测试分支、Tag 大于显示数量、Persons 桩结果。
@@ -10,7 +10,7 @@ final class CommandLayerCoverageSprint9Tests: XCTestCase {
             "AIRIS_TEST_MODE",
             "AIRIS_SIMILAR_TEST_DISTANCE",
             "AIRIS_TEST_PERSONS_FAKE_RESULT",
-            "AIRIS_FORCE_PERSONS_CGIMAGE_NIL"
+            "AIRIS_FORCE_PERSONS_CGIMAGE_NIL",
         ]
         envs.forEach { unsetenv($0) }
         super.tearDown()
@@ -54,7 +54,7 @@ final class CommandLayerCoverageSprint9Tests: XCTestCase {
         setenv("AIRIS_FORCE_PERSONS_CGIMAGE_NIL", "1", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try await PersonsCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path]).run()
+            try PersonsCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path]).run()
         )
     }
 }
@@ -69,5 +69,5 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }

@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class KeychainManagerTests: XCTestCase {
-
     let keychain = KeychainManager()
     let testProvider = "test-provider-\(UUID().uuidString)"
 

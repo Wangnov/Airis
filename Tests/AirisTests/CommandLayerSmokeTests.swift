@@ -1,7 +1,7 @@
-import XCTest
 import ArgumentParser
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 轻量级命令层冒烟测试，覆盖核心子命令主路径。
@@ -156,7 +156,7 @@ final class CommandLayerSmokeTests: XCTestCase {
             "--height", "64",
             "--stretch",
             "--quality", "0.8",
-            "--force"
+            "--force",
         ])
 
         defer { CommandTestHarness.cleanup(outputURL) }
@@ -253,7 +253,7 @@ final class CommandLayerSmokeTests: XCTestCase {
         let fastCmd = try FaceCommand.parse([
             faceImage,
             "--fast",
-            "--format", "table"
+            "--format", "table",
         ])
         try await fastCmd.run()
 
@@ -261,7 +261,7 @@ final class CommandLayerSmokeTests: XCTestCase {
         let fullCmd = try FaceCommand.parse([
             faceImage,
             "--threshold", "0.1",
-            "--format", "json"
+            "--format", "json",
         ])
         try await fullCmd.run()
     }
@@ -367,13 +367,14 @@ final class CommandLayerSmokeTests: XCTestCase {
 
     // MARK: Helpers
 
-    private func runCommand<C: AsyncParsableCommand>(_ type: C.Type, args: [String]) async throws {
+    private func runCommand(_ type: (some AsyncParsableCommand).Type, args: [String]) async throws {
         // 反射调用 parse + run，便于批量覆盖命令
         // 强制输出文件清理以避免临时文件堆积
         let finalArgs = args
         var outputURL: URL?
         if let outputIndex = finalArgs.firstIndex(of: "-o").map({ $0 + 1 }) ?? finalArgs.firstIndex(of: "--output").map({ $0 + 1 }),
-           outputIndex < finalArgs.count {
+           outputIndex < finalArgs.count
+        {
             outputURL = URL(fileURLWithPath: finalArgs[outputIndex])
         }
 

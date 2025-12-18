@@ -3,13 +3,13 @@ import ArgumentParser
 struct AdjustCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "adjust",
-        abstract: HelpTextFactory.text(
-            en: "Adjust colors and geometry",
-            cn: "色彩与几何调整"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "adjust",
+            abstract: HelpTextFactory.text(
+                en: "Adjust colors and geometry",
+                cn: "色彩与几何调整"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Fine-tune image properties with precise control.
 
                 QUICK START:
@@ -61,7 +61,7 @@ struct AdjustCommand: AsyncParsableCommand {
 
                 All adjustments use GPU-accelerated CoreImage filters.
                 """,
-            cn: """
+                cn: """
                 使用 Core Image 对图片进行色彩/几何调整（GPU 加速）。
 
                 QUICK START:
@@ -84,21 +84,21 @@ struct AdjustCommand: AsyncParsableCommand {
                   airis edit adjust vignette portrait.jpg --intensity 1.2 -o artistic.jpg
                   airis edit adjust rotate photo.jpg --angle 90 -o rotated.jpg
                 """
-        ),
-        subcommands: [
-            // 色彩调整
-            ColorCommand.self,
-            ExposureCommand.self,
-            TemperatureCommand.self,
-            VignetteCommand.self,
-            // 色调效果
-            InvertCommand.self,
-            PosterizeCommand.self,
-            ThresholdCommand.self,
-            // 几何变换
-            FlipCommand.self,
-            RotateCommand.self,
-        ]
-    )
+            ),
+            subcommands: [
+                // 色彩调整
+                ColorCommand.self,
+                ExposureCommand.self,
+                TemperatureCommand.self,
+                VignetteCommand.self,
+                // 色调效果
+                InvertCommand.self,
+                PosterizeCommand.self,
+                ThresholdCommand.self,
+                // 几何变换
+                FlipCommand.self,
+                RotateCommand.self,
+            ]
+        )
     }
 }

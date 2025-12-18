@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct HalftoneCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,52 +11,52 @@ struct HalftoneCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply halftone (dot screen) effect to images using CoreImage.
+            Apply halftone (dot screen) effect to images using CoreImage.
 
-                Creates a retro print/newspaper style with dot patterns.
-                Simulates the look of traditional offset printing.
+            Creates a retro print/newspaper style with dot patterns.
+            Simulates the look of traditional offset printing.
 
-                PARAMETERS:
-                  --width:     Dot spacing (1-50, default: 6)
-                               Smaller = finer detail, larger = more obvious dots
-                  --angle:     Dot pattern angle in degrees (0-360, default: 0)
-                  --sharpness: Edge sharpness of dots (0-1, default: 0.7)
+            PARAMETERS:
+              --width:     Dot spacing (1-50, default: 6)
+                           Smaller = finer detail, larger = more obvious dots
+              --angle:     Dot pattern angle in degrees (0-360, default: 0)
+              --sharpness: Edge sharpness of dots (0-1, default: 0.7)
 
-                QUICK START:
-                  airis edit filter halftone photo.jpg -o halftone.png
+            QUICK START:
+              airis edit filter halftone photo.jpg -o halftone.png
 
-                EXAMPLES:
-                  # Default halftone effect
-                  airis edit filter halftone photo.jpg -o halftone.png
+            EXAMPLES:
+              # Default halftone effect
+              airis edit filter halftone photo.jpg -o halftone.png
 
-                  # Newspaper style (larger dots)
-                  airis edit filter halftone photo.jpg --width 12 -o newspaper.png
+              # Newspaper style (larger dots)
+              airis edit filter halftone photo.jpg --width 12 -o newspaper.png
 
-                  # Fine halftone
-                  airis edit filter halftone photo.jpg --width 3 -o fine.png
+              # Fine halftone
+              airis edit filter halftone photo.jpg --width 3 -o fine.png
 
-                  # Angled halftone pattern
-                  airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
+              # Angled halftone pattern
+              airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
 
-                  # Soft halftone (less sharp dots)
-                  airis edit filter halftone photo.jpg --sharpness 0.3 -o soft.png
+              # Soft halftone (less sharp dots)
+              airis edit filter halftone photo.jpg --sharpness 0.3 -o soft.png
 
-                OUTPUT:
-                  Halftone-styled image in the specified format
-                """,
+            OUTPUT:
+              Halftone-styled image in the specified format
+            """,
             cn: """
-                使用 Core Image 生成网点印刷/报纸风格效果。
+            使用 Core Image 生成网点印刷/报纸风格效果。
 
-                QUICK START:
-                  airis edit filter halftone photo.jpg -o halftone.png
+            QUICK START:
+              airis edit filter halftone photo.jpg -o halftone.png
 
-                EXAMPLES:
-                  # 更粗网点（更像报纸）
-                  airis edit filter halftone photo.jpg --width 12 -o newspaper.png
+            EXAMPLES:
+              # 更粗网点（更像报纸）
+              airis edit filter halftone photo.jpg --width 12 -o newspaper.png
 
-                  # 旋转网点角度
-                  airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
-                """
+              # 旋转网点角度
+              airis edit filter halftone photo.jpg --angle 45 --width 8 -o angled.png
+            """
         )
     )
 
@@ -83,17 +83,17 @@ struct HalftoneCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 验证宽度参数
-        guard width >= 1 && width <= 50 else {
+        guard width >= 1, width <= 50 else {
             throw AirisError.invalidPath("Width must be 1-50, got: \(width)")
         }
 
         // 验证角度参数
-        guard angle >= 0 && angle <= 360 else {
+        guard angle >= 0, angle <= 360 else {
             throw AirisError.invalidPath("Angle must be 0-360 degrees, got: \(angle)")
         }
 
         // 验证锐度参数
-        guard sharpness >= 0 && sharpness <= 1 else {
+        guard sharpness >= 0, sharpness <= 1 else {
             throw AirisError.invalidPath("Sharpness must be 0-1, got: \(sharpness)")
         }
 
@@ -101,7 +101,7 @@ struct HalftoneCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

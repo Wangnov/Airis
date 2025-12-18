@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Analyze 命令组 Batch 2 测试

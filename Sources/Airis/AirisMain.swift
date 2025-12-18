@@ -1,6 +1,6 @@
 // Airis CLI Entry Point
 #if !XCODE_BUILD
-import AirisCore
+    import AirisCore
 #endif
 
 @main

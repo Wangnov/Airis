@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class VisionCommandTests: XCTestCase {
-
     // MARK: - VisionCommand Configuration Tests
 
     func testVisionCommandHasSubcommands() throws {
@@ -51,7 +50,7 @@ final class VisionCommandTests: XCTestCase {
     func testAlignCommandConfiguration() throws {
         XCTAssertEqual(AlignCommand.configuration.commandName, "align")
         XCTAssertTrue(AlignCommand.configuration.abstract.contains("alignment") ||
-                     AlignCommand.configuration.abstract.contains("registration"))
+            AlignCommand.configuration.abstract.contains("registration"))
     }
 
     func testAlignCommandDiscussion() throws {
@@ -72,7 +71,7 @@ final class VisionCommandTests: XCTestCase {
     func testSaliencyCommandConfiguration() throws {
         XCTAssertEqual(SaliencyCommand.configuration.commandName, "saliency")
         XCTAssertTrue(SaliencyCommand.configuration.abstract.contains("saliency") ||
-                     SaliencyCommand.configuration.abstract.contains("attention"))
+            SaliencyCommand.configuration.abstract.contains("attention"))
     }
 
     func testSaliencyCommandDiscussion() throws {
@@ -95,7 +94,7 @@ final class VisionCommandTests: XCTestCase {
     func testPersonsCommandConfiguration() throws {
         XCTAssertEqual(PersonsCommand.configuration.commandName, "persons")
         XCTAssertTrue(PersonsCommand.configuration.abstract.contains("person") ||
-                     PersonsCommand.configuration.abstract.contains("segmentation"))
+            PersonsCommand.configuration.abstract.contains("segmentation"))
     }
 
     func testPersonsCommandDiscussion() throws {

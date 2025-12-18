@@ -1,6 +1,8 @@
 .DS_Store
 .build/
-*.xcodeproj
+# Xcode 用户数据（保留项目文件本身）
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
 *.swiftpm
 DerivedData/
 .swiftpm/

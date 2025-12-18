@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Task 4.2 - Detect Commands Batch 2 测试
@@ -141,7 +141,7 @@ final class DetectBatch2Tests: XCTestCase {
     func testPetPoseCommandConfiguration() throws {
         XCTAssertEqual(PetPoseCommand.configuration.commandName, "petpose")
         XCTAssertTrue(PetPoseCommand.configuration.abstract.contains("pet") ||
-                      PetPoseCommand.configuration.abstract.contains("Pet"))
+            PetPoseCommand.configuration.abstract.contains("Pet"))
     }
 
     func testPetPoseCommandDiscussionContainsRequirements() throws {
@@ -152,7 +152,7 @@ final class DetectBatch2Tests: XCTestCase {
     func testPetPoseCommandDiscussionContainsSupportedAnimals() throws {
         let discussion = PetPoseCommand.configuration.discussion
         XCTAssertTrue(discussion.contains("SUPPORTED ANIMALS") ||
-                      (discussion.contains("Cat") && discussion.contains("Dog")))
+            (discussion.contains("Cat") && discussion.contains("Dog")))
     }
 
     func testPetPoseCommandDiscussionContainsKeypoints() throws {
@@ -270,7 +270,7 @@ final class DetectBatch2Tests: XCTestCase {
         if discussion.contains("nose") || discussion.contains("shoulder") { score += 1 }
 
         // 输出格式说明
-        if discussion.contains("json") && discussion.contains("table") { score += 1 }
+        if discussion.contains("json"), discussion.contains("table") { score += 1 }
 
         XCTAssertGreaterThanOrEqual(score, 9, "Help quality score should be 9+/10, got \(score)")
     }
@@ -287,7 +287,7 @@ final class DetectBatch2Tests: XCTestCase {
         if discussion.contains("21") { score += 1 }
         if discussion.contains("THUMB") || discussion.contains("thumb") { score += 1 }
         if discussion.contains("CHIRALITY") || discussion.contains("left") { score += 1 }
-        if discussion.contains("json") && discussion.contains("table") { score += 1 }
+        if discussion.contains("json"), discussion.contains("table") { score += 1 }
 
         XCTAssertGreaterThanOrEqual(score, 9, "Help quality score should be 9+/10, got \(score)")
     }
@@ -304,7 +304,7 @@ final class DetectBatch2Tests: XCTestCase {
         if discussion.contains("Cat") || discussion.contains("Dog") { score += 1 }
         if discussion.contains("SUPPORTED") { score += 1 }
         if discussion.contains("macOS 14") || discussion.contains("REQUIREMENTS") { score += 1 }
-        if discussion.contains("json") && discussion.contains("table") { score += 1 }
+        if discussion.contains("json"), discussion.contains("table") { score += 1 }
 
         XCTAssertGreaterThanOrEqual(score, 9, "Help quality score should be 9+/10, got \(score)")
     }

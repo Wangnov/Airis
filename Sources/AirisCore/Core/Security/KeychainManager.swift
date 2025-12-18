@@ -5,7 +5,7 @@ import Security
 /// 使用文件型 Keychain（CLI 工具推荐方式，无需 entitlements）
 final class KeychainManager: Sendable {
     private let service = "live.airis.cli"
-    nonisolated(unsafe) private let operations: any KeychainOperations
+    private nonisolated(unsafe) let operations: any KeychainOperations
 
     /// 初始化（支持依赖注入）
     init(operations: any KeychainOperations = DefaultKeychainOperations()) {
@@ -21,11 +21,11 @@ final class KeychainManager: Sendable {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
-            kSecAttrAccount: provider
+            kSecAttrAccount: provider,
         ]
 
         let attributes: [CFString: Any] = [
-            kSecValueData: data
+            kSecValueData: data,
         ]
 
         // 先尝试更新现有项
@@ -36,7 +36,7 @@ final class KeychainManager: Sendable {
             var addQuery = query
             addQuery[kSecValueData] = data
             addQuery[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlock
-            addQuery[kSecAttrSynchronizable] = false  // API Key 不应同步到 iCloud
+            addQuery[kSecAttrSynchronizable] = false // API Key 不应同步到 iCloud
 
             let addStatus = operations.itemAdd(attributes: addQuery as CFDictionary, result: nil)
             guard addStatus == errSecSuccess else {
@@ -54,7 +54,7 @@ final class KeychainManager: Sendable {
             kSecAttrService: service,
             kSecAttrAccount: provider,
             kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitOne
+            kSecMatchLimit: kSecMatchLimitOne,
         ]
 
         var result: AnyObject?
@@ -62,7 +62,8 @@ final class KeychainManager: Sendable {
 
         guard status == errSecSuccess,
               let data = result as? Data,
-              let key = operations.dataToString(data) else {
+              let key = operations.dataToString(data)
+        else {
             throw AirisError.apiKeyNotFound(provider: provider)
         }
 
@@ -74,7 +75,7 @@ final class KeychainManager: Sendable {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
-            kSecAttrAccount: provider
+            kSecAttrAccount: provider,
         ]
 
         let status = operations.itemDelete(query: query as CFDictionary)
@@ -89,7 +90,7 @@ final class KeychainManager: Sendable {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: provider,
-            kSecReturnData: false
+            kSecReturnData: false,
         ]
 
         let status = operations.itemCopyMatching(query: query as CFDictionary, result: nil)

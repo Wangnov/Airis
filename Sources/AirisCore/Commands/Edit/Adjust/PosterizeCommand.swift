@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct PosterizeCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,47 +11,47 @@ struct PosterizeCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply posterization effect using CIColorPosterize filter.
-                Reduces the number of color levels, creating a poster-like appearance.
+            Apply posterization effect using CIColorPosterize filter.
+            Reduces the number of color levels, creating a poster-like appearance.
 
-                PARAMETERS:
-                  Levels: 2 to 30 (default: 6)
-                          Lower values = fewer colors = more dramatic effect
-                          Higher values = more colors = subtler effect
+            PARAMETERS:
+              Levels: 2 to 30 (default: 6)
+                      Lower values = fewer colors = more dramatic effect
+                      Higher values = more colors = subtler effect
 
-                QUICK START:
-                  airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
+            QUICK START:
+              airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
 
-                EXAMPLES:
-                  # Strong poster effect (4 levels per channel)
-                  airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
+            EXAMPLES:
+              # Strong poster effect (4 levels per channel)
+              airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
 
-                  # Minimal posterization (2 levels = very graphic)
-                  airis edit adjust posterize art.png --levels 2 -o graphic.png
+              # Minimal posterization (2 levels = very graphic)
+              airis edit adjust posterize art.png --levels 2 -o graphic.png
 
-                  # Subtle posterization (8 levels)
-                  airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
+              # Subtle posterization (8 levels)
+              airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
 
-                  # Medium effect with PNG output
-                  airis edit adjust posterize image.jpg --levels 6 -o medium.png
+              # Medium effect with PNG output
+              airis edit adjust posterize image.jpg --levels 6 -o medium.png
 
-                OUTPUT:
-                  Supports PNG, JPEG, HEIC, TIFF output formats.
-                  Format is determined by output file extension.
-                """,
+            OUTPUT:
+              Supports PNG, JPEG, HEIC, TIFF output formats.
+              Format is determined by output file extension.
+            """,
             cn: """
-                使用 CIColorPosterize 减少色阶数量，形成海报/波普风格的色调分离效果。
+            使用 CIColorPosterize 减少色阶数量，形成海报/波普风格的色调分离效果。
 
-                参数范围：
-                  levels: 2 ~ 30（默认：6；越小越夸张）
+            参数范围：
+              levels: 2 ~ 30（默认：6；越小越夸张）
 
-                QUICK START:
-                  airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
+            QUICK START:
+              airis edit adjust posterize photo.jpg --levels 4 -o poster.jpg
 
-                EXAMPLES:
-                  airis edit adjust posterize art.png --levels 2 -o graphic.png
-                  airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
-                """
+            EXAMPLES:
+              airis edit adjust posterize art.png --levels 2 -o graphic.png
+              airis edit adjust posterize photo.jpg --levels 8 -o subtle.jpg
+            """
         )
     )
 
@@ -75,7 +75,7 @@ struct PosterizeCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 参数验证
-        guard levels >= 2 && levels <= 30 else {
+        guard levels >= 2, levels <= 30 else {
             throw AirisError.invalidPath("Levels must be 2 to 30, got: \(levels)")
         }
 
@@ -84,7 +84,7 @@ struct PosterizeCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

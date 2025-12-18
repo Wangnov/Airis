@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ChromeCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,37 +11,37 @@ struct ChromeCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply Chrome photo effect using CoreImage.
+            Apply Chrome photo effect using CoreImage.
 
-                Creates a dramatic look with:
-                - Enhanced contrast
-                - Boosted colors
-                - Vivid, punchy appearance
+            Creates a dramatic look with:
+            - Enhanced contrast
+            - Boosted colors
+            - Vivid, punchy appearance
 
-                This is a one-click effect with no adjustable parameters.
+            This is a one-click effect with no adjustable parameters.
 
-                QUICK START:
-                  airis edit filter chrome photo.jpg -o chrome.png
+            QUICK START:
+              airis edit filter chrome photo.jpg -o chrome.png
 
-                EXAMPLES:
-                  # Apply chrome effect
-                  airis edit filter chrome photo.jpg -o chrome.png
+            EXAMPLES:
+              # Apply chrome effect
+              airis edit filter chrome photo.jpg -o chrome.png
 
-                  # Process and open result
-                  airis edit filter chrome landscape.jpg -o vivid.png --open
+              # Process and open result
+              airis edit filter chrome landscape.jpg -o vivid.png --open
 
-                OUTPUT:
-                  Chrome-styled image in the specified format
-                """,
+            OUTPUT:
+              Chrome-styled image in the specified format
+            """,
             cn: """
-                使用 Photo Effect Chrome 一键增强对比与色彩饱和度（更“鲜艳”）。
+            使用 Photo Effect Chrome 一键增强对比与色彩饱和度（更“鲜艳”）。
 
-                QUICK START:
-                  airis edit filter chrome photo.jpg -o chrome.png
+            QUICK START:
+              airis edit filter chrome photo.jpg -o chrome.png
 
-                EXAMPLES:
-                  airis edit filter chrome landscape.jpg -o vivid.png --open
-                """
+            EXAMPLES:
+              airis edit filter chrome landscape.jpg -o vivid.png --open
+            """
         )
     )
 
@@ -62,7 +62,7 @@ struct ChromeCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ExposureCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,52 +11,52 @@ struct ExposureCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Adjust image exposure using CIExposureAdjust filter.
-                Uses logarithmic adjustment similar to camera EV settings.
+            Adjust image exposure using CIExposureAdjust filter.
+            Uses logarithmic adjustment similar to camera EV settings.
 
-                PARAMETERS:
-                  EV: -10.0 to 10.0 (0 = unchanged)
-                      Each +1.0 EV doubles the brightness
-                      Each -1.0 EV halves the brightness
+            PARAMETERS:
+              EV: -10.0 to 10.0 (0 = unchanged)
+                  Each +1.0 EV doubles the brightness
+                  Each -1.0 EV halves the brightness
 
-                QUICK START:
-                  airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
+            QUICK START:
+              airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
 
-                EXAMPLES:
-                  # Brighten underexposed photo (+1.5 EV)
-                  airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
+            EXAMPLES:
+              # Brighten underexposed photo (+1.5 EV)
+              airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
 
-                  # Darken overexposed photo (-1.0 EV)
-                  airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
+              # Darken overexposed photo (-1.0 EV)
+              airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
 
-                  # Subtle brightness increase (+0.5 EV)
-                  airis edit adjust exposure photo.jpg --ev 0.5 -o enhanced.jpg
+              # Subtle brightness increase (+0.5 EV)
+              airis edit adjust exposure photo.jpg --ev 0.5 -o enhanced.jpg
 
-                  # Strong exposure boost for very dark images
-                  airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
+              # Strong exposure boost for very dark images
+              airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
 
-                NOTE:
-                  Exposure adjustment is more natural than brightness adjustment
-                  as it simulates camera exposure behavior.
+            NOTE:
+              Exposure adjustment is more natural than brightness adjustment
+              as it simulates camera exposure behavior.
 
-                OUTPUT:
-                  Supports PNG, JPEG, HEIC, TIFF output formats.
-                  Format is determined by output file extension.
-                """,
+            OUTPUT:
+              Supports PNG, JPEG, HEIC, TIFF output formats.
+              Format is determined by output file extension.
+            """,
             cn: """
-                使用 CIExposureAdjust 调整曝光值（EV），更接近相机曝光行为。
+            使用 CIExposureAdjust 调整曝光值（EV），更接近相机曝光行为。
 
-                参数范围：
-                  EV: -10.0 ~ 10.0（默认：0）
-                  +1.0 EV 亮度约翻倍；-1.0 EV 亮度约减半
+            参数范围：
+              EV: -10.0 ~ 10.0（默认：0）
+              +1.0 EV 亮度约翻倍；-1.0 EV 亮度约减半
 
-                QUICK START:
-                  airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
+            QUICK START:
+              airis edit adjust exposure dark.jpg --ev 1.5 -o brighter.jpg
 
-                EXAMPLES:
-                  airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
-                  airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
-                """
+            EXAMPLES:
+              airis edit adjust exposure bright.jpg --ev -1.0 -o darker.jpg
+              airis edit adjust exposure night.jpg --ev 3.0 -o night_bright.jpg
+            """
         )
     )
 
@@ -80,7 +80,7 @@ struct ExposureCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 参数验证
-        guard ev >= -10.0 && ev <= 10.0 else {
+        guard ev >= -10.0, ev <= 10.0 else {
             throw AirisError.invalidPath("EV must be -10.0 to 10.0, got: \(ev)")
         }
 
@@ -89,7 +89,7 @@ struct ExposureCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

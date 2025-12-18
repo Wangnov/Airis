@@ -12,7 +12,7 @@ struct Arguments {
 
     init() {
         let args = Set(CommandLine.arguments.dropFirst())
-        self.force = args.contains("--force")
+        force = args.contains("--force")
     }
 }
 
@@ -34,10 +34,10 @@ enum GeneratorError: Error, CustomStringConvertible {
 
     var description: String {
         switch self {
-        case .failedToCreateContext: return "failedToCreateContext"
-        case .failedToCreateCGImage: return "failedToCreateCGImage"
-        case .failedToCreateDestination: return "failedToCreateDestination"
-        case .failedToFinalize: return "failedToFinalize"
+        case .failedToCreateContext: "failedToCreateContext"
+        case .failedToCreateCGImage: "failedToCreateCGImage"
+        case .failedToCreateDestination: "failedToCreateDestination"
+        case .failedToFinalize: "failedToFinalize"
         }
     }
 }
@@ -97,7 +97,7 @@ func drawText(_ text: String, in rect: CGRect, context: CGContext) {
     let font = CTFontCreateWithName("Helvetica" as CFString, 36, nil)
     let attrs: [NSAttributedString.Key: Any] = [
         NSAttributedString.Key(rawValue: kCTFontAttributeName as String): font,
-        NSAttributedString.Key(rawValue: kCTForegroundColorAttributeName as String): CGColor(gray: 0.05, alpha: 1.0)
+        NSAttributedString.Key(rawValue: kCTForegroundColorAttributeName as String): CGColor(gray: 0.05, alpha: 1.0),
     ]
 
     let attributed = NSAttributedString(string: text, attributes: attrs)
@@ -176,7 +176,7 @@ func drawRectangleTestImage(size: CGSize) throws -> CGImage {
     // Inner lines to help rectangle detector.
     ctx.setStrokeColor(CGColor(gray: 0.25, alpha: 1))
     ctx.setLineWidth(2)
-    for i in 1...6 {
+    for i in 1 ... 6 {
         let y = docRect.minY + CGFloat(i) * docRect.height / 7
         ctx.move(to: CGPoint(x: docRect.minX + 24, y: y))
         ctx.addLine(to: CGPoint(x: docRect.maxX - 24, y: y))
@@ -245,7 +245,7 @@ func drawSmallImage(size: CGSize) throws -> CGImage {
     // Simple deterministic gradient.
     let colors = [
         CGColor(red: 0.95, green: 0.35, blue: 0.2, alpha: 1),
-        CGColor(red: 0.2, green: 0.55, blue: 0.95, alpha: 1)
+        CGColor(red: 0.2, green: 0.55, blue: 0.95, alpha: 1),
     ]
 
     if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0.0, 1.0]) {

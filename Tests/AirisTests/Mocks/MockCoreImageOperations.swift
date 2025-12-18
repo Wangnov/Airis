@@ -1,9 +1,9 @@
-import CoreImage
 import CoreGraphics
-import Metal
+import CoreImage
 import Foundation
+import Metal
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Mock CoreImage 操作 - 用于测试 Metal 不可用的场景
@@ -15,16 +15,16 @@ final class MockCoreImageOperations: CoreImageOperations {
     }
 
     func createContext(with device: MTLDevice?, options: [CIContextOption: Any]?) -> CIContext {
-        if let device = device {
-            return CIContext(mtlDevice: device, options: options)
+        if let device {
+            CIContext(mtlDevice: device, options: options)
         } else {
-            return CIContext(options: options)
+            CIContext(options: options)
         }
     }
 
     func getDefaultMetalDevice() -> MTLDevice? {
         if shouldReturnNilMetalDevice {
-            return nil  // 模拟 Metal 不可用
+            return nil // 模拟 Metal 不可用
         }
         return MTLCreateSystemDefaultDevice()
     }

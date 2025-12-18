@@ -1,15 +1,13 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class DetectCommandTests: XCTestCase {
-
     override func setUp() {
         super.setUp()
         Language.current = .en
     }
-
 
     // MARK: - DetectCommand Configuration Tests
 
@@ -140,6 +138,7 @@ final class DetectCommandTests: XCTestCase {
     }
 
     // MARK: - Default Values Tests
+
     // Note: Default values are tested through configuration, not instance creation,
     // because @Argument and @Option properties require parsing to be initialized.
 

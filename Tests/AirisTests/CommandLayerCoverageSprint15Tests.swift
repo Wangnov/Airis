@@ -1,8 +1,9 @@
+import UniformTypeIdentifiers
+
 // swiftlint:disable force_unwrapping
 import XCTest
-import UniformTypeIdentifiers
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第十五批覆盖冲刺：补齐剩余边界分支，向 100% 覆盖推进。
@@ -25,7 +26,7 @@ final class CommandLayerCoverageSprint15Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try await MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
+            try MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -38,7 +39,7 @@ final class CommandLayerCoverageSprint15Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try await MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
+            try MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -90,7 +91,7 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }
 
 /// 生成简单的灰色测试图像，避免重复依赖其他测试文件中的私有方法

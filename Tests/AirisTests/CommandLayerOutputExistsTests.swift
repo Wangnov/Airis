@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 覆盖各命令的“输出已存在”与补充分支，避免遗漏分支导致覆盖率不足。
@@ -18,13 +18,14 @@ final class CommandLayerOutputExistsTests: XCTestCase {
     }
 
     // MARK: Temperature
+
     func testTemperatureOutputExistsThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await TemperatureCommand.parse([input, "-o", out.path, "--temp", "-200"]).run()
+            try TemperatureCommand.parse([input, "-o", out.path, "--temp", "-200"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -37,25 +38,27 @@ final class CommandLayerOutputExistsTests: XCTestCase {
     }
 
     // MARK: Scan
+
     func testScanOutputExistsThrows() async {
         let input = CommandTestHarness.fixture("rectangle_512x512.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await ScanCommand.parse([input, "-o", out.path]).run()
+            try ScanCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
 
     // MARK: Filters (输出已存在)
+
     func testHalftoneOutputExistsThrows() async {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await HalftoneCommand.parse([input, "-o", out.path, "--width", "6", "--angle", "10"]).run()
+            try HalftoneCommand.parse([input, "-o", out.path, "--width", "6", "--angle", "10"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -66,7 +69,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await PixelCommand.parse([input, "-o", out.path, "--scale", "12"]).run()
+            try PixelCommand.parse([input, "-o", out.path, "--scale", "12"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -77,7 +80,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await ChromeCommand.parse([input, "-o", out.path]).run()
+            try ChromeCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -88,7 +91,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await ComicCommand.parse([input, "-o", out.path]).run()
+            try ComicCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -99,7 +102,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await InstantCommand.parse([input, "-o", out.path]).run()
+            try InstantCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -110,7 +113,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await MonoCommand.parse([input, "-o", out.path]).run()
+            try MonoCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -121,7 +124,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await NoirCommand.parse([input, "-o", out.path]).run()
+            try NoirCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -132,7 +135,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await SepiaCommand.parse([input, "-o", out.path]).run()
+            try SepiaCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -143,7 +146,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await BlurCommand.parse([input, "-o", out.path, "--radius", "4"]).run()
+            try BlurCommand.parse([input, "-o", out.path, "--radius", "4"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -154,19 +157,20 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await SharpenCommand.parse([input, "-o", out.path, "--intensity", "0.8"]).run()
+            try SharpenCommand.parse([input, "-o", out.path, "--intensity", "0.8"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
 
     // MARK: 其他编辑命令
+
     func testThumbOutputExistsThrows() async {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await ThumbCommand.parse([input, "-o", out.path, "--size", "256"]).run()
+            try ThumbCommand.parse([input, "-o", out.path, "--size", "256"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -177,7 +181,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await DefringeCommand.parse([input, "-o", out.path, "--amount", "0.5"]).run()
+            try DefringeCommand.parse([input, "-o", out.path, "--amount", "0.5"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -188,7 +192,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await RotateCommand.parse([input, "-o", out.path, "--angle", "-30"]).run()
+            try RotateCommand.parse([input, "-o", out.path, "--angle", "-30"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -199,7 +203,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await InvertCommand.parse([input, "-o", out.path]).run()
+            try InvertCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -210,7 +214,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await EnhanceCommand.parse([input, "-o", out.path]).run()
+            try EnhanceCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -218,8 +222,8 @@ final class CommandLayerOutputExistsTests: XCTestCase {
 
 // MARK: - Helpers
 
-private func XCTAssertThrowsErrorAsync<T>(
-    _ expression: @autoclosure @escaping () async throws -> T,
+private func XCTAssertThrowsErrorAsync(
+    _ expression: @autoclosure @escaping () async throws -> some Any,
     _ message: String = "",
     file: StaticString = #filePath,
     line: UInt = #line
@@ -227,5 +231,5 @@ private func XCTAssertThrowsErrorAsync<T>(
     do {
         _ = try await expression()
         XCTFail(message, file: file, line: line)
-    } catch { }
+    } catch {}
 }

@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第二十批覆盖冲刺：Noise/Trace/Cut open 分支，Format 压缩比<1，Persons 空结果。
@@ -16,6 +16,7 @@ final class CommandLayerCoverageSprint20Tests: XCTestCase {
     }
 
     // MARK: Noise open
+
     func testNoiseCommandOpenBranch() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -24,6 +25,7 @@ final class CommandLayerCoverageSprint20Tests: XCTestCase {
     }
 
     // MARK: Trace open + work style
+
     func testTraceCommandOpenWorkStyle() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -32,6 +34,7 @@ final class CommandLayerCoverageSprint20Tests: XCTestCase {
     }
 
     // MARK: Cut open
+
     func testCutCommandOpenBranch() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -40,6 +43,7 @@ final class CommandLayerCoverageSprint20Tests: XCTestCase {
     }
 
     // MARK: Format ratio < 1.0
+
     func testFormatCommandCompressionBranch() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
@@ -49,6 +53,7 @@ final class CommandLayerCoverageSprint20Tests: XCTestCase {
     }
 
     // MARK: Persons 空结果
+
     func testPersonsCommandEmptyResults() async throws {
         setenv("AIRIS_TEST_MODE", "1", 1) // 确保稳定输出
         // 使用极高质量阈值与空 stub（VisionService nil results 已有测试），此处验证命令层的空结果打印

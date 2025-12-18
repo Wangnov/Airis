@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 import Darwin
 import Foundation
@@ -102,7 +102,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_FORCE_TAG_STUB": "1"
+            "AIRIS_FORCE_TAG_STUB": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try TagCommand.parse([img, "--threshold", "0.0", "--limit", "10", "--format", "json"])
@@ -131,7 +131,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_FORCE_OCR_FAKE": "1"
+            "AIRIS_FORCE_OCR_FAKE": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try OCRCommand.parse([img, "--format", "json", "--show-bounds"])
@@ -160,7 +160,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_TEST_MODE": "1"
+            "AIRIS_TEST_MODE": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try SafeCommand.parse([img, "--format", "json"])
@@ -178,7 +178,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
             "AIRIS_TEST_ALLOW_STDOUT": "1",
             "AIRIS_TEST_MODE": "1",
             "AIRIS_SCORE_TEST_VALUE": "0.62",
-            "AIRIS_SCORE_UTILITY_FALSE": "1"
+            "AIRIS_SCORE_UTILITY_FALSE": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try ScoreCommand.parse([img, "--format", "json"])
@@ -196,7 +196,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
             "AIRIS_TEST_MODE": "1",
-            "AIRIS_SIMILAR_TEST_DISTANCE": "0.55"
+            "AIRIS_SIMILAR_TEST_DISTANCE": "0.55",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try SimilarCommand.parse([img1, img2, "--format", "json"])
@@ -212,7 +212,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_FORCE_ANIMAL_STUB": "1"
+            "AIRIS_FORCE_ANIMAL_STUB": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try AnimalCommand.parse([img, "--format", "json"])
@@ -267,7 +267,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_FORCE_PETPOSE_UNSUPPORTED": "1"
+            "AIRIS_FORCE_PETPOSE_UNSUPPORTED": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try PetPoseCommand.parse([img, "--format", "json"])
@@ -296,7 +296,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_FORCE_POSE3D_EMPTY": "1"
+            "AIRIS_FORCE_POSE3D_EMPTY": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try Pose3DCommand.parse([img, "--format", "json"])
@@ -313,7 +313,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_TEST_ALIGN_FAKE_RESULT": "1"
+            "AIRIS_TEST_ALIGN_FAKE_RESULT": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try AlignCommand.parse([img1, img2, "--format", "json"])
@@ -330,7 +330,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_TEST_FLOW_FAKE_RESULT": "1"
+            "AIRIS_TEST_FLOW_FAKE_RESULT": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try FlowCommand.parse([img1, img2, "--format", "json"])
@@ -346,7 +346,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_TEST_PERSONS_FAKE_RESULT": "1"
+            "AIRIS_TEST_PERSONS_FAKE_RESULT": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try PersonsCommand.parse([img, "--format", "json"])
@@ -362,7 +362,7 @@ final class CommandLayerJSONOutputPurityTests: XCTestCase {
         var output = ""
         try await withEnv([
             "AIRIS_TEST_ALLOW_STDOUT": "1",
-            "AIRIS_TEST_SALIENCY_FAKE_RESULT": "1"
+            "AIRIS_TEST_SALIENCY_FAKE_RESULT": "1",
         ]) {
             output = try await withCapturedStdoutAsync {
                 let cmd = try SaliencyCommand.parse([img, "--format", "json"])

@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class ConfigManagerTests: XCTestCase {
-
     var tempConfigFile: URL!
     var manager: ConfigManager!
 
@@ -73,7 +72,7 @@ final class ConfigManagerTests: XCTestCase {
 
         let config = try manager.getProviderConfig(for: "gemini")
         XCTAssertEqual(config.baseURL, "https://new-base.example.com")
-        XCTAssertNotNil(config.model)  // 应保留原有值
+        XCTAssertNotNil(config.model) // 应保留原有值
     }
 
     func testUpdateOnlyModel() throws {
@@ -85,7 +84,7 @@ final class ConfigManagerTests: XCTestCase {
         )
 
         let config = try manager.getProviderConfig(for: "gemini")
-        XCTAssertNotNil(config.baseURL)  // 应保留原有值
+        XCTAssertNotNil(config.baseURL) // 应保留原有值
         XCTAssertEqual(config.model, "new-model")
     }
 
@@ -155,7 +154,7 @@ final class ConfigManagerTests: XCTestCase {
         try manager.updateProviderConfig(for: "test", baseURL: "https://test.com")
 
         // 真实配置应该不受影响
-        let realManager = ConfigManager()  // 使用默认路径
+        let realManager = ConfigManager() // 使用默认路径
         let realConfig = try realManager.loadConfig()
 
         // 真实配置中不应该有 test provider
@@ -174,7 +173,7 @@ final class ConfigManagerTests: XCTestCase {
     func testComputeDefaultConfigDirectory_UsesEnvOverride() {
         let customConfigFile = "/tmp/airis_custom/config.json"
         let dir = ConfigManager.computeDefaultConfigDirectory(environment: [
-            "AIRIS_CONFIG_FILE": customConfigFile
+            "AIRIS_CONFIG_FILE": customConfigFile,
         ])
         let expected = URL(fileURLWithPath: customConfigFile).deletingLastPathComponent()
         XCTAssertEqual(dir.path, expected.path)
@@ -191,7 +190,7 @@ final class ConfigManagerTests: XCTestCase {
     func testComputeDefaultConfigFile_UsesEnvOverride() {
         let customConfigFile = "/tmp/airis_custom/config.json"
         let file = ConfigManager.computeDefaultConfigFile(environment: [
-            "AIRIS_CONFIG_FILE": customConfigFile
+            "AIRIS_CONFIG_FILE": customConfigFile,
         ])
         XCTAssertEqual(file.path, URL(fileURLWithPath: customConfigFile).path)
     }
@@ -241,5 +240,4 @@ final class ConfigManagerTests: XCTestCase {
         let defaultProvider = try manager.getDefaultProvider()
         XCTAssertEqual(defaultProvider, "gemini")
     }
-
 }

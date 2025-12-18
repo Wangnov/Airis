@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第八批覆盖补齐：聚焦滤镜参数错误、输出格式错误，以及 Draw/Config 交互分支。
@@ -9,16 +9,17 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         let envs = [
             "AIRIS_GEN_STUB",
             "AIRIS_TEST_MODE",
-            "AIRIS_TEST_KEY_STDIN"
+            "AIRIS_TEST_KEY_STDIN",
         ]
         envs.forEach { unsetenv($0) }
         super.tearDown()
     }
 
     // MARK: Gen / Draw
+
     func testDrawFlashModelEnableSearchAndReveal() async throws {
-        setenv("AIRIS_GEN_STUB", "1", 1)          // 避免真实网络
-        setenv("AIRIS_TEST_MODE", "1", 1)         // open/reveal 使用 /usr/bin/true
+        setenv("AIRIS_GEN_STUB", "1", 1) // 避免真实网络
+        setenv("AIRIS_TEST_MODE", "1", 1) // open/reveal 使用 /usr/bin/true
         let output = CommandTestHarness.temporaryFile(ext: "png")
         defer { CommandTestHarness.cleanup(output) }
 
@@ -29,7 +30,7 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
             "--image-size", "4k",
             "--enable-search",
             "--reveal",
-            "-o", output.path
+            "-o", output.path,
         ]).run()
 
         XCTAssertTrue(FileManager.default.fileExists(atPath: output.path))
@@ -43,11 +44,12 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         try await DrawCommand.parse([
             "ref test",
             "--ref", ref,
-            "--open"
+            "--open",
         ]).run()
     }
 
     // MARK: Config set-key 交互分支
+
     func testSetKeyInteractiveReadsFromStdinStub() async throws {
         setenv("AIRIS_TEST_KEY_STDIN", "STDIN_KEY_VALUE", 1)
         try await SetKeyCommand.parse(["--provider", "stdin-provider"]).run()
@@ -55,22 +57,23 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
     }
 
     // MARK: 滤镜参数校验与默认分支
+
     func testHalftoneInvalidParametersThrow() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await HalftoneCommand.parse([input, "-o", out.path, "--width", "0"]).run()
+            try HalftoneCommand.parse([input, "-o", out.path, "--width", "0"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try await HalftoneCommand.parse([input, "-o", out.path, "--angle", "400"]).run()
+            try HalftoneCommand.parse([input, "-o", out.path, "--angle", "400"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try await HalftoneCommand.parse([input, "-o", out.path, "--sharpness", "2"]).run()
+            try HalftoneCommand.parse([input, "-o", out.path, "--sharpness", "2"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try await HalftoneCommand.parse([input, "-o", "out.bmp"]).run()
+            try HalftoneCommand.parse([input, "-o", "out.bmp"]).run()
         )
     }
 
@@ -80,10 +83,10 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await PixelCommand.parse([input, "-o", out.path, "--scale", "0"]).run()
+            try PixelCommand.parse([input, "-o", out.path, "--scale", "0"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try await PixelCommand.parse([input, "-o", "pix.bmp"]).run()
+            try PixelCommand.parse([input, "-o", "pix.bmp"]).run()
         )
     }
 
@@ -93,10 +96,10 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await SepiaCommand.parse([input, "-o", out.path, "--intensity", "2"]).run()
+            try SepiaCommand.parse([input, "-o", out.path, "--intensity", "2"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try await SepiaCommand.parse([input, "-o", "sepia.bmp"]).run()
+            try SepiaCommand.parse([input, "-o", "sepia.bmp"]).run()
         )
     }
 
@@ -112,7 +115,7 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
             input, "-o", out1.path,
             "--intensity", "0.5",
             "--method", "unsharp",
-            "--radius", "2.0"
+            "--radius", "2.0",
         ]).run()
 
         // default 分支（未知方法 -> fallback sharpen）通过 DEBUG 辅助覆盖
@@ -131,5 +134,5 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }

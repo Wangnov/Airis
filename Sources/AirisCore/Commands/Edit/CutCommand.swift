@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct CutCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "cut",
-        abstract: HelpTextFactory.text(
-            en: "Remove background from images",
-            cn: "背景移除（抠图）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "cut",
+            abstract: HelpTextFactory.text(
+                en: "Remove background from images",
+                cn: "背景移除（抠图）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Remove image background using Vision's foreground segmentation.
                 The subject is automatically detected and extracted with transparency.
 
@@ -39,7 +39,7 @@ struct CutCommand: AsyncParsableCommand {
                   Works best with clear subject/background separation.
                   For complex scenes, results may vary.
                 """,
-            cn: """
+                cn: """
                 使用 Vision 的前景分割能力移除图片背景。
                 会自动检测主体并导出带透明通道的抠图结果。
 
@@ -66,8 +66,8 @@ struct CutCommand: AsyncParsableCommand {
                 NOTE:
                   对“主体与背景分离明显”的图片效果更好；复杂场景结果会有差异。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -106,7 +106,7 @@ struct CutCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -131,21 +131,20 @@ struct CutCommand: AsyncParsableCommand {
         let coreImage = ServiceContainer.shared.coreImageService
         let imageIO = ServiceContainer.shared.imageIOService
 
-#if DEBUG
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_RENDER_FAIL"] == "1" {
-            throw AirisError.imageEncodeFailed
-        }
+        #if DEBUG
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_RENDER_FAIL"] == "1" {
+                throw AirisError.imageEncodeFailed
+            }
 
-        let forceNilRender = ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_RENDER_NIL"] == "1"
-        let renderResult: CGImage?
-        if forceNilRender {
-            renderResult = nil
-        } else {
-            renderResult = coreImage.render(ciImage: maskedImage)
-        }
-#else
-        let renderResult = coreImage.render(ciImage: maskedImage)
-#endif
+            let forceNilRender = ProcessInfo.processInfo.environment["AIRIS_FORCE_CUT_RENDER_NIL"] == "1"
+            let renderResult: CGImage? = if forceNilRender {
+                nil
+            } else {
+                coreImage.render(ciImage: maskedImage)
+            }
+        #else
+            let renderResult = coreImage.render(ciImage: maskedImage)
+        #endif
 
         guard let cgImage = renderResult else {
             throw AirisError.imageEncodeFailed

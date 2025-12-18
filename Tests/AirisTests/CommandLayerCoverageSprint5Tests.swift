@@ -1,11 +1,12 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第五批覆盖冲刺：补齐剩余命令分支以逼近 100%。
 final class CommandLayerCoverageSprint5Tests: XCTestCase {
     // MARK: Analyze / Info
+
     func testInfoCommandNormalOrientationWithoutTestMode() async throws {
         unsetenv("AIRIS_TEST_MODE")
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -13,6 +14,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     }
 
     // MARK: Analyze / Meta
+
     func testMetaCommandIptcNoDataNonTestMode() async throws {
         unsetenv("AIRIS_TEST_MODE")
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -43,7 +45,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try await MetaCommand.parse([empty.path, "--set-comment", "x", "-o", out.path]).run()
+            try MetaCommand.parse([empty.path, "--set-comment", "x", "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(empty)
         CommandTestHarness.cleanup(out)
@@ -51,11 +53,12 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     }
 
     // MARK: Analyze / Palette
+
     func testPaletteCommandDecodeFail() async {
         let empty = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: empty.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try await PaletteCommand.parse([empty.path, "--count", "5"]).run()
+            try PaletteCommand.parse([empty.path, "--count", "5"]).run()
         )
         CommandTestHarness.cleanup(empty)
     }
@@ -72,6 +75,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     }
 
     // MARK: Analyze / Score & Similar
+
     func testScoreCommandFallbackBranch() async throws {
         unsetenv("AIRIS_TEST_MODE")
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -96,6 +100,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     }
 
     // MARK: Analyze / Tag
+
     func testTagCommandNoResultsHighThreshold() async throws {
         let img = CommandTestHarness.fixture("small_100x100.png").path
         try await TagCommand.parse([img, "--threshold", "2.0", "--limit", "5", "--format", "json"]).run()
@@ -112,6 +117,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     }
 
     // MARK: Detect / Barcode, Hand, PetPose
+
     func testBarcodeCommandCode39JSON() async throws {
         let img = CommandTestHarness.fixture("qrcode_512x512.png").path
         try await BarcodeCommand.parse([img, "--type", "code39", "--format", "json"]).run()
@@ -135,13 +141,14 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
     }
 
     // MARK: Edit / Rotate
+
     func testRotateCommandOutputExistsBranch() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await RotateCommand.parse([input, "-o", out.path, "--angle", "15"]).run()
+            try RotateCommand.parse([input, "-o", out.path, "--angle", "15"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -157,5 +164,5 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }

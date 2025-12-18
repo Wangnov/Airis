@@ -10,73 +10,73 @@ struct DrawCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Generate images from text prompts, with optional reference images.
+            Generate images from text prompts, with optional reference images.
 
-                QUICK START:
-                  airis gen draw "cyberpunk cat"
+            QUICK START:
+              airis gen draw "cyberpunk cat"
 
-                EXAMPLES:
-                  # Text-to-image
-                  airis gen draw "sunset landscape" --aspect-ratio 16:9 --image-size 4K -o output.png
+            EXAMPLES:
+              # Text-to-image
+              airis gen draw "sunset landscape" --aspect-ratio 16:9 --image-size 4K -o output.png
 
-                  # Edit with reference image
-                  airis gen draw "make it more vibrant" --ref original.jpg -o edited.png
+              # Edit with reference image
+              airis gen draw "make it more vibrant" --ref original.jpg -o edited.png
 
-                  # Multiple references (gemini-3-pro only)
-                  airis gen draw "group photo of these people making funny faces" \\
-                    --ref person1.jpg --ref person2.jpg --ref person3.jpg \\
-                    --model gemini-3-pro-image-preview --aspect-ratio 5:4 -o group.png
+              # Multiple references (gemini-3-pro only)
+              airis gen draw "group photo of these people making funny faces" \\
+                --ref person1.jpg --ref person2.jpg --ref person3.jpg \\
+                --model gemini-3-pro-image-preview --aspect-ratio 5:4 -o group.png
 
-                  # Real-time grounding with Google Search (gemini-3-pro only)
-                  airis gen draw "weather forecast for next 5 days in San Francisco" \\
-                    --enable-search --aspect-ratio 16:9 --model gemini-3-pro-image-preview -o weather.png
+              # Real-time grounding with Google Search (gemini-3-pro only)
+              airis gen draw "weather forecast for next 5 days in San Francisco" \\
+                --enable-search --aspect-ratio 16:9 --model gemini-3-pro-image-preview -o weather.png
 
-                OPTIONS:
-                  --ref <path>            Reference image path (repeatable)
-                  --aspect-ratio <ratio>  1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
-                  --image-size <size>     1K, 2K (default), 4K
-                  --open                  Open result after generation
-                  --reveal                Reveal result in Finder after generation
-                  --enable-search         Enable Google Search grounding (pro only)
+            OPTIONS:
+              --ref <path>            Reference image path (repeatable)
+              --aspect-ratio <ratio>  1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
+              --image-size <size>     1K, 2K (default), 4K
+              --open                  Open result after generation
+              --reveal                Reveal result in Finder after generation
+              --enable-search         Enable Google Search grounding (pro only)
 
-                TROUBLESHOOTING:
-                  - Configure API key: airis gen config set-key --provider gemini --key "..."
-                  - Check config: airis gen config show
-                """,
+            TROUBLESHOOTING:
+              - Configure API key: airis gen config set-key --provider gemini --key "..."
+              - Check config: airis gen config show
+            """,
             cn: """
-                根据文本提示词生成图片，可选添加参考图（用于编辑/风格迁移/一致性）。
+            根据文本提示词生成图片，可选添加参考图（用于编辑/风格迁移/一致性）。
 
-                QUICK START:
-                  airis gen draw "赛博朋克猫"
+            QUICK START:
+              airis gen draw "赛博朋克猫"
 
-                EXAMPLES:
-                  # 文生图
-                  airis gen draw "sunset landscape" --aspect-ratio 16:9 --image-size 4K -o output.png
+            EXAMPLES:
+              # 文生图
+              airis gen draw "sunset landscape" --aspect-ratio 16:9 --image-size 4K -o output.png
 
-                  # 参考图编辑
-                  airis gen draw "make it more vibrant" --ref original.jpg -o edited.png
+              # 参考图编辑
+              airis gen draw "make it more vibrant" --ref original.jpg -o edited.png
 
-                  # 多参考图（gemini-3-pro）
-                  airis gen draw "group photo of these people making funny faces" \\
-                    --ref person1.jpg --ref person2.jpg --ref person3.jpg \\
-                    --model gemini-3-pro-image-preview --aspect-ratio 5:4 -o group.png
+              # 多参考图（gemini-3-pro）
+              airis gen draw "group photo of these people making funny faces" \\
+                --ref person1.jpg --ref person2.jpg --ref person3.jpg \\
+                --model gemini-3-pro-image-preview --aspect-ratio 5:4 -o group.png
 
-                  # 开启 Google Search 实时信息（gemini-3-pro）
-                  airis gen draw "未来 5 天旧金山天气预报" \\
-                    --enable-search --aspect-ratio 16:9 --model gemini-3-pro-image-preview -o weather.png
+              # 开启 Google Search 实时信息（gemini-3-pro）
+              airis gen draw "未来 5 天旧金山天气预报" \\
+                --enable-search --aspect-ratio 16:9 --model gemini-3-pro-image-preview -o weather.png
 
-                OPTIONS:
-                  --ref <path>            参考图路径（可重复传多个）
-                  --aspect-ratio <ratio>  1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
-                  --image-size <size>     1K, 2K（默认）, 4K
-                  --open                  生成后自动打开
-                  --reveal                生成后在 Finder 中显示
-                  --enable-search         启用 Google Search grounding（pro 模型）
+            OPTIONS:
+              --ref <path>            参考图路径（可重复传多个）
+              --aspect-ratio <ratio>  1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
+              --image-size <size>     1K, 2K（默认）, 4K
+              --open                  生成后自动打开
+              --reveal                生成后在 Finder 中显示
+              --enable-search         启用 Google Search grounding（pro 模型）
 
-                排障：
-                  - 配置 API key：airis gen config set-key --provider gemini --key \"...\"
-                  - 查看配置：airis gen config show
-                """
+            排障：
+              - 配置 API key：airis gen config set-key --provider gemini --key \"...\"
+              - 查看配置：airis gen config show
+            """
         )
     )
 
@@ -134,7 +134,7 @@ struct DrawCommand: AsyncParsableCommand {
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("🏢 Provider: \(actualProvider)")
 
-        if let output = output {
+        if let output {
             print("💾 输出: \(output)")
         }
 
@@ -175,13 +175,13 @@ struct DrawCommand: AsyncParsableCommand {
     private func openWithDefaultApp(_ url: URL, isTestMode: Bool) {
         let process = Process()
         #if DEBUG
-        let forceFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_OPEN_FAIL"] == "1"
-        var executable = forceFail ? "/nonexistent/open" : (isTestMode ? "/usr/bin/true" : "/usr/bin/open")
-        if let override = ProcessInfo.processInfo.environment["AIRIS_DRAW_OPEN_EXECUTABLE_OVERRIDE"] {
-            executable = override
-        }
+            let forceFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_OPEN_FAIL"] == "1"
+            var executable = forceFail ? "/nonexistent/open" : (isTestMode ? "/usr/bin/true" : "/usr/bin/open")
+            if let override = ProcessInfo.processInfo.environment["AIRIS_DRAW_OPEN_EXECUTABLE_OVERRIDE"] {
+                executable = override
+            }
         #else
-        let executable = isTestMode ? "/usr/bin/true" : "/usr/bin/open"
+            let executable = isTestMode ? "/usr/bin/true" : "/usr/bin/open"
         #endif
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = isTestMode ? [] : [url.path]
@@ -197,13 +197,13 @@ struct DrawCommand: AsyncParsableCommand {
     private func openInFinder(_ url: URL, isTestMode: Bool) {
         let process = Process()
         #if DEBUG
-        let forceFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_REVEAL_FAIL"] == "1"
-        var executable = forceFail ? "/nonexistent/open" : (isTestMode ? "/usr/bin/true" : "/usr/bin/open")
-        if let override = ProcessInfo.processInfo.environment["AIRIS_DRAW_REVEAL_EXECUTABLE_OVERRIDE"] {
-            executable = override
-        }
+            let forceFail = ProcessInfo.processInfo.environment["AIRIS_FORCE_DRAW_REVEAL_FAIL"] == "1"
+            var executable = forceFail ? "/nonexistent/open" : (isTestMode ? "/usr/bin/true" : "/usr/bin/open")
+            if let override = ProcessInfo.processInfo.environment["AIRIS_DRAW_REVEAL_EXECUTABLE_OVERRIDE"] {
+                executable = override
+            }
         #else
-        let executable = isTestMode ? "/usr/bin/true" : "/usr/bin/open"
+            let executable = isTestMode ? "/usr/bin/true" : "/usr/bin/open"
         #endif
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = isTestMode ? [] : ["-R", url.path]
@@ -217,14 +217,14 @@ struct DrawCommand: AsyncParsableCommand {
 }
 
 #if DEBUG
-extension DrawCommand {
-    /// 测试辅助：暴露私有打开方法
-    func testOpenWithDefaultApp(_ url: URL, isTestMode: Bool) {
-        openWithDefaultApp(url, isTestMode: isTestMode)
-    }
+    extension DrawCommand {
+        /// 测试辅助：暴露私有打开方法
+        func testOpenWithDefaultApp(_ url: URL, isTestMode: Bool) {
+            openWithDefaultApp(url, isTestMode: isTestMode)
+        }
 
-    func testOpenInFinder(_ url: URL, isTestMode: Bool) {
-        openInFinder(url, isTestMode: isTestMode)
+        func testOpenInFinder(_ url: URL, isTestMode: Bool) {
+            openInFinder(url, isTestMode: isTestMode)
+        }
     }
-}
 #endif

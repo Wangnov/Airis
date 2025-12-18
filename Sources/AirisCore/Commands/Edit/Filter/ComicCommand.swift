@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ComicCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,37 +11,37 @@ struct ComicCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Transform images into comic book style using CoreImage.
+            Transform images into comic book style using CoreImage.
 
-                Creates a stylized look with:
-                - Bold edges and outlines
-                - Posterized colors
-                - Halftone-like patterns
+            Creates a stylized look with:
+            - Bold edges and outlines
+            - Posterized colors
+            - Halftone-like patterns
 
-                No parameters needed - the effect is automatically applied.
+            No parameters needed - the effect is automatically applied.
 
-                QUICK START:
-                  airis edit filter comic photo.jpg -o comic.png
+            QUICK START:
+              airis edit filter comic photo.jpg -o comic.png
 
-                EXAMPLES:
-                  # Apply comic effect
-                  airis edit filter comic photo.jpg -o comic.png
+            EXAMPLES:
+              # Apply comic effect
+              airis edit filter comic photo.jpg -o comic.png
 
-                  # Process and open result
-                  airis edit filter comic portrait.jpg -o comic_portrait.png --open
+              # Process and open result
+              airis edit filter comic portrait.jpg -o comic_portrait.png --open
 
-                OUTPUT:
-                  Comic-styled image in the specified format
-                """,
+            OUTPUT:
+              Comic-styled image in the specified format
+            """,
             cn: """
-                使用 Core Image 将图片转换为漫画风格（自动参数）。
+            使用 Core Image 将图片转换为漫画风格（自动参数）。
 
-                QUICK START:
-                  airis edit filter comic photo.jpg -o comic.png
+            QUICK START:
+              airis edit filter comic photo.jpg -o comic.png
 
-                EXAMPLES:
-                  airis edit filter comic portrait.jpg -o comic_portrait.png --open
-                """
+            EXAMPLES:
+              airis edit filter comic portrait.jpg -o comic_portrait.png --open
+            """
         )
     )
 
@@ -62,7 +62,7 @@ struct ComicCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

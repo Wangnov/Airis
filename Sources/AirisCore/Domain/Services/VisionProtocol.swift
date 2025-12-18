@@ -1,6 +1,6 @@
-import Vision
 import CoreImage
 import Foundation
+import Vision
 
 /// Vision 框架底层操作协议（用于依赖注入和测试 Mock）
 protocol VisionOperations {

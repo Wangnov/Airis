@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第七批覆盖补齐：聚焦 Vision 命令与高风险输出路径。
@@ -23,13 +23,14 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
             "AIRIS_FORCE_THUMB_THUMB_NIL",
             "AIRIS_FORCE_POSE3D_UNSUPPORTED",
             "AIRIS_FORCE_POSE3D_EMPTY",
-            "AIRIS_FORCE_POSE3D_MISSING_JOINT"
+            "AIRIS_FORCE_POSE3D_MISSING_JOINT",
         ]
         envs.forEach { unsetenv($0) }
         super.tearDown()
     }
 
     // MARK: Flow
+
     func testFlowHighAccuracySavesOutput() async throws {
         setenv("AIRIS_TEST_FLOW_FAKE_RESULT", "1", 1)
         let input1 = CommandTestHarness.fixture("small_100x100.png").path
@@ -66,7 +67,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await FlowCommand.parse([input1, input2, "-o", out.path]).run()
+            try FlowCommand.parse([input1, input2, "-o", out.path]).run()
         )
     }
 
@@ -79,6 +80,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
     }
 
     // MARK: Align
+
     func testAlignTableWithOutput() async throws {
         setenv("AIRIS_TEST_ALIGN_FAKE_RESULT", "1", 1)
         let ref = CommandTestHarness.fixture("small_100x100.png").path
@@ -99,7 +101,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await AlignCommand.parse([ref, floating, "-o", out.path]).run()
+            try AlignCommand.parse([ref, floating, "-o", out.path]).run()
         )
     }
 
@@ -121,6 +123,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
     }
 
     // MARK: Saliency
+
     func testSaliencyInvalidTypeFallsBack() async throws {
         setenv("AIRIS_TEST_SALIENCY_FAKE_RESULT", "1", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -145,7 +148,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await SaliencyCommand.parse([input, "-o", out.path]).run()
+            try SaliencyCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -179,6 +182,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
     }
 
     // MARK: Scan
+
     func testScanNoRectThrows() async {
         setenv("AIRIS_FORCE_SCAN_NO_RECT", "1", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -186,7 +190,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ScanCommand.parse([input, "-o", out.path]).run()
+            try ScanCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -197,7 +201,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ScanCommand.parse([input, "-o", out.path]).run()
+            try ScanCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -208,18 +212,19 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ScanCommand.parse([input, "-o", out.path]).run()
+            try ScanCommand.parse([input, "-o", out.path]).run()
         )
     }
 
     // MARK: Thumb
+
     func testThumbInvalidSizeThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ThumbCommand.parse([input, "-o", out.path, "--size", "0"]).run()
+            try ThumbCommand.parse([input, "-o", out.path, "--size", "0"]).run()
         )
     }
 
@@ -229,7 +234,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ThumbCommand.parse([input, "-o", out.path, "--quality", "1.5"]).run()
+            try ThumbCommand.parse([input, "-o", out.path, "--quality", "1.5"]).run()
         )
     }
 
@@ -240,7 +245,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ThumbCommand.parse([input, "-o", out.path]).run()
+            try ThumbCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -251,11 +256,12 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try await ThumbCommand.parse([input, "-o", out.path]).run()
+            try ThumbCommand.parse([input, "-o", out.path]).run()
         )
     }
 
     // MARK: Pose3D
+
     func testPose3DUnsupportedBranch() async throws {
         setenv("AIRIS_FORCE_POSE3D_UNSUPPORTED", "1", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -308,5 +314,5 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }

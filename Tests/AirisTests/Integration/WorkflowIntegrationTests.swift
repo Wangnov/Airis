@@ -1,18 +1,16 @@
-import XCTest
 import CoreImage
 @preconcurrency import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 工作流集成测试 - 验证多命令组合和真实工作流
 final class WorkflowIntegrationTests: XCTestCase {
-
     // ✅ Apple 最佳实践：类级别共享服务
     static let sharedVisionService = VisionService()
     static let sharedCoreImageService = CoreImageService()
     static let sharedImageIOService = ImageIOService()
-
 
     // MARK: - Properties
 
@@ -194,7 +192,7 @@ final class WorkflowIntegrationTests: XCTestCase {
 
         // 模拟批量处理同一张图片多次（实际场景会是多张不同图片）
         let imageURLs: [URL] = Array(repeating: imageURL, count: 5)
-        let service = try XCTUnwrap(visionService)  // 创建局部引用
+        let service = try XCTUnwrap(visionService) // 创建局部引用
 
         var allResults: [[VNClassificationObservation]] = []
 
@@ -223,7 +221,7 @@ final class WorkflowIntegrationTests: XCTestCase {
             (1920, 1080),
             (1280, 720),
             (640, 480),
-            (320, 240)
+            (320, 240),
         ]
 
         // 1. 加载原始图像
@@ -266,7 +264,7 @@ final class WorkflowIntegrationTests: XCTestCase {
             ("sepia", { self.coreImageService.sepiaTone(ciImage: $0, intensity: 0.8) }),
             ("blur", { self.coreImageService.gaussianBlur(ciImage: $0, radius: 5) }),
             ("sharpen", { self.coreImageService.sharpen(ciImage: $0, sharpness: 1.0) }),
-            ("invert", { self.coreImageService.invert(ciImage: $0) })
+            ("invert", { self.coreImageService.invert(ciImage: $0) }),
         ]
 
         var outputURLs: [URL] = []
@@ -447,7 +445,7 @@ final class WorkflowIntegrationTests: XCTestCase {
             ("chrome", { self.coreImageService.photoEffectChrome(ciImage: $0) }),
             ("noir", { self.coreImageService.photoEffectNoir(ciImage: $0) }),
             ("instant", { self.coreImageService.photoEffectInstant(ciImage: $0) }),
-            ("fade", { self.coreImageService.photoEffectFade(ciImage: $0) })
+            ("fade", { self.coreImageService.photoEffectFade(ciImage: $0) }),
         ]
 
         for (name, effect) in effects {
@@ -470,7 +468,7 @@ final class WorkflowIntegrationTests: XCTestCase {
         let formats: [(ext: String, quality: Float)] = [
             ("png", 1.0),
             ("jpg", 0.9),
-            ("tiff", 1.0)
+            ("tiff", 1.0),
         ]
 
         for (ext, quality) in formats {

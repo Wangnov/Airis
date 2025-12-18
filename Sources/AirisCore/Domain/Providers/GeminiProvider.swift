@@ -54,7 +54,7 @@ final class GeminiProvider: Sendable {
                 0x54, 0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
                 0x00, 0x04, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B,
                 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
-                0xAE, 0x42, 0x60, 0x82
+                0xAE, 0x42, 0x60, 0x82,
             ]
 
             try Data(placeholder).write(to: targetURL)
@@ -111,7 +111,7 @@ final class GeminiProvider: Sendable {
             }
         }
 
-        if let outputPath = outputPath {
+        if let outputPath {
             print("💾 输出路径: \(outputPath)")
         } else {
             print("💾 输出路径: 自动生成（当前目录）")
@@ -123,7 +123,7 @@ final class GeminiProvider: Sendable {
 
         // 构建请求体
         var parts: [GeminiGenerateRequest.Part] = [
-            GeminiGenerateRequest.Part(text: prompt, inlineData: nil)
+            GeminiGenerateRequest.Part(text: prompt, inlineData: nil),
         ]
 
         // 添加参考图片
@@ -144,20 +144,19 @@ final class GeminiProvider: Sendable {
         let tools: [GeminiGenerateRequest.Tool]? = enableSearch ? [
             GeminiGenerateRequest.Tool(
                 googleSearch: GeminiGenerateRequest.Tool.GoogleSearch()
-            )
+            ),
         ] : nil
 
         // gemini-2.5-flash-image 不支持 imageSize（固定 1024px）
-        let imageConfig: GeminiGenerateRequest.ImageConfig?
-        if actualModel.contains("2.5-flash") {
+        let imageConfig: GeminiGenerateRequest.ImageConfig? = if actualModel.contains("2.5-flash") {
             // Flash 模型只支持 aspectRatio
-            imageConfig = GeminiGenerateRequest.ImageConfig(
+            GeminiGenerateRequest.ImageConfig(
                 aspectRatio: aspectRatio,
                 imageSize: nil
             )
         } else {
             // Pro 模型支持 aspectRatio 和 imageSize（使用标准化后的值）
-            imageConfig = GeminiGenerateRequest.ImageConfig(
+            GeminiGenerateRequest.ImageConfig(
                 aspectRatio: aspectRatio,
                 imageSize: normalizedImageSize
             )
@@ -165,7 +164,7 @@ final class GeminiProvider: Sendable {
 
         let request = GeminiGenerateRequest(
             contents: [
-                GeminiGenerateRequest.Content(parts: parts)
+                GeminiGenerateRequest.Content(parts: parts),
             ],
             generationConfig: GeminiGenerateRequest.GenerationConfig(
                 responseModalities: ["TEXT", "IMAGE"],
@@ -179,7 +178,7 @@ final class GeminiProvider: Sendable {
         print("⏳ \(Strings.get("info.processing"))")
 
         let headers = [
-            "x-goog-api-key": apiKey
+            "x-goog-api-key": apiKey,
         ]
 
         let (responseData, _) = try await httpClient.postJSON(
@@ -190,6 +189,22 @@ final class GeminiProvider: Sendable {
 
         // 解析响应
         let decoder = JSONDecoder()
+
+        // 先检查是否是错误响应
+        if let errorResponse = try? decoder.decode(GeminiErrorResponse.self, from: responseData) {
+            print("")
+            print("❌ API 返回错误：")
+            print("─────────────────────────────")
+            print("   状态: \(errorResponse.error.status) (\(errorResponse.error.code))")
+            print("   信息: \(errorResponse.error.message)")
+            print("─────────────────────────────")
+            print("")
+            throw AirisError.apiError(
+                provider: providerName,
+                message: errorResponse.error.message
+            )
+        }
+
         let response = try decoder.decode(GeminiGenerateResponse.self, from: responseData)
 
         // 提取生成的图片（搜索所有 parts，因为使用 Google Search 时可能有多个 parts）
@@ -214,7 +229,8 @@ final class GeminiProvider: Sendable {
         }
 
         guard let foundImagePart = imagePart,
-              let inlineData = foundImagePart.inlineData else {
+              let inlineData = foundImagePart.inlineData
+        else {
             // 如果有文本响应，将其作为错误信息提供给用户
             if !textParts.isEmpty {
                 let reason = textParts.joined(separator: "\n")
@@ -268,7 +284,7 @@ final class GeminiProvider: Sendable {
             "5:4": "1152×896",
             "9:16": "768×1344",
             "16:9": "1344×768",
-            "21:9": "1536×672"
+            "21:9": "1536×672",
         ]
         return resolutions[aspectRatio] ?? "1024×1024"
     }
@@ -289,7 +305,7 @@ final class GeminiProvider: Sendable {
                 "5:4": "1152×928",
                 "9:16": "768×1376",
                 "16:9": "1376×768",
-                "21:9": "1584×672"
+                "21:9": "1584×672",
             ],
             "2K": [
                 "1:1": "2048×2048",
@@ -301,7 +317,7 @@ final class GeminiProvider: Sendable {
                 "5:4": "2304×1856",
                 "9:16": "1536×2752",
                 "16:9": "2752×1536",
-                "21:9": "3168×1344"
+                "21:9": "3168×1344",
             ],
             "4K": [
                 "1:1": "4096×4096",
@@ -313,8 +329,8 @@ final class GeminiProvider: Sendable {
                 "5:4": "4608×3712",
                 "9:16": "3072×5504",
                 "16:9": "5504×3072",
-                "21:9": "6336×2688"
-            ]
+                "21:9": "6336×2688",
+            ],
         ]
 
         return resolutions[normalizedSize]?[aspectRatio] ?? "Unknown"

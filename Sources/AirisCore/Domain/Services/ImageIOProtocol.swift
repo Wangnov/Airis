@@ -1,6 +1,6 @@
-import ImageIO
-import Foundation
 import CoreGraphics
+import Foundation
+import ImageIO
 import UniformTypeIdentifiers
 
 /// ImageIO 底层操作协议（用于依赖注入和测试 Mock）
@@ -32,11 +32,10 @@ protocol ImageIOOperations: Sendable {
 
 /// 真实的 ImageIO 操作实现
 final class RealImageIOOperations: ImageIOOperations, @unchecked Sendable {
-
     /// 创建图像源时的内存优化选项
     /// - `kCGImageSourceShouldCache: false` - 延迟解码，避免立即占用内存
     private let sourceOptions: CFDictionary = [
-        kCGImageSourceShouldCache: false
+        kCGImageSourceShouldCache: false,
     ] as CFDictionary
 
     func createImageSource(at url: URL) -> CGImageSource? {

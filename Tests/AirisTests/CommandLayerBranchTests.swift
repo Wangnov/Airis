@@ -1,7 +1,7 @@
-import XCTest
 import ArgumentParser
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 覆盖命令层剩余分支，配合 smoke 覆盖冲刺 100%。
@@ -182,6 +182,7 @@ final class CommandLayerBranchTests: XCTestCase {
     }
 
     // MARK: Detect
+
     func testPoseCommandsTableAndPixels() async throws {
         let person = CommandTestHarness.fixture("foreground_person_indoor_512x512.jpg").path
         try await PoseCommand.parse([person, "--format", "table", "--pixels", "--threshold", "0.0"]).run()
@@ -263,7 +264,7 @@ final class CommandLayerBranchTests: XCTestCase {
             "test reveal prompt",
             "--ref", ref,
             "--reveal",
-            "--output", output
+            "--output", output,
         ]).run()
         CommandTestHarness.cleanup(URL(fileURLWithPath: output))
     }
@@ -273,7 +274,7 @@ final class CommandLayerBranchTests: XCTestCase {
         // 不指定 --output 触发自动路径，开启 open 分支
         try await DrawCommand.parse([
             "auto output prompt",
-            "--open"
+            "--open",
         ]).run()
         CommandTestHarness.cleanup(outputEnv)
     }
@@ -284,7 +285,7 @@ final class CommandLayerBranchTests: XCTestCase {
         try await DrawCommand.parse([
             "provider option prompt",
             "--provider", "gemini",
-            "--output", output.path
+            "--output", output.path,
         ]).run()
     }
 
@@ -302,7 +303,7 @@ final class CommandLayerBranchTests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
         try await DrawCommand.parse([
             "fallback provider prompt",
-            "--output", output.path
+            "--output", output.path,
         ]).run()
     }
 

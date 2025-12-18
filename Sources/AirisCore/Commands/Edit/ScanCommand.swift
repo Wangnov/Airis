@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ScanCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "scan",
-        abstract: HelpTextFactory.text(
-            en: "Scan documents with perspective correction",
-            cn: "文档扫描（自动透视矫正）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "scan",
+            abstract: HelpTextFactory.text(
+                en: "Scan documents with perspective correction",
+                cn: "文档扫描（自动透视矫正）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect document edges and apply perspective correction.
                 Automatically finds rectangular documents and corrects for angle/perspective.
 
@@ -35,7 +35,7 @@ struct ScanCommand: AsyncParsableCommand {
                   Works best with documents on contrasting backgrounds.
                   The document should be clearly visible in the image.
                 """,
-            cn: """
+                cn: """
                 检测文档边缘并进行透视校正，生成“扫描件”效果。
                 会自动寻找矩形文档区域，并纠正拍摄角度/透视畸变。
 
@@ -58,8 +58,8 @@ struct ScanCommand: AsyncParsableCommand {
                 NOTE:
                   对“文档与背景对比明显、文档边缘清晰可见”的图片效果更好。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -79,7 +79,7 @@ struct ScanCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -100,9 +100,9 @@ struct ScanCommand: AsyncParsableCommand {
         let vision = ServiceContainer.shared.visionService
         var rectangles = try await vision.detectRectangles(at: inputURL)
         #if DEBUG
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_NO_RECT"] == "1" {
-            rectangles = []
-        }
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_NO_RECT"] == "1" {
+                rectangles = []
+            }
         #endif
 
         guard let rect = rectangles.first else {
@@ -139,22 +139,22 @@ struct ScanCommand: AsyncParsableCommand {
         // 应用透视校正
         let coreImage = ServiceContainer.shared.coreImageService
         #if DEBUG
-        let forcePerspectiveNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_PERSPECTIVE_NIL"] == "1"
-        let corrected = forcePerspectiveNil ? nil : coreImage.perspectiveCorrection(
-            ciImage: ciImage,
-            topLeft: topLeft,
-            topRight: topRight,
-            bottomLeft: bottomLeft,
-            bottomRight: bottomRight
-        )
+            let forcePerspectiveNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_PERSPECTIVE_NIL"] == "1"
+            let corrected = forcePerspectiveNil ? nil : coreImage.perspectiveCorrection(
+                ciImage: ciImage,
+                topLeft: topLeft,
+                topRight: topRight,
+                bottomLeft: bottomLeft,
+                bottomRight: bottomRight
+            )
         #else
-        let corrected = coreImage.perspectiveCorrection(
-            ciImage: ciImage,
-            topLeft: topLeft,
-            topRight: topRight,
-            bottomLeft: bottomLeft,
-            bottomRight: bottomRight
-        )
+            let corrected = coreImage.perspectiveCorrection(
+                ciImage: ciImage,
+                topLeft: topLeft,
+                topRight: topRight,
+                bottomLeft: bottomLeft,
+                bottomRight: bottomRight
+            )
         #endif
 
         guard let corrected else {
@@ -163,10 +163,10 @@ struct ScanCommand: AsyncParsableCommand {
 
         // 渲染并保存
         #if DEBUG
-        let forceRenderNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_RENDER_NIL"] == "1"
-        let outputCGImage = forceRenderNil ? nil : coreImage.render(ciImage: corrected)
+            let forceRenderNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_SCAN_RENDER_NIL"] == "1"
+            let outputCGImage = forceRenderNil ? nil : coreImage.render(ciImage: corrected)
         #else
-        let outputCGImage = coreImage.render(ciImage: corrected)
+            let outputCGImage = coreImage.render(ciImage: corrected)
         #endif
 
         guard let outputCGImage else {

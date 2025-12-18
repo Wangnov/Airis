@@ -1,7 +1,7 @@
-import XCTest
 @preconcurrency import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第十一批命令层补测：收敛剩余分支（参数错误、open 分支、桩数据）。
@@ -25,6 +25,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
     }
 
     // MARK: Analyze
+
     func testInfoCommandForcesUnknownOrientationAndNoColor() async throws {
         setenv("AIRIS_FORCE_INFO_NO_COLOR", "1", 1)
         setenv("AIRIS_FORCE_INFO_NO_FILESIZE", "1", 1)
@@ -49,7 +50,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
         unsetenv("AIRIS_TEST_MODE")
 
         await XCTAssertThrowsErrorAsync(
-            try await MetaCommand.parse([tmp.path]).run()
+            try MetaCommand.parse([tmp.path]).run()
         )
 
         CommandTestHarness.cleanup(tmp)
@@ -75,11 +76,12 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
     }
 
     // MARK: Filters 参数错误/不支持格式
+
     func testBlurCommandInvalidTypeThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         await XCTAssertThrowsErrorAsync(
-            try await BlurCommand.parse([input, "-o", out.path, "--type", "unknown"]).run()
+            try BlurCommand.parse([input, "-o", out.path, "--type", "unknown"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -88,7 +90,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         await XCTAssertThrowsErrorAsync(
-            try await BlurCommand.parse([input, "-o", out.path, "--type", "motion", "--angle", "361"]).run()
+            try BlurCommand.parse([input, "-o", out.path, "--type", "motion", "--angle", "361"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -103,15 +105,16 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
             { try await NoirCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "txt").path]).run() },
             { try await NoiseCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "txt").path, "--strength", "0.5"]).run() },
             { try await PixelCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "txt").path, "--scale", "4"]).run() },
-            { try await SepiaCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "txt").path, "--intensity", "0.5"]).run() }
+            { try await SepiaCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "txt").path, "--intensity", "0.5"]).run() },
         ]
 
         for command in commands {
-            await XCTAssertThrowsErrorAsync(try await command())
+            await XCTAssertThrowsErrorAsync(try command())
         }
     }
 
     // MARK: Adjust open 分支
+
     func testColorCommandOpenPath() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -148,6 +151,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
     }
 
     // MARK: Format open 分支
+
     func testFormatCommandOpenPath() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -158,8 +162,8 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
 
 // MARK: - Helpers
 
-private func XCTAssertThrowsErrorAsync<T>(
-    _ expression: @autoclosure @escaping () async throws -> T,
+private func XCTAssertThrowsErrorAsync(
+    _ expression: @autoclosure @escaping () async throws -> some Any,
     _ message: String = "",
     file: StaticString = #filePath,
     line: UInt = #line
@@ -167,5 +171,5 @@ private func XCTAssertThrowsErrorAsync<T>(
     do {
         _ = try await expression()
         XCTFail(message, file: file, line: line)
-    } catch { }
+    } catch {}
 }

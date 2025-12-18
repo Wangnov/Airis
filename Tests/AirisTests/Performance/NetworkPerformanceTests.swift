@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// HTTP 网络性能基准测试
@@ -14,7 +14,6 @@ import XCTest
 /// 注意: 这些测试依赖网络连接，默认跳过
 /// 设置环境变量 AIRIS_RUN_NETWORK_TESTS=1 来启用
 final class NetworkPerformanceTests: XCTestCase {
-
     /// 检查是否应该运行网络测试
     private func skipIfNetworkTestsDisabled() throws {
         guard ProcessInfo.processInfo.environment["AIRIS_RUN_NETWORK_TESTS"] == "1" else {
@@ -39,7 +38,7 @@ final class NetworkPerformanceTests: XCTestCase {
     /// 测试多个客户端创建性能
     func testMultipleHTTPClientCreationPerformance() throws {
         measure {
-            for _ in 0..<10 {
+            for _ in 0 ..< 10 {
                 let config = HTTPClientConfiguration()
                 _ = HTTPClient(configuration: config)
             }
@@ -90,7 +89,7 @@ final class NetworkPerformanceTests: XCTestCase {
         let headers = [
             "X-Custom-Header": "TestValue",
             "Accept": "application/json",
-            "User-Agent": "Airis-Test/1.0"
+            "User-Agent": "Airis-Test/1.0",
         ]
 
         measure {
@@ -179,7 +178,7 @@ final class NetworkPerformanceTests: XCTestCase {
             let semaphore = DispatchSemaphore(value: 0)
             Task {
                 try await withThrowingTaskGroup(of: Void.self) { group in
-                    for _ in 0..<5 {
+                    for _ in 0 ..< 5 {
                         group.addTask {
                             _ = try? await client.get(url: url)
                         }

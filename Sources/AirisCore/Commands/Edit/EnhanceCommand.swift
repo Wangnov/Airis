@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct EnhanceCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "enhance",
-        abstract: HelpTextFactory.text(
-            en: "Auto-enhance images with one click",
-            cn: "一键自动增强图片"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "enhance",
+            abstract: HelpTextFactory.text(
+                en: "Auto-enhance images with one click",
+                cn: "一键自动增强图片"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Automatically enhance images using CoreImage's intelligent adjustment.
                 Applies optimal filters based on image analysis.
 
@@ -42,7 +42,7 @@ struct EnhanceCommand: AsyncParsableCommand {
                   Enhancement is non-destructive and can be applied multiple times,
                   but results may become over-processed with repeated applications.
                 """,
-            cn: """
+                cn: """
                 使用 Core Image 的自动增强能力对图片进行一键优化。
                 会根据图像内容分析自动选择合适的滤镜组合。
 
@@ -72,8 +72,8 @@ struct EnhanceCommand: AsyncParsableCommand {
                 NOTE:
                   自动增强是非破坏性的，但重复多次可能会出现“过度处理”的效果。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -105,7 +105,7 @@ struct EnhanceCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -133,9 +133,9 @@ struct EnhanceCommand: AsyncParsableCommand {
             let ciImage = CIImage(cgImage: cgImage)
             var filters = coreImage.getAutoEnhanceFilters(for: ciImage)
             #if DEBUG
-            if ProcessInfo.processInfo.environment["AIRIS_FORCE_ENHANCE_NO_FILTERS"] == "1" {
-                filters = []
-            }
+                if ProcessInfo.processInfo.environment["AIRIS_FORCE_ENHANCE_NO_FILTERS"] == "1" {
+                    filters = []
+                }
             #endif
 
             if filters.isEmpty {

@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct TemperatureCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,59 +11,59 @@ struct TemperatureCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Adjust white balance using CITemperatureAndTint filter.
-                Simulates camera white balance adjustment.
+            Adjust white balance using CITemperatureAndTint filter.
+            Simulates camera white balance adjustment.
 
-                PARAMETERS:
-                  Temperature: -5000 to 5000 (0 = unchanged)
-                              Negative = cooler/bluer
-                              Positive = warmer/yellower
-                  Tint:       -150 to 150 (0 = unchanged)
-                              Negative = greener
-                              Positive = more magenta
+            PARAMETERS:
+              Temperature: -5000 to 5000 (0 = unchanged)
+                          Negative = cooler/bluer
+                          Positive = warmer/yellower
+              Tint:       -150 to 150 (0 = unchanged)
+                          Negative = greener
+                          Positive = more magenta
 
-                QUICK START:
-                  airis edit adjust temperature photo.jpg --temp 1000 -o warm.jpg
+            QUICK START:
+              airis edit adjust temperature photo.jpg --temp 1000 -o warm.jpg
 
-                EXAMPLES:
-                  # Warm up a photo (golden hour effect)
-                  airis edit adjust temperature photo.jpg --temp 2000 -o warm.jpg
+            EXAMPLES:
+              # Warm up a photo (golden hour effect)
+              airis edit adjust temperature photo.jpg --temp 2000 -o warm.jpg
 
-                  # Cool down a photo (blue tone)
-                  airis edit adjust temperature photo.jpg --temp -1500 -o cool.jpg
+              # Cool down a photo (blue tone)
+              airis edit adjust temperature photo.jpg --temp -1500 -o cool.jpg
 
-                  # Add magenta tint (sunset effect)
-                  airis edit adjust temperature photo.jpg --temp 1500 --tint 30 -o sunset.jpg
+              # Add magenta tint (sunset effect)
+              airis edit adjust temperature photo.jpg --temp 1500 --tint 30 -o sunset.jpg
 
-                  # Correct greenish fluorescent lighting
-                  airis edit adjust temperature indoor.jpg --tint 20 -o corrected.jpg
+              # Correct greenish fluorescent lighting
+              airis edit adjust temperature indoor.jpg --tint 20 -o corrected.jpg
 
-                  # Create dramatic blue-cold effect
-                  airis edit adjust temperature portrait.jpg --temp -2500 --tint -20 -o dramatic.jpg
+              # Create dramatic blue-cold effect
+              airis edit adjust temperature portrait.jpg --temp -2500 --tint -20 -o dramatic.jpg
 
-                NOTE:
-                  The filter uses 6500K as neutral reference point.
-                  Temperature adjustments are relative to this neutral point.
+            NOTE:
+              The filter uses 6500K as neutral reference point.
+              Temperature adjustments are relative to this neutral point.
 
-                OUTPUT:
-                  Supports PNG, JPEG, HEIC, TIFF output formats.
-                  Format is determined by output file extension.
-                """,
+            OUTPUT:
+              Supports PNG, JPEG, HEIC, TIFF output formats.
+              Format is determined by output file extension.
+            """,
             cn: """
-                使用 CITemperatureAndTint 调整白平衡（色温/色调）。
+            使用 CITemperatureAndTint 调整白平衡（色温/色调）。
 
-                参数范围：
-                  temp: -5000 ~ 5000（默认：0；负值偏冷、正值偏暖）
-                  tint:  -150 ~ 150（默认：0；负值偏绿、正值偏洋红）
+            参数范围：
+              temp: -5000 ~ 5000（默认：0；负值偏冷、正值偏暖）
+              tint:  -150 ~ 150（默认：0；负值偏绿、正值偏洋红）
 
-                QUICK START:
-                  airis edit adjust temperature photo.jpg --temp 1000 -o warm.jpg
+            QUICK START:
+              airis edit adjust temperature photo.jpg --temp 1000 -o warm.jpg
 
-                EXAMPLES:
-                  airis edit adjust temperature photo.jpg --temp 2000 -o warm.jpg
-                  airis edit adjust temperature photo.jpg --temp -1500 -o cool.jpg
-                  airis edit adjust temperature indoor.jpg --tint 20 -o corrected.jpg
-                """
+            EXAMPLES:
+              airis edit adjust temperature photo.jpg --temp 2000 -o warm.jpg
+              airis edit adjust temperature photo.jpg --temp -1500 -o cool.jpg
+              airis edit adjust temperature indoor.jpg --tint 20 -o corrected.jpg
+            """
         )
     )
 
@@ -90,10 +90,10 @@ struct TemperatureCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 参数验证
-        guard temp >= -5000 && temp <= 5000 else {
+        guard temp >= -5000, temp <= 5000 else {
             throw AirisError.invalidPath("Temperature must be -5000 to 5000, got: \(temp)")
         }
-        guard tint >= -150 && tint <= 150 else {
+        guard tint >= -150, tint <= 150 else {
             throw AirisError.invalidPath("Tint must be -150 to 150, got: \(tint)")
         }
 
@@ -102,7 +102,7 @@ struct TemperatureCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

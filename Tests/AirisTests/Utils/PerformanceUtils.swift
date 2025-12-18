@@ -2,7 +2,6 @@ import XCTest
 
 /// 并行性能测试工具类
 enum PerformanceUtils {
-
     /// 性能统计结果
     struct Stats {
         let average: TimeInterval
@@ -32,7 +31,6 @@ enum PerformanceUtils {
         warmup: Bool = true,
         operation: @escaping @Sendable () async throws -> Void
     ) async throws -> Stats {
-
         // 预热（避免首次调用的初始化开销影响统计）
         if warmup {
             _ = try? await operation()
@@ -43,14 +41,14 @@ enum PerformanceUtils {
         // 分批并行执行，避免过度竞争
         let batches = (iterations + maxConcurrency - 1) / maxConcurrency
 
-        for batch in 0..<batches {
+        for batch in 0 ..< batches {
             let startIdx = batch * maxConcurrency
             let endIdx = min(startIdx + maxConcurrency, iterations)
             let batchSize = endIdx - startIdx
 
             // 每批内并行执行
             try await withThrowingTaskGroup(of: TimeInterval.self) { group in
-                for _ in 0..<batchSize {
+                for _ in 0 ..< batchSize {
                     group.addTask {
                         let start = Date()
                         try await operation()
@@ -82,14 +80,13 @@ enum PerformanceUtils {
         warmup: Bool = true,
         operation: @escaping @Sendable () async throws -> Void
     ) async throws -> Stats {
-
         if warmup {
             _ = try? await operation()
         }
 
         var durations: [TimeInterval] = []
 
-        for _ in 0..<iterations {
+        for _ in 0 ..< iterations {
             let start = Date()
             try await operation()
             durations.append(Date().timeIntervalSince(start))

@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct OCRCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "ocr",
-        abstract: HelpTextFactory.text(
-            en: "Extract text from images (OCR)",
-            cn: "从图片中提取文字（OCR）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "ocr",
+            abstract: HelpTextFactory.text(
+                en: "Extract text from images (OCR)",
+                cn: "从图片中提取文字（OCR）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Recognize and extract text from images using Apple's Vision \
                 framework. Supports multiple languages including Chinese and English.
 
@@ -70,7 +70,7 @@ struct OCRCommand: AsyncParsableCommand {
                   - 'accurate' level provides better results but is slower
                   - Language correction is enabled by default
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 的文本识别能力从图片中提取文字（OCR）。
                 支持中英文等多语言。
 
@@ -103,8 +103,8 @@ struct OCRCommand: AsyncParsableCommand {
                   - 全部本地执行（不上传图片）
                   - accurate 更慢但更准
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -152,15 +152,15 @@ struct OCRCommand: AsyncParsableCommand {
         ], enabled: showHumanOutput)
 
         #if DEBUG
-        // 测试/调试环境下可注入桩结果，覆盖低置信度与坐标分支
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_OCR_FAKE"] == "1" {
-            let fakeResults = [
-                TextResult(text: "低置信度", confidence: 0.42, boundingBox: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.25)),
-                TextResult(text: "高置信度", confidence: 0.95, boundingBox: CGRect(x: 0.55, y: 0.6, width: 0.2, height: 0.15))
-            ]
-            handleResults(fakeResults, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
-            return
-        }
+            // 测试/调试环境下可注入桩结果，覆盖低置信度与坐标分支
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_OCR_FAKE"] == "1" {
+                let fakeResults = [
+                    TextResult(text: "低置信度", confidence: 0.42, boundingBox: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.25)),
+                    TextResult(text: "高置信度", confidence: 0.95, boundingBox: CGRect(x: 0.55, y: 0.6, width: 0.2, height: 0.15)),
+                ]
+                handleResults(fakeResults, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
+                return
+            }
         #endif
 
         // 执行 OCR
@@ -215,13 +215,13 @@ struct OCRCommand: AsyncParsableCommand {
         }
     }
 
-#if DEBUG
-    /// 测试辅助：覆盖 topCandidates 为空的分支
-    static func testExtractEmptyCandidate() -> [TextResult] {
-        let obs = VNRecognizedTextObservation()
-        return OCRCommand().extractTextResults(from: [obs])
-    }
-#endif
+    #if DEBUG
+        /// 测试辅助：覆盖 topCandidates 为空的分支
+        static func testExtractEmptyCandidate() -> [TextResult] {
+            let obs = VNRecognizedTextObservation()
+            return OCRCommand().extractTextResults(from: [obs])
+        }
+    #endif
 
     private func printTable(results: [TextResult]) {
         print("识别到 \(results.count) 段文字")
@@ -250,7 +250,7 @@ struct OCRCommand: AsyncParsableCommand {
         let items = results.map { result -> [String: Any] in
             var item: [String: Any] = [
                 "text": result.text,
-                "confidence": result.confidence
+                "confidence": result.confidence,
             ]
 
             if showBounds {
@@ -258,7 +258,7 @@ struct OCRCommand: AsyncParsableCommand {
                     "x": result.boundingBox.origin.x,
                     "y": result.boundingBox.origin.y,
                     "width": result.boundingBox.width,
-                    "height": result.boundingBox.height
+                    "height": result.boundingBox.height,
                 ]
             }
 
@@ -267,11 +267,12 @@ struct OCRCommand: AsyncParsableCommand {
 
         let dict: [String: Any] = [
             "count": results.count,
-            "texts": items
+            "texts": items,
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

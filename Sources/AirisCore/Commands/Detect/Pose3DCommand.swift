@@ -1,18 +1,18 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
 import simd
+@preconcurrency import Vision
 
 struct Pose3DCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "pose3d",
-        abstract: HelpTextFactory.text(
-            en: "Detect human body pose (3D, 17 keypoints)",
-            cn: "检测人体 3D 姿态（17 个关键点）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "pose3d",
+            abstract: HelpTextFactory.text(
+                en: "Detect human body pose (3D, 17 keypoints)",
+                cn: "检测人体 3D 姿态（17 个关键点）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect human body poses in 3D using Apple's Vision framework.
                 Returns 17 body keypoints with 3D coordinates relative to camera.
 
@@ -70,7 +70,7 @@ struct Pose3DCommand: AsyncParsableCommand {
                   3D pose detection returns all detected joints without
                   confidence filtering (3D points have no confidence scores).
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架检测人体 3D 姿态（17 个关键点），输出相机相对的 3D 坐标（单位：米）。
 
                 REQUIREMENTS:
@@ -96,8 +96,8 @@ struct Pose3DCommand: AsyncParsableCommand {
                 说明：
                   - 3D 点本身没有置信度分数，命令会输出所有可用关节点
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -112,9 +112,9 @@ struct Pose3DCommand: AsyncParsableCommand {
     func run() async throws {
         let forceUnsupported = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_UNSUPPORTED"] == "1"
         #if DEBUG
-        let forceEmpty = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_EMPTY"] == "1"
+            let forceEmpty = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_EMPTY"] == "1"
         #else
-        let forceEmpty = false
+            let forceEmpty = false
         #endif
         let outputFormat = OutputFormat.parse(format)
         let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
@@ -125,10 +125,11 @@ struct Pose3DCommand: AsyncParsableCommand {
                 let payload: [String: Any] = [
                     "supported": false,
                     "required_macos": "14.0",
-                    "error": "unsupported_os_version"
+                    "error": "unsupported_os_version",
                 ]
                 if let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
-                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                   let jsonString = String(data: jsonData, encoding: .utf8)
+                {
                     print(jsonString)
                 }
             } else if showHumanOutput {
@@ -155,13 +156,13 @@ struct Pose3DCommand: AsyncParsableCommand {
             // 执行检测
             let results: [VNHumanBodyPose3DObservation]
             #if DEBUG
-            if forceEmpty {
-                results = []
-            } else {
-                results = try await vision.detectHumanBodyPose3D(at: url)
-            }
+                if forceEmpty {
+                    results = []
+                } else {
+                    results = try await vision.detectHumanBodyPose3D(at: url)
+                }
             #else
-            results = try await vision.detectHumanBodyPose3D(at: url)
+                results = try await vision.detectHumanBodyPose3D(at: url)
             #endif
 
             if results.isEmpty {
@@ -193,41 +194,41 @@ struct Pose3DCommand: AsyncParsableCommand {
             .rightShoulder, .rightElbow, .rightWrist,
             .root,
             .leftHip, .leftKnee, .leftAnkle,
-            .rightHip, .rightKnee, .rightAnkle
+            .rightHip, .rightKnee, .rightAnkle,
         ]
     }
 
     @available(macOS 14.0, *)
     private func jointNameString(_ name: VNHumanBodyPose3DObservation.JointName) -> String {
         switch name {
-        case .topHead: return "topHead"
-        case .centerHead: return "centerHead"
-        case .centerShoulder: return "centerShoulder"
-        case .spine: return "spine"
-        case .leftShoulder: return "leftShoulder"
-        case .leftElbow: return "leftElbow"
-        case .leftWrist: return "leftWrist"
-        case .rightShoulder: return "rightShoulder"
-        case .rightElbow: return "rightElbow"
-        case .rightWrist: return "rightWrist"
-        case .root: return "root"
-        case .leftHip: return "leftHip"
-        case .leftKnee: return "leftKnee"
-        case .leftAnkle: return "leftAnkle"
-        case .rightHip: return "rightHip"
-        case .rightKnee: return "rightKnee"
-        case .rightAnkle: return "rightAnkle"
-        default: return "unknown"
+        case .topHead: "topHead"
+        case .centerHead: "centerHead"
+        case .centerShoulder: "centerShoulder"
+        case .spine: "spine"
+        case .leftShoulder: "leftShoulder"
+        case .leftElbow: "leftElbow"
+        case .leftWrist: "leftWrist"
+        case .rightShoulder: "rightShoulder"
+        case .rightElbow: "rightElbow"
+        case .rightWrist: "rightWrist"
+        case .root: "root"
+        case .leftHip: "leftHip"
+        case .leftKnee: "leftKnee"
+        case .leftAnkle: "leftAnkle"
+        case .rightHip: "rightHip"
+        case .rightKnee: "rightKnee"
+        case .rightAnkle: "rightAnkle"
+        default: "unknown"
         }
     }
 
     #if DEBUG
-    /// 测试辅助：覆盖默认分支
-    static func testJointNameString(_ raw: String) -> String {
-        let key = VNRecognizedPointKey(rawValue: raw)
-        let name = VNHumanBodyPose3DObservation.JointName(rawValue: key)
-        return Pose3DCommand().jointNameString(name)
-    }
+        /// 测试辅助：覆盖默认分支
+        static func testJointNameString(_ raw: String) -> String {
+            let key = VNRecognizedPointKey(rawValue: raw)
+            let name = VNHumanBodyPose3DObservation.JointName(rawValue: key)
+            return Pose3DCommand().jointNameString(name)
+        }
     #endif
 
     @available(macOS 14.0, *)
@@ -242,12 +243,11 @@ struct Pose3DCommand: AsyncParsableCommand {
             print("    Estimated Height: \(String(format: "%.2f", observation.bodyHeight)) m")
             print("    Keypoints:")
 
-        for jointName in allJointNames {
-                let point: VNRecognizedPoint3D?
-                if forceMissingJoint {
-                    point = nil
+            for jointName in allJointNames {
+                let point: VNRecognizedPoint3D? = if forceMissingJoint {
+                    nil
                 } else {
-                    point = try? observation.recognizedPoint(jointName)
+                    try? observation.recognizedPoint(jointName)
                 }
 
                 guard let point else { continue }
@@ -277,11 +277,10 @@ struct Pose3DCommand: AsyncParsableCommand {
             let forceMissingJoint = ProcessInfo.processInfo.environment["AIRIS_FORCE_POSE3D_MISSING_JOINT"] == "1"
 
             for jointName in allJointNames {
-                let point: VNRecognizedPoint3D?
-                if forceMissingJoint {
-                    point = nil
+                let point: VNRecognizedPoint3D? = if forceMissingJoint {
+                    nil
                 } else {
-                    point = try? observation.recognizedPoint(jointName)
+                    try? observation.recognizedPoint(jointName)
                 }
                 guard let point else { continue }
 
@@ -291,7 +290,7 @@ struct Pose3DCommand: AsyncParsableCommand {
                     "x": Double(position.columns.3.x),
                     "y": Double(position.columns.3.y),
                     "z": Double(position.columns.3.z),
-                    "coordinate_type": "meters"
+                    "coordinate_type": "meters",
                 ]
 
                 keypoints.append(keypointDict)
@@ -300,7 +299,7 @@ struct Pose3DCommand: AsyncParsableCommand {
             return [
                 "body_height": Double(observation.bodyHeight),
                 "keypoint_count": keypoints.count,
-                "keypoints": keypoints
+                "keypoints": keypoints,
             ]
         }
 
@@ -310,11 +309,12 @@ struct Pose3DCommand: AsyncParsableCommand {
             "threshold": Double(threshold),
             "coordinate_system": "camera_relative_3d",
             "unit": "meters",
-            "persons": items
+            "persons": items,
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

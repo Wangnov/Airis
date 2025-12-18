@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct CropCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "crop",
-        abstract: HelpTextFactory.text(
-            en: "Crop images to a specific region",
-            cn: "裁剪图片到指定区域"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "crop",
+            abstract: HelpTextFactory.text(
+                en: "Crop images to a specific region",
+                cn: "裁剪图片到指定区域"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Crop images by specifying a rectangular region.
                 Coordinates use top-left origin (standard screen coordinates).
 
@@ -41,7 +41,7 @@ struct CropCommand: AsyncParsableCommand {
                   Supports PNG, JPEG, HEIC, TIFF output formats.
                   Format is determined by output file extension.
                 """,
-            cn: """
+                cn: """
                 通过指定矩形区域裁剪图片。
                 坐标系使用“左上角为原点”的屏幕坐标：
 
@@ -69,8 +69,8 @@ struct CropCommand: AsyncParsableCommand {
                 OUTPUT:
                   支持 PNG/JPEG/HEIC/TIFF 输出格式，格式由输出文件后缀决定。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -107,7 +107,7 @@ struct CropCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -121,15 +121,15 @@ struct CropCommand: AsyncParsableCommand {
         let originalHeight = imageInfo.height
 
         // 验证裁剪区域
-        guard cropX >= 0 && cropY >= 0 else {
+        guard cropX >= 0, cropY >= 0 else {
             throw AirisError.invalidPath("Crop coordinates must be non-negative. Got: x=\(cropX), y=\(cropY)")
         }
 
-        guard width > 0 && height > 0 else {
+        guard width > 0, height > 0 else {
             throw AirisError.invalidPath("Crop dimensions must be positive. Got: \(width)×\(height)")
         }
 
-        guard cropX + width <= originalWidth && cropY + height <= originalHeight else {
+        guard cropX + width <= originalWidth, cropY + height <= originalHeight else {
             throw AirisError.invalidPath(
                 "Crop region (\(cropX),\(cropY) \(width)×\(height)) exceeds image bounds (\(originalWidth)×\(originalHeight))"
             )

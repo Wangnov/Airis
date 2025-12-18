@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ThresholdCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,47 +11,47 @@ struct ThresholdCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Apply threshold effect using CIColorThreshold filter.
-                Converts image to pure black and white based on luminance threshold.
+            Apply threshold effect using CIColorThreshold filter.
+            Converts image to pure black and white based on luminance threshold.
 
-                PARAMETERS:
-                  Threshold: 0.0 to 1.0 (default: 0.5)
-                            Pixels brighter than threshold become white
-                            Pixels darker than threshold become black
+            PARAMETERS:
+              Threshold: 0.0 to 1.0 (default: 0.5)
+                        Pixels brighter than threshold become white
+                        Pixels darker than threshold become black
 
-                QUICK START:
-                  airis edit adjust threshold photo.jpg -o bw.jpg
+            QUICK START:
+              airis edit adjust threshold photo.jpg -o bw.jpg
 
-                EXAMPLES:
-                  # Standard threshold (50%)
-                  airis edit adjust threshold photo.jpg -o bw.jpg
+            EXAMPLES:
+              # Standard threshold (50%)
+              airis edit adjust threshold photo.jpg -o bw.jpg
 
-                  # Lower threshold (more white areas)
-                  airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
+              # Lower threshold (more white areas)
+              airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
 
-                  # Higher threshold (more black areas)
-                  airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
+              # Higher threshold (more black areas)
+              airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
 
-                  # Create silhouette effect
-                  airis edit adjust threshold portrait.jpg --threshold 0.4 -o silhouette.png
+              # Create silhouette effect
+              airis edit adjust threshold portrait.jpg --threshold 0.4 -o silhouette.png
 
-                OUTPUT:
-                  Supports PNG, JPEG, HEIC, TIFF output formats.
-                  Format is determined by output file extension.
-                """,
+            OUTPUT:
+              Supports PNG, JPEG, HEIC, TIFF output formats.
+              Format is determined by output file extension.
+            """,
             cn: """
-                使用 CIColorThreshold 将图片按阈值转换为纯黑白（无灰度）。
+            使用 CIColorThreshold 将图片按阈值转换为纯黑白（无灰度）。
 
-                参数范围：
-                  threshold: 0.0 ~ 1.0（默认：0.5；越小越“白”）
+            参数范围：
+              threshold: 0.0 ~ 1.0（默认：0.5；越小越“白”）
 
-                QUICK START:
-                  airis edit adjust threshold photo.jpg -o bw.jpg
+            QUICK START:
+              airis edit adjust threshold photo.jpg -o bw.jpg
 
-                EXAMPLES:
-                  airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
-                  airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
-                """
+            EXAMPLES:
+              airis edit adjust threshold doc.png --threshold 0.3 -o high_contrast.png
+              airis edit adjust threshold sketch.jpg --threshold 0.7 -o dark.jpg
+            """
         )
     )
 
@@ -75,7 +75,7 @@ struct ThresholdCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 参数验证
-        guard threshold >= 0 && threshold <= 1.0 else {
+        guard threshold >= 0, threshold <= 1.0 else {
             throw AirisError.invalidPath("Threshold must be 0.0 to 1.0, got: \(threshold)")
         }
 
@@ -84,7 +84,7 @@ struct ThresholdCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

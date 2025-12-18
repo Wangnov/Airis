@@ -1,13 +1,13 @@
+import CoreImage
+
 // swiftlint:disable force_unwrapping
 import XCTest
-import CoreImage
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 错误场景集成测试 - 验证各种错误情况的正确处理
 final class ErrorHandlingIntegrationTests: XCTestCase {
-
     // MARK: - Properties
 
     var tempDir: URL!
@@ -120,7 +120,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
 
         // 创建一个假的 PNG 文件（错误的内容）
         let corruptedFileURL = tempDir.appendingPathComponent("corrupted.png")
-        let corruptedData = Data([0x89, 0x50, 0x4E, 0x47, 0x00, 0x00])  // 不完整的 PNG 头
+        let corruptedData = Data([0x89, 0x50, 0x4E, 0x47, 0x00, 0x00]) // 不完整的 PNG 头
         try? corruptedData.write(to: corruptedFileURL)
 
         // 尝试加载损坏的文件
@@ -143,7 +143,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
 
         // 验证获取不存在的 key 会抛出错误
         XCTAssertThrowsError(try keychain.getAPIKey(for: testProvider)) { error in
-            guard case AirisError.apiKeyNotFound(let provider) = error else {
+            guard case let AirisError.apiKeyNotFound(provider) = error else {
                 XCTFail("Expected apiKeyNotFound error, got: \(error)")
                 return
             }
@@ -190,7 +190,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
     func testHTTPClientTimeout() async throws {
         // 创建一个超短超时的配置
         let config = HTTPClientConfiguration(
-            timeoutIntervalForRequest: 0.001,  // 1 毫秒超时
+            timeoutIntervalForRequest: 0.001, // 1 毫秒超时
             waitsForConnectivity: false,
             maxRetries: 0
         )
@@ -198,7 +198,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
 
         do {
             // 尝试请求一个需要延迟的端点（会超时）
-            _ = try await client.get(url: try XCTUnwrap(URL(string: "https://httpbin.org/delay/10")))
+            _ = try await client.get(url: XCTUnwrap(URL(string: "https://httpbin.org/delay/10")))
             XCTFail("Should timeout")
         } catch {
             // 预期超时错误
@@ -269,9 +269,9 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
         // 极端颜色调整
         let extremeAdjust = coreImageService.adjustColors(
             ciImage: testImage,
-            brightness: 100,  // 超出范围
-            contrast: -100,   // 超出范围
-            saturation: 1000  // 超出范围
+            brightness: 100, // 超出范围
+            contrast: -100, // 超出范围
+            saturation: 1000 // 超出范围
         )
         XCTAssertNotNil(extremeAdjust)
 
@@ -451,7 +451,7 @@ final class ErrorHandlingIntegrationTests: XCTestCase {
         // 并发执行多个操作
         try await withThrowingTaskGroup(of: Void.self) { group in
             // 多个并发分类请求
-            for _ in 0..<5 {
+            for _ in 0 ..< 5 {
                 group.addTask {
                     _ = try await visionService.classifyImage(at: testImageURL)
                 }

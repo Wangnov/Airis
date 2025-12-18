@@ -3,7 +3,7 @@ import ImageIO
 import UniformTypeIdentifiers
 
 /// 图像工具类
-struct ImageUtils {
+enum ImageUtils {
     /// 将图片文件编码为 Base64
     static func encodeImageToBase64(at url: URL) throws -> (data: String, mimeType: String) {
         // 读取图片数据
@@ -36,7 +36,7 @@ struct ImageUtils {
         case "gif":
             return "image/gif"
         default:
-            return "image/jpeg"  // 默认
+            return "image/jpeg" // 默认
         }
     }
 
@@ -44,7 +44,7 @@ struct ImageUtils {
     static func decodeAndSaveImage(
         base64String: String,
         to outputPath: String,
-        format: String = "png"
+        format _: String = "png"
     ) throws {
         // Base64 解码
         guard let imageData = Data(base64Encoded: base64String) else {
@@ -64,7 +64,8 @@ struct ImageUtils {
         guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
               let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any],
               let width = properties[kCGImagePropertyPixelWidth as String] as? Int,
-              let height = properties[kCGImagePropertyPixelHeight as String] as? Int else {
+              let height = properties[kCGImagePropertyPixelHeight as String] as? Int
+        else {
             throw AirisError.imageDecodeFailed
         }
 

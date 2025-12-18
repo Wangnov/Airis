@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct BarcodeCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "barcode",
-        abstract: HelpTextFactory.text(
-            en: "Detect barcodes and QR codes in images",
-            cn: "识别图片中的条码/二维码"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "barcode",
+            abstract: HelpTextFactory.text(
+                en: "Detect barcodes and QR codes in images",
+                cn: "识别图片中的条码/二维码"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect and decode various barcode types including QR codes, EAN, \
                 Code 128, and more.
 
@@ -61,7 +61,7 @@ struct BarcodeCommand: AsyncParsableCommand {
                   --type <type>    Filter by barcode type (qr, ean13, code128, etc.)
                   --format <fmt>   Output format: table (default), json
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架识别并解码图片中的条码/二维码（QR、EAN、Code128 等）。
 
                 QUICK START:
@@ -84,8 +84,8 @@ struct BarcodeCommand: AsyncParsableCommand {
                   --type <type>    类型过滤（qr、ean13、code128 等）
                   --format <fmt>   输出格式：table（默认）或 json
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -124,11 +124,10 @@ struct BarcodeCommand: AsyncParsableCommand {
             let results = try await vision.detectBarcodes(at: url, symbologies: symbologies)
 
             // 过滤结果（如果指定了类型）
-            let filteredResults: [VNBarcodeObservation]
-            if let typeFilter = type, let symbology = parseSymbology(typeFilter)?.first {
-                filteredResults = results.filter { $0.symbology == symbology }
+            let filteredResults: [VNBarcodeObservation] = if let typeFilter = type, let symbology = parseSymbology(typeFilter)?.first {
+                results.filter { $0.symbology == symbology }
             } else {
-                filteredResults = results
+                results
             }
 
             if filteredResults.isEmpty {
@@ -162,12 +161,10 @@ struct BarcodeCommand: AsyncParsableCommand {
             "pdf417": [.pdf417],
             "datamatrix": [.dataMatrix],
             "itf14": [.itf14],
-            "upce": [.upce]
+            "upce": [.upce],
         ]
         return mapping[type.lowercased()]
     }
-
-
 
     private func formatSymbology(_ symbology: VNBarcodeSymbology) -> String {
         let mapping: [VNBarcodeSymbology: String] = [
@@ -185,7 +182,7 @@ struct BarcodeCommand: AsyncParsableCommand {
             .pdf417: "PDF417",
             .dataMatrix: "Data Matrix",
             .itf14: "ITF-14",
-            .upce: "UPC-E"
+            .upce: "UPC-E",
         ]
 
         if ProcessInfo.processInfo.environment["AIRIS_FORCE_BARCODE_UNKNOWN"] == "1" {
@@ -196,10 +193,10 @@ struct BarcodeCommand: AsyncParsableCommand {
     }
 
     #if DEBUG
-    /// 测试辅助：直接调用格式化函数
-    static func testFormatSymbology(_ symbology: VNBarcodeSymbology) -> String {
-        BarcodeCommand().formatSymbology(symbology)
-    }
+        /// 测试辅助：直接调用格式化函数
+        static func testFormatSymbology(_ symbology: VNBarcodeSymbology) -> String {
+            BarcodeCommand().formatSymbology(symbology)
+        }
     #endif
 
     private func printTable(results: [VNBarcodeObservation]) {
@@ -226,8 +223,8 @@ struct BarcodeCommand: AsyncParsableCommand {
                     "x": obs.boundingBox.origin.x,
                     "y": obs.boundingBox.origin.y,
                     "width": obs.boundingBox.width,
-                    "height": obs.boundingBox.height
-                ]
+                    "height": obs.boundingBox.height,
+                ],
             ]
             if let payload = obs.payloadStringValue {
                 item["payload"] = payload
@@ -238,11 +235,12 @@ struct BarcodeCommand: AsyncParsableCommand {
         let dict: [String: Any] = [
             "file": file,
             "count": results.count,
-            "barcodes": items
+            "barcodes": items,
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

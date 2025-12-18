@@ -1,8 +1,9 @@
+@preconcurrency import Vision
+
 // swiftlint:disable force_unwrapping
 import XCTest
-@preconcurrency import Vision
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class VisionServiceTests: XCTestCase {
@@ -55,7 +56,7 @@ final class VisionServiceTests: XCTestCase {
             _ = try await mockService.classifyImage(cgImage: testImage)
             XCTFail("应该抛出错误")
         } catch {
-            guard case AirisError.visionRequestFailed(let message) = error else {
+            guard case let AirisError.visionRequestFailed(message) = error else {
                 XCTFail("应该抛出 visionRequestFailed，实际为: \(error)")
                 return
             }
@@ -670,7 +671,7 @@ final class VisionServiceTests: XCTestCase {
     /// 测试 computeOpticalFlow 内部 perform 抛错触发 catch 分支
     func testComputeOpticalFlow_PerformThrows() async throws {
         final class ThrowingVisionOperations: VisionOperations {
-            func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws {
+            func perform(requests _: [VNRequest], on _: VNImageRequestHandler) throws {
                 throw NSError(domain: "ThrowingOps", code: -2, userInfo: [NSLocalizedDescriptionKey: "forced throw"])
             }
         }

@@ -1,10 +1,10 @@
-@preconcurrency import Vision
 import CoreImage
 import Foundation
+@preconcurrency import Vision
 
 /// Vision 框架服务层封装
 final class VisionService: Sendable {
-    nonisolated(unsafe) private let operations: any VisionOperations
+    private nonisolated(unsafe) let operations: any VisionOperations
 
     /// 初始化（支持依赖注入）
     init(operations: any VisionOperations = DefaultVisionOperations()) {
@@ -92,7 +92,7 @@ final class VisionService: Sendable {
         let request = VNDetectBarcodesRequest()
         request.revision = VNDetectBarcodesRequest.currentRevision
 
-        if let symbologies = symbologies {
+        if let symbologies {
             request.symbologies = symbologies
         }
 
@@ -289,10 +289,10 @@ final class VisionService: Sendable {
 
         var vnAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy {
             switch self {
-            case .low: return .low
-            case .medium: return .medium
-            case .high: return .high
-            case .veryHigh: return .veryHigh
+            case .low: .low
+            case .medium: .medium
+            case .high: .high
+            case .veryHigh: .veryHigh
             }
         }
     }
@@ -335,7 +335,8 @@ final class VisionService: Sendable {
             do {
                 try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
-                      let observation = results.first else {
+                      let observation = results.first
+                else {
                     continuation.resume(throwing: AirisError.noResultsFound)
                     return
                 }
@@ -377,12 +378,12 @@ final class VisionService: Sendable {
         return false
     }
 
-#if DEBUG
-    /// 测试辅助：暴露 mock failure 检测逻辑
-    static func testIsMockFailure(_ ops: VisionOperations) -> Bool {
-        VisionService().isMockFailure(ops)
-    }
-#endif
+    #if DEBUG
+        /// 测试辅助：暴露 mock failure 检测逻辑
+        static func testIsMockFailure(_ ops: VisionOperations) -> Bool {
+            VisionService().isMockFailure(ops)
+        }
+    #endif
 
     // MARK: - 图像配准
 
@@ -410,7 +411,8 @@ final class VisionService: Sendable {
             do {
                 try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
-                      let observation = results.first else {
+                      let observation = results.first
+                else {
                     continuation.resume(throwing: AirisError.noResultsFound)
                     return
                 }
@@ -431,7 +433,7 @@ final class VisionService: Sendable {
 
     /// 显著性检测类型
     enum SaliencyType: String, CaseIterable {
-        case attention  // 基于注意力
+        case attention // 基于注意力
         case objectness // 基于对象性
     }
 
@@ -466,7 +468,8 @@ final class VisionService: Sendable {
             do {
                 try operations.perform(requests: [request], on: handler)
                 guard let results = request.results as? [VNSaliencyImageObservation],
-                      let observation = results.first else {
+                      let observation = results.first
+                else {
                     continuation.resume(throwing: AirisError.noResultsFound)
                     return
                 }
@@ -478,7 +481,7 @@ final class VisionService: Sendable {
                 // 获取显著区域边界框
                 var bounds: [CGRect] = []
                 if let salientObjects = observation.salientObjects {
-                    bounds = salientObjects.map { $0.boundingBox }
+                    bounds = salientObjects.map(\.boundingBox)
                 }
 
                 continuation.resume(returning: SaliencyResult(
@@ -503,9 +506,9 @@ final class VisionService: Sendable {
 
         var vnQuality: VNGeneratePersonSegmentationRequest.QualityLevel {
             switch self {
-            case .fast: return .fast
-            case .balanced: return .balanced
-            case .accurate: return .accurate
+            case .fast: .fast
+            case .balanced: .balanced
+            case .accurate: .accurate
             }
         }
     }
@@ -531,7 +534,8 @@ final class VisionService: Sendable {
             do {
                 try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
-                      let observation = results.first else {
+                      let observation = results.first
+                else {
                     continuation.resume(throwing: AirisError.noResultsFound)
                     return
                 }
@@ -636,7 +640,8 @@ final class VisionService: Sendable {
             do {
                 try operations.perform(requests: [request], on: handler)
                 guard let results = request.results,
-                      let horizon = results.first else {
+                      let horizon = results.first
+                else {
                     continuation.resume(returning: nil)
                     return
                 }

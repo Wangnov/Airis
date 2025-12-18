@@ -2,6 +2,17 @@ import Foundation
 
 // MARK: - Gemini API Models
 
+/// Gemini API 错误响应模型
+struct GeminiErrorResponse: Codable {
+    let error: ErrorDetail
+
+    struct ErrorDetail: Codable {
+        let code: Int
+        let message: String
+        let status: String
+    }
+}
+
 /// Gemini API 请求模型
 struct GeminiGenerateRequest: Codable {
     let contents: [Content]
@@ -24,7 +35,7 @@ struct GeminiGenerateRequest: Codable {
 
     struct InlineData: Codable {
         let mimeType: String
-        let data: String  // Base64 encoded
+        let data: String // Base64 encoded
 
         enum CodingKeys: String, CodingKey {
             case mimeType = "mime_type"
@@ -80,17 +91,19 @@ struct GeminiGenerateResponse: Codable {
     struct Part: Codable {
         let text: String?
         let inlineData: InlineData?
+        let thoughtSignature: String? // Gemini 3 Pro 的 Thinking 签名
 
         // 注意：响应使用 camelCase
         enum CodingKeys: String, CodingKey {
             case text
-            case inlineData  // 响应中是 camelCase，不是 snake_case
+            case inlineData // 响应中是 camelCase，不是 snake_case
+            case thoughtSignature
         }
     }
 
     struct InlineData: Codable {
         let mimeType: String
-        let data: String  // Base64 encoded
+        let data: String // Base64 encoded
 
         enum CodingKeys: String, CodingKey {
             case mimeType

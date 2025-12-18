@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct PetPoseCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "petpose",
-        abstract: HelpTextFactory.text(
-            en: "Detect pet body pose (cats and dogs, 25 keypoints)",
-            cn: "检测宠物姿态（猫/狗，25 个关键点）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "petpose",
+            abstract: HelpTextFactory.text(
+                en: "Detect pet body pose (cats and dogs, 25 keypoints)",
+                cn: "检测宠物姿态（猫/狗，25 个关键点）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect body poses of cats and dogs using Apple's Vision framework.
                 Returns 25 keypoints per animal with normalized coordinates.
 
@@ -79,7 +79,7 @@ struct PetPoseCommand: AsyncParsableCommand {
                   --pixels           Show pixel coordinates instead of normalized
                   --format <fmt>     Output format: table (default), json
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架检测猫/狗的身体姿态（25 个关键点）。
 
                 REQUIREMENTS:
@@ -106,8 +106,8 @@ struct PetPoseCommand: AsyncParsableCommand {
                   --pixels           输出像素坐标（默认输出归一化）
                   --format <fmt>     输出格式：table（默认）或 json
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -133,10 +133,11 @@ struct PetPoseCommand: AsyncParsableCommand {
                 let payload: [String: Any] = [
                     "supported": false,
                     "required_macos": "14.0",
-                    "error": "unsupported_os_version"
+                    "error": "unsupported_os_version",
                 ]
                 if let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
-                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                   let jsonString = String(data: jsonData, encoding: .utf8)
+                {
                     print(jsonString)
                 }
             } else if showHumanOutput {
@@ -152,8 +153,8 @@ struct PetPoseCommand: AsyncParsableCommand {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
             // 获取图像尺寸（用于像素坐标转换）
-            var imageWidth: Int = 0
-            var imageHeight: Int = 0
+            var imageWidth = 0
+            var imageHeight = 0
             if pixels {
                 let imageIO = ServiceContainer.shared.imageIOService
                 if let info = try? imageIO.getImageInfo(at: url) {
@@ -211,49 +212,49 @@ struct PetPoseCommand: AsyncParsableCommand {
             .leftBackElbow, .leftBackKnee, .leftBackPaw,
             .rightBackElbow, .rightBackKnee, .rightBackPaw,
             // Tail
-            .tailTop, .tailMiddle, .tailBottom
+            .tailTop, .tailMiddle, .tailBottom,
         ]
     }
 
     @available(macOS 14.0, *)
     private func jointNameString(_ name: VNAnimalBodyPoseObservation.JointName) -> String {
         switch name {
-        case .nose: return "nose"
-        case .leftEye: return "leftEye"
-        case .rightEye: return "rightEye"
-        case .leftEarTop: return "leftEarTop"
-        case .leftEarMiddle: return "leftEarMiddle"
-        case .leftEarBottom: return "leftEarBottom"
-        case .rightEarTop: return "rightEarTop"
-        case .rightEarMiddle: return "rightEarMiddle"
-        case .rightEarBottom: return "rightEarBottom"
-        case .neck: return "neck"
-        case .leftFrontElbow: return "leftFrontElbow"
-        case .leftFrontKnee: return "leftFrontKnee"
-        case .leftFrontPaw: return "leftFrontPaw"
-        case .rightFrontElbow: return "rightFrontElbow"
-        case .rightFrontKnee: return "rightFrontKnee"
-        case .rightFrontPaw: return "rightFrontPaw"
-        case .leftBackElbow: return "leftBackElbow"
-        case .leftBackKnee: return "leftBackKnee"
-        case .leftBackPaw: return "leftBackPaw"
-        case .rightBackElbow: return "rightBackElbow"
-        case .rightBackKnee: return "rightBackKnee"
-        case .rightBackPaw: return "rightBackPaw"
-        case .tailTop: return "tailTop"
-        case .tailMiddle: return "tailMiddle"
-        case .tailBottom: return "tailBottom"
-        default: return "unknown"
+        case .nose: "nose"
+        case .leftEye: "leftEye"
+        case .rightEye: "rightEye"
+        case .leftEarTop: "leftEarTop"
+        case .leftEarMiddle: "leftEarMiddle"
+        case .leftEarBottom: "leftEarBottom"
+        case .rightEarTop: "rightEarTop"
+        case .rightEarMiddle: "rightEarMiddle"
+        case .rightEarBottom: "rightEarBottom"
+        case .neck: "neck"
+        case .leftFrontElbow: "leftFrontElbow"
+        case .leftFrontKnee: "leftFrontKnee"
+        case .leftFrontPaw: "leftFrontPaw"
+        case .rightFrontElbow: "rightFrontElbow"
+        case .rightFrontKnee: "rightFrontKnee"
+        case .rightFrontPaw: "rightFrontPaw"
+        case .leftBackElbow: "leftBackElbow"
+        case .leftBackKnee: "leftBackKnee"
+        case .leftBackPaw: "leftBackPaw"
+        case .rightBackElbow: "rightBackElbow"
+        case .rightBackKnee: "rightBackKnee"
+        case .rightBackPaw: "rightBackPaw"
+        case .tailTop: "tailTop"
+        case .tailMiddle: "tailMiddle"
+        case .tailBottom: "tailBottom"
+        default: "unknown"
         }
     }
 
     #if DEBUG
-    /// 测试辅助：覆盖默认分支
-    static func testJointNameString(_ raw: String) -> String {
-        let key = VNRecognizedPointKey(rawValue: raw)
-        let name = VNAnimalBodyPoseObservation.JointName(rawValue: key)
-        return PetPoseCommand().jointNameString(name)
-    }
+        /// 测试辅助：覆盖默认分支
+        static func testJointNameString(_ raw: String) -> String {
+            let key = VNRecognizedPointKey(rawValue: raw)
+            let name = VNAnimalBodyPoseObservation.JointName(rawValue: key)
+            return PetPoseCommand().jointNameString(name)
+        }
     #endif
 
     @available(macOS 14.0, *)
@@ -267,14 +268,15 @@ struct PetPoseCommand: AsyncParsableCommand {
 
             for jointName in allJointNames {
                 guard let point = try? observation.recognizedPoint(jointName),
-                      point.confidence >= threshold else {
+                      point.confidence >= threshold
+                else {
                     continue
                 }
 
                 let name = jointNameString(jointName)
                 let paddedName = name.padding(toLength: 17, withPad: " ", startingAt: 0)
 
-                if pixels && imageWidth > 0 {
+                if pixels, imageWidth > 0 {
                     let px = Int(point.location.x * CGFloat(imageWidth))
                     let py = Int(point.location.y * CGFloat(imageHeight))
                     print("      \(paddedName): (\(px), \(py)) px - conf: \(String(format: "%.2f", point.confidence))")
@@ -292,22 +294,24 @@ struct PetPoseCommand: AsyncParsableCommand {
 
     @available(macOS 14.0, *)
     private func printJSON(results: [VNAnimalBodyPoseObservation], file: String,
-                           imageWidth: Int, imageHeight: Int) {
+                           imageWidth: Int, imageHeight: Int)
+    {
         let items = results.map { observation -> [String: Any] in
             var keypoints: [[String: Any]] = []
 
             for jointName in allJointNames {
                 guard let point = try? observation.recognizedPoint(jointName),
-                      point.confidence >= threshold else {
+                      point.confidence >= threshold
+                else {
                     continue
                 }
 
                 var keypointDict: [String: Any] = [
                     "name": jointNameString(jointName),
-                    "confidence": Double(point.confidence)
+                    "confidence": Double(point.confidence),
                 ]
 
-                if pixels && imageWidth > 0 {
+                if pixels, imageWidth > 0 {
                     keypointDict["x"] = Int(point.location.x * CGFloat(imageWidth))
                     keypointDict["y"] = Int(point.location.y * CGFloat(imageHeight))
                     keypointDict["coordinate_type"] = "pixels"
@@ -322,7 +326,7 @@ struct PetPoseCommand: AsyncParsableCommand {
 
             return [
                 "keypoint_count": keypoints.count,
-                "keypoints": keypoints
+                "keypoints": keypoints,
             ]
         }
 
@@ -331,16 +335,17 @@ struct PetPoseCommand: AsyncParsableCommand {
             "count": results.count,
             "threshold": Double(threshold),
             "supported_animals": ["cat", "dog"],
-            "animals": items
+            "animals": items,
         ]
 
-        if pixels && imageWidth > 0 {
+        if pixels, imageWidth > 0 {
             dict["image_width"] = imageWidth
             dict["image_height"] = imageHeight
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

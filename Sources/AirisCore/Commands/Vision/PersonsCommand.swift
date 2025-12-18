@@ -1,8 +1,8 @@
+import AppKit
 import ArgumentParser
-@preconcurrency import Vision
 import CoreImage
 import Foundation
-import AppKit
+@preconcurrency import Vision
 
 struct PersonsCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -13,84 +13,84 @@ struct PersonsCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Create a segmentation mask for people in images.
-                Useful for background removal, virtual backgrounds, and photo editing.
+            Create a segmentation mask for people in images.
+            Useful for background removal, virtual backgrounds, and photo editing.
 
-                QUICK START:
-                  airis vision persons photo.jpg -o mask.png
+            QUICK START:
+              airis vision persons photo.jpg -o mask.png
 
-                QUALITY LEVELS:
-                  fast      - Fastest processing, lower edge quality
-                  balanced  - Good balance of speed and quality (default)
-                  accurate  - Best edge quality, slowest
-                             Also smooths masks across video frames
+            QUALITY LEVELS:
+              fast      - Fastest processing, lower edge quality
+              balanced  - Good balance of speed and quality (default)
+              accurate  - Best edge quality, slowest
+                         Also smooths masks across video frames
 
-                EXAMPLES:
-                  # Generate person mask
-                  airis vision persons portrait.jpg -o mask.png
+            EXAMPLES:
+              # Generate person mask
+              airis vision persons portrait.jpg -o mask.png
 
-                  # High quality segmentation
-                  airis vision persons photo.jpg --quality accurate -o mask.png
+              # High quality segmentation
+              airis vision persons photo.jpg --quality accurate -o mask.png
 
-                  # Fast processing for video frames
-                  airis vision persons frame.jpg --quality fast -o mask.png
+              # Fast processing for video frames
+              airis vision persons frame.jpg --quality fast -o mask.png
 
-                  # JSON output with mask info
-                  airis vision persons photo.jpg --format json
+              # JSON output with mask info
+              airis vision persons photo.jpg --format json
 
-                OUTPUT FORMATS:
-                  The mask is a grayscale image where:
-                  - White (255) = Person pixels
-                  - Black (0)   = Background pixels
-                  - Gray values = Edge/semi-transparent areas
+            OUTPUT FORMATS:
+              The mask is a grayscale image where:
+              - White (255) = Person pixels
+              - Black (0)   = Background pixels
+              - Gray values = Edge/semi-transparent areas
 
-                  NOTE: Output should be PNG format to preserve grayscale values.
+              NOTE: Output should be PNG format to preserve grayscale values.
 
-                OUTPUT EXAMPLE:
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  Person Segmentation
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  File: portrait.jpg
-                  Quality: balanced
-                  Output: mask.png
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            OUTPUT EXAMPLE:
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              Person Segmentation
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              File: portrait.jpg
+              Quality: balanced
+              Output: mask.png
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-                  Mask: 1920 x 1080
-                  Saved to: mask.png
+              Mask: 1920 x 1080
+              Saved to: mask.png
 
-                BEST PRACTICES:
-                  - Person should be mostly visible (not heavily occluded)
-                  - Works best when person height is at least half the image height
-                  - Good contrast between person and background improves results
-                  - Supports up to 4 people in an image
+            BEST PRACTICES:
+              - Person should be mostly visible (not heavily occluded)
+              - Works best when person height is at least half the image height
+              - Good contrast between person and background improves results
+              - Supports up to 4 people in an image
 
-                REQUIREMENTS:
-                  macOS 12.0+ (Monterey or later)
-                """,
+            REQUIREMENTS:
+              macOS 12.0+ (Monterey or later)
+            """,
             cn: """
-                生成人像分割 mask（灰度图），可用于背景替换/抠图/后期编辑。
+            生成人像分割 mask（灰度图），可用于背景替换/抠图/后期编辑。
 
-                QUICK START:
-                  airis vision persons photo.jpg -o mask.png
+            QUICK START:
+              airis vision persons photo.jpg -o mask.png
 
-                EXAMPLES:
-                  # 生成 mask（建议输出 PNG）
-                  airis vision persons portrait.jpg -o mask.png
+            EXAMPLES:
+              # 生成 mask（建议输出 PNG）
+              airis vision persons portrait.jpg -o mask.png
 
-                  # 高质量分割
-                  airis vision persons photo.jpg --quality accurate -o mask.png
+              # 高质量分割
+              airis vision persons photo.jpg --quality accurate -o mask.png
 
-                  # JSON 输出（仅输出 mask 信息）
-                  airis vision persons photo.jpg --format json
+              # JSON 输出（仅输出 mask 信息）
+              airis vision persons photo.jpg --format json
 
-                QUALITY:
-                  fast / balanced（默认）/ accurate
+            QUALITY:
+              fast / balanced（默认）/ accurate
 
-                说明：
-                  - mask 中白色表示人物、黑色表示背景，灰色表示边缘过渡
-                  - 建议输出 PNG 以保留灰度细节
-                  - macOS 12.0+
-                """
+            说明：
+              - mask 中白色表示人物、黑色表示背景，灰色表示边缘过渡
+              - 建议输出 PNG 以保留灰度细节
+              - macOS 12.0+
+            """
         )
     )
 
@@ -114,24 +114,23 @@ struct PersonsCommand: AsyncParsableCommand {
         let outputFormat = OutputFormat.parse(format)
         let showHumanOutput = AirisOutput.shouldPrintHumanOutput(format: outputFormat)
         #if DEBUG
-        let forceStub = ProcessInfo.processInfo.environment["AIRIS_TEST_PERSONS_FAKE_RESULT"] == "1"
-        let forceCGImageNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_CGIMAGE_NIL"] == "1"
+            let forceStub = ProcessInfo.processInfo.environment["AIRIS_TEST_PERSONS_FAKE_RESULT"] == "1"
+            let forceCGImageNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_CGIMAGE_NIL"] == "1"
         #else
-        let forceStub = false
-        let forceCGImageNil = false
+            let forceStub = false
+            let forceCGImageNil = false
         #endif
 
         // Parse quality level
-        let qualityLevel: VisionService.PersonSegmentationQuality
-        switch quality.lowercased() {
+        let qualityLevel: VisionService.PersonSegmentationQuality = switch quality.lowercased() {
         case "fast":
-            qualityLevel = .fast
+            .fast
         case "balanced":
-            qualityLevel = .balanced
+            .balanced
         case "accurate":
-            qualityLevel = .accurate
+            .accurate
         default:
-            qualityLevel = .balanced
+            .balanced
         }
 
         if showHumanOutput {
@@ -140,7 +139,7 @@ struct PersonsCommand: AsyncParsableCommand {
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print("📁 File: \(url.lastPathComponent)")
             print("🎯 Quality: \(quality)")
-            if let output = output {
+            if let output {
                 print("💾 Output: \(output)")
             }
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -151,13 +150,13 @@ struct PersonsCommand: AsyncParsableCommand {
         let vision = ServiceContainer.shared.visionService
         let result: VisionService.PersonSegmentationResult
         #if DEBUG
-        if forceStub {
-            result = Self.testPersonResult()
-        } else {
-            result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
-        }
+            if forceStub {
+                result = Self.testPersonResult()
+            } else {
+                result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
+            }
         #else
-        result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
+            result = try await vision.generatePersonSegmentation(at: url, quality: qualityLevel)
         #endif
 
         if outputFormat == .json {
@@ -193,12 +192,13 @@ struct PersonsCommand: AsyncParsableCommand {
             "mask": [
                 "width": result.width,
                 "height": result.height,
-                "format": "grayscale_8bit"
-            ]
+                "format": "grayscale_8bit",
+            ],
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
@@ -208,10 +208,10 @@ struct PersonsCommand: AsyncParsableCommand {
 
         let context = CIContext()
         #if DEBUG
-        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_CGIMAGE_NIL"] == "1"
-        let cgImageCandidate = forceNil ? nil : context.createCGImage(maskImage, from: maskImage.extent)
+            let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_CGIMAGE_NIL"] == "1"
+            let cgImageCandidate = forceNil ? nil : context.createCGImage(maskImage, from: maskImage.extent)
         #else
-        let cgImageCandidate = context.createCGImage(maskImage, from: maskImage.extent)
+            let cgImageCandidate = context.createCGImage(maskImage, from: maskImage.extent)
         #endif
 
         guard let cgImage = cgImageCandidate else {
@@ -234,30 +234,30 @@ struct PersonsCommand: AsyncParsableCommand {
     }
 
     #if DEBUG
-    /// 测试桩：生成 2x2 的人像分割结果
-    private static func testPersonResult() -> VisionService.PersonSegmentationResult {
-        let forceCreateFailure = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_TEST_PIXELBUFFER_FAIL"] == "1"
+        /// 测试桩：生成 2x2 的人像分割结果
+        private static func testPersonResult() -> VisionService.PersonSegmentationResult {
+            let forceCreateFailure = ProcessInfo.processInfo.environment["AIRIS_FORCE_PERSONS_TEST_PIXELBUFFER_FAIL"] == "1"
 
-        var pixelBuffer: CVPixelBuffer?
-        let status: CVReturn = forceCreateFailure
-            ? kCVReturnInvalidSize
-            : CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
+            var pixelBuffer: CVPixelBuffer?
+            let status: CVReturn = forceCreateFailure
+                ? kCVReturnInvalidSize
+                : CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &pixelBuffer)
 
-        if status == kCVReturnSuccess, let buffer = pixelBuffer {
-            return VisionService.PersonSegmentationResult(maskBuffer: buffer, width: 2, height: 2)
-        }
-
-        // 理论上不应触发；若触发则持续尝试直到创建成功（测试桩仅用于覆盖与避免 fatalError）。
-        var retryPixelBuffer: CVPixelBuffer!
-        while retryPixelBuffer == nil {
-            var retryBuffer: CVPixelBuffer?
-            let retryStatus = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &retryBuffer)
-            if retryStatus == kCVReturnSuccess, let retryBuffer {
-                retryPixelBuffer = retryBuffer
+            if status == kCVReturnSuccess, let buffer = pixelBuffer {
+                return VisionService.PersonSegmentationResult(maskBuffer: buffer, width: 2, height: 2)
             }
-        }
 
-        return VisionService.PersonSegmentationResult(maskBuffer: retryPixelBuffer, width: 2, height: 2)
-    }
+            // 理论上不应触发；若触发则持续尝试直到创建成功（测试桩仅用于覆盖与避免 fatalError）。
+            var retryPixelBuffer: CVPixelBuffer!
+            while retryPixelBuffer == nil {
+                var retryBuffer: CVPixelBuffer?
+                let retryStatus = CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_OneComponent8, nil, &retryBuffer)
+                if retryStatus == kCVReturnSuccess, let retryBuffer {
+                    retryPixelBuffer = retryBuffer
+                }
+            }
+
+            return VisionService.PersonSegmentationResult(maskBuffer: retryPixelBuffer, width: 2, height: 2)
+        }
     #endif
 }

@@ -1,7 +1,7 @@
-import XCTest
 import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// VisionService 补充测试
@@ -140,7 +140,7 @@ final class VisionServiceAdditionalTests: XCTestCase {
     @available(macOS 14.0, *)
     func testGenerateForegroundMaskAirisErrorBranch() async throws {
         final class AirisErrorOps: VisionOperations {
-            func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws {
+            func perform(requests _: [VNRequest], on _: VNImageRequestHandler) throws {
                 throw AirisError.noResultsFound
             }
         }

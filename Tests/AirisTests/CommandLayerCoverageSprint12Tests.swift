@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第十二批补测：覆盖剩余分支（Blur 动态类型、裁剪/翻转错误、Straighten 调试分支、Score/Similar 低分等）。
@@ -22,6 +22,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Blur 多类型
+
     func testBlurMotionAndZoomBranches() async throws {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
 
@@ -35,13 +36,14 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Flip
+
     func testFlipOutputExistsThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await FlipCommand.parse([input, "-o", out.path, "-h"]).run()
+            try FlipCommand.parse([input, "-o", out.path, "-h"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -54,11 +56,12 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Crop
+
     func testCropNegativeCoordinatesThrow() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([input, "-o", out, "--x", "-1", "--y", "0", "--width", "10", "--height", "10"]).run()
+            try CropCommand.parse([input, "-o", out, "--x", "-1", "--y", "0", "--width", "10", "--height", "10"]).run()
         )
     }
 
@@ -70,6 +73,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Resize
+
     func testResizeWidthOnlyOpenBranch() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -85,6 +89,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Straighten 调试分支
+
     func testStraightenForceNoHorizon() async throws {
         setenv("AIRIS_FORCE_STRAIGHTEN_NO_HORIZON", "1", 1)
         let input = CommandTestHarness.fixture("horizon_clear_512x512.jpg").path
@@ -102,6 +107,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Trace sketch 分支
+
     func testTraceSketchStyle() async throws {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -110,6 +116,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Score / Similar 低分
+
     func testScoreCommandPoorRatingTableAndJSON() async throws {
         setenv("AIRIS_SCORE_TEST_VALUE", "-0.75", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
@@ -132,6 +139,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
     }
 
     // MARK: Barcode 解析未知类型（symbology nil 路径）
+
     func testBarcodeInvalidTypeIgnored() async throws {
         let input = CommandTestHarness.fixture("qrcode_512x512.png").path
         try await BarcodeCommand.parse([input, "--type", "unknownType"]).run()
@@ -140,8 +148,8 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
 
 // MARK: - Helpers
 
-private func XCTAssertThrowsErrorAsync<T>(
-    _ expression: @autoclosure @escaping () async throws -> T,
+private func XCTAssertThrowsErrorAsync(
+    _ expression: @autoclosure @escaping () async throws -> some Any,
     _ message: String = "",
     file: StaticString = #filePath,
     line: UInt = #line
@@ -149,5 +157,5 @@ private func XCTAssertThrowsErrorAsync<T>(
     do {
         _ = try await expression()
         XCTFail(message, file: file, line: line)
-    } catch { }
+    } catch {}
 }

@@ -1,18 +1,18 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 import ImageIO
 
 struct ThumbCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "thumb",
-        abstract: HelpTextFactory.text(
-            en: "Generate thumbnails from images",
-            cn: "生成图片缩略图"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "thumb",
+            abstract: HelpTextFactory.text(
+                en: "Generate thumbnails from images",
+                cn: "生成图片缩略图"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Create optimized thumbnails with automatic aspect ratio preservation.
                 Uses efficient ImageIO downsampling for best performance.
 
@@ -45,7 +45,7 @@ struct ThumbCommand: AsyncParsableCommand {
                   - EXIF orientation is automatically applied
                   - Works efficiently even with very large source images
                 """,
-            cn: """
+                cn: """
                 生成缩略图并自动保持宽高比。
                 通过 ImageIO Downsampling 高效处理大图，速度更快、内存占用更低。
 
@@ -78,8 +78,8 @@ struct ThumbCommand: AsyncParsableCommand {
                   - 自动应用 EXIF 方向
                   - 即使源图很大也能高效处理
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -102,11 +102,11 @@ struct ThumbCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 验证参数
-        guard size > 0 && size <= 4096 else {
+        guard size > 0, size <= 4096 else {
             throw AirisError.invalidPath("Size must be 1-4096, got: \(size)")
         }
 
-        guard quality >= 0 && quality <= 1.0 else {
+        guard quality >= 0, quality <= 1.0 else {
             throw AirisError.invalidPath("Quality must be 0.0-1.0, got: \(quality)")
         }
 
@@ -114,7 +114,7 @@ struct ThumbCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -138,10 +138,10 @@ struct ThumbCommand: AsyncParsableCommand {
 
         // 使用 ImageIO 高效生成缩略图
         #if DEBUG
-        let forceSourceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_THUMB_SOURCE_NIL"] == "1"
-        let imageSource = forceSourceNil ? nil : CGImageSourceCreateWithURL(inputURL as CFURL, nil)
+            let forceSourceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_THUMB_SOURCE_NIL"] == "1"
+            let imageSource = forceSourceNil ? nil : CGImageSourceCreateWithURL(inputURL as CFURL, nil)
         #else
-        let imageSource = CGImageSourceCreateWithURL(inputURL as CFURL, nil)
+            let imageSource = CGImageSourceCreateWithURL(inputURL as CFURL, nil)
         #endif
 
         guard let imageSource else {
@@ -152,14 +152,14 @@ struct ThumbCommand: AsyncParsableCommand {
             kCGImageSourceThumbnailMaxPixelSize: size,
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceCreateThumbnailFromImageIfAbsent: true,
-            kCGImageSourceShouldCacheImmediately: true
+            kCGImageSourceShouldCacheImmediately: true,
         ]
 
         #if DEBUG
-        let forceThumbNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_THUMB_THUMB_NIL"] == "1"
-        let thumbnail = forceThumbNil ? nil : CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
+            let forceThumbNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_THUMB_THUMB_NIL"] == "1"
+            let thumbnail = forceThumbNil ? nil : CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
         #else
-        let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
+            let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
         #endif
 
         guard let thumbnail else {

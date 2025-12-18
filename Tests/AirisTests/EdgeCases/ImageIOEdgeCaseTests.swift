@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 边界测试 - ImageIO 服务
@@ -10,7 +10,6 @@ import XCTest
 /// - 测试格式边界
 /// - 测试保存边界条件
 final class ImageIOEdgeCaseTests: XCTestCase {
-
     // ✅ Apple 最佳实践：类级别共享服务
     static let sharedImageIOService = ImageIOService()
 
@@ -99,7 +98,7 @@ final class ImageIOEdgeCaseTests: XCTestCase {
         let testImageURL = TestResources.image("assets/small_100x100.png")
 
         // 比原图大的尺寸 - 系统不会放大，最多返回原图
-        let image = try service.loadImage(at: testImageURL, maxDimension: 100000)
+        let image = try service.loadImage(at: testImageURL, maxDimension: 100_000)
         XCTAssertLessThanOrEqual(image.width, 100, "不应超过原图尺寸")
         XCTAssertLessThanOrEqual(image.height, 100, "不应超过原图尺寸")
     }

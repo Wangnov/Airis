@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第十六批覆盖冲刺：补齐 Tag 命令分支（table/json 总数分支）。

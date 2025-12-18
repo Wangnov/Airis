@@ -1,7 +1,7 @@
-import XCTest
 import CoreImage
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 边界测试 - CoreImage 服务
@@ -12,7 +12,6 @@ import CoreImage
 /// - 测试空/无效输入
 /// - 测试边界条件
 final class CoreImageEdgeCaseTests: XCTestCase {
-
     // ✅ Apple 最佳实践：类级别共享服务
     static let sharedCoreImageService = CoreImageService()
 

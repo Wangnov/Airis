@@ -1,7 +1,7 @@
-import XCTest
 @preconcurrency import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第 23 批覆盖补充：补齐剩余 region 分支至 100%
@@ -114,8 +114,8 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
 
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([
-                input, "-o", output.path, "--width", "0", "--height", "10"
+            try CropCommand.parse([
+                input, "-o", output.path, "--width", "0", "--height", "10",
             ]).run()
         )
     }
@@ -126,8 +126,8 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
 
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([
-                input, "-o", output.path, "--x", "90", "--y", "90", "--width", "20", "--height", "20"
+            try CropCommand.parse([
+                input, "-o", output.path, "--x", "90", "--y", "90", "--width", "20", "--height", "20",
             ]).run()
         )
     }
@@ -138,8 +138,8 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
 
         await XCTAssertThrowsErrorAsync(
-            try await CropCommand.parse([
-                input, "-o", output.path, "--x", "-5", "--y", "0", "--width", "10", "--height", "10"
+            try CropCommand.parse([
+                input, "-o", output.path, "--x", "-5", "--y", "0", "--width", "10", "--height", "10",
             ]).run()
         )
     }
@@ -202,7 +202,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         try await SetConfigCommand.parse([
             "--provider", "demo-interactive",
             "--base-url", "https://example.com",
-            "--model", "demo-model"
+            "--model", "demo-model",
         ]).run()
 
         // show all 分支
@@ -246,7 +246,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
 
     func testVisionServiceMockFailureFalseBranch() {
         struct DummyOps: VisionOperations {
-            func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws {}
+            func perform(requests _: [VNRequest], on _: VNImageRequestHandler) throws {}
             let shouldFail = false
         }
         let ops = DummyOps()
@@ -261,7 +261,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
     func testVisionServiceMockFailureLoopFalsePath() {
         struct NoFlagOps: VisionOperations {
             let foo = 1
-            func perform(requests: [VNRequest], on handler: VNImageRequestHandler) throws { }
+            func perform(requests _: [VNRequest], on _: VNImageRequestHandler) throws {}
         }
         let ops = NoFlagOps()
         XCTAssertFalse(VisionService.testIsMockFailure(ops))
@@ -278,7 +278,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
             input, "-o", output.path,
             "--x=-2", "--y", "0",
             "--width", "10", "--height", "10",
-            "--force"
+            "--force",
         ]
 
         do {
@@ -286,7 +286,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
             _ = try await cmd.run()
             XCTFail("应当抛出 invalidPath")
         } catch let error as AirisError {
-            guard case .invalidPath(let message) = error else {
+            guard case let .invalidPath(message) = error else {
                 XCTFail("期待 invalidPath，得到 \(error)")
                 return
             }
@@ -299,8 +299,8 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
 
 // MARK: - Helpers
 
-private func XCTAssertThrowsErrorAsync<T>(
-    _ expression: @autoclosure () async throws -> T,
+private func XCTAssertThrowsErrorAsync(
+    _ expression: @autoclosure () async throws -> some Any,
     _ message: @autoclosure () -> String = "",
     file: StaticString = #filePath,
     line: UInt = #line,

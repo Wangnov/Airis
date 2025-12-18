@@ -1,7 +1,7 @@
-import XCTest
 import CoreImage
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class EditBatch1Tests: XCTestCase {
@@ -123,7 +123,7 @@ final class EditBatch1Tests: XCTestCase {
         let cropped = coreImageService.crop(ciImage: testCIImage, rect: cropRect)
 
         // 应该裁剪到交集区域
-        XCTAssertEqual(cropped.extent.width, 50)  // 200 - 150 = 50
+        XCTAssertEqual(cropped.extent.width, 50) // 200 - 150 = 50
         XCTAssertEqual(cropped.extent.height, 50) // 150 - 100 = 50
     }
 
@@ -227,7 +227,7 @@ final class EditBatch1Tests: XCTestCase {
     func testAutoEnhanceMultipleTimes() throws {
         // 多次增强应该不会崩溃
         var enhanced = try XCTUnwrap(testCIImage)
-        for _ in 0..<3 {
+        for _ in 0 ..< 3 {
             enhanced = coreImageService.autoEnhance(ciImage: enhanced)
         }
 
@@ -301,7 +301,7 @@ extension EditBatch1Tests {
         let subcommands = config.subcommands
 
         // 应该包含我们添加的四个命令
-        let subcommandNames = subcommands.map { $0.configuration.commandName }
+        let subcommandNames = subcommands.map(\.configuration.commandName)
 
         XCTAssertTrue(subcommandNames.contains("cut"))
         XCTAssertTrue(subcommandNames.contains("resize"))

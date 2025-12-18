@@ -1,19 +1,19 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 import ImageIO
 import UniformTypeIdentifiers
 
 struct FormatCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "fmt",
-        abstract: HelpTextFactory.text(
-            en: "Convert image format (jpg/png/heic/tiff)",
-            cn: "转换图片格式（jpg/png/heic/tiff）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "fmt",
+            abstract: HelpTextFactory.text(
+                en: "Convert image format (jpg/png/heic/tiff)",
+                cn: "转换图片格式（jpg/png/heic/tiff）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Convert images between different formats with quality control.
                 Supports preserving or stripping metadata.
 
@@ -48,7 +48,7 @@ struct FormatCommand: AsyncParsableCommand {
                   - PNG/TIFF: quality is ignored (always lossless)
                   - Transparency is only preserved when converting to PNG
                 """,
-            cn: """
+                cn: """
                 在不同图片格式之间转换，并支持质量参数控制（JPEG/HEIC）。
 
                 QUICK START:
@@ -82,8 +82,8 @@ struct FormatCommand: AsyncParsableCommand {
                   - PNG/TIFF：忽略 quality（始终无损）
                   - 透明通道仅在输出为 PNG 时保留
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -164,7 +164,8 @@ struct FormatCommand: AsyncParsableCommand {
 
         // 显示文件大小比较
         if let inputSize = FileUtils.getFileSize(at: inputURL.path),
-           let outputSize = FileUtils.getFileSize(at: outputURL.path) {
+           let outputSize = FileUtils.getFileSize(at: outputURL.path)
+        {
             let inputSizeStr = ByteCountFormatter.string(fromByteCount: inputSize, countStyle: .file)
             let outputSizeStr = ByteCountFormatter.string(fromByteCount: outputSize, countStyle: .file)
 

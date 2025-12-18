@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct TraceCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "trace",
-        abstract: HelpTextFactory.text(
-            en: "Apply vector tracing effect to images",
-            cn: "为图片应用描摹/线稿效果"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "trace",
+            abstract: HelpTextFactory.text(
+                en: "Apply vector tracing effect to images",
+                cn: "为图片应用描摹/线稿效果"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Convert images to a line art or sketch-like appearance.
                 Uses edge detection filters to create a traced/outlined effect.
 
@@ -41,7 +41,7 @@ struct TraceCommand: AsyncParsableCommand {
                 OUTPUT:
                   Image with line art / traced effect applied
                 """,
-            cn: """
+                cn: """
                 将图片转换为线稿/素描风格效果。
                 基于边缘检测相关滤镜生成描边与轮廓效果。
 
@@ -71,8 +71,8 @@ struct TraceCommand: AsyncParsableCommand {
                 OUTPUT:
                   输出为已应用线稿/描摹效果的图片
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -105,29 +105,29 @@ struct TraceCommand: AsyncParsableCommand {
     func run() async throws {
         // 验证参数
         let validStyles = ["edges", "sketch", "work"]
-#if DEBUG
-        let allowFallback = ProcessInfo.processInfo.environment["AIRIS_ALLOW_UNKNOWN_TRACE_STYLE"] == "1"
-        let styleToUse: String
-        if !validStyles.contains(style) && allowFallback {
-            styleToUse = "edges"
-        } else {
+        #if DEBUG
+            let allowFallback = ProcessInfo.processInfo.environment["AIRIS_ALLOW_UNKNOWN_TRACE_STYLE"] == "1"
+            let styleToUse: String
+            if !validStyles.contains(style), allowFallback {
+                styleToUse = "edges"
+            } else {
+                guard validStyles.contains(style) else {
+                    throw AirisError.invalidPath("Invalid style: \(style). Use: edges, sketch, work")
+                }
+                styleToUse = style
+            }
+        #else
             guard validStyles.contains(style) else {
                 throw AirisError.invalidPath("Invalid style: \(style). Use: edges, sketch, work")
             }
-            styleToUse = style
-        }
-#else
-        guard validStyles.contains(style) else {
-            throw AirisError.invalidPath("Invalid style: \(style). Use: edges, sketch, work")
-        }
-        let styleToUse = style
-#endif
+            let styleToUse = style
+        #endif
 
-        guard intensity >= 0.1 && intensity <= 5.0 else {
+        guard intensity >= 0.1, intensity <= 5.0 else {
             throw AirisError.invalidPath("Intensity must be 0.1-5.0, got: \(intensity)")
         }
 
-        guard radius >= 1 && radius <= 10 else {
+        guard radius >= 1, radius <= 10 else {
             throw AirisError.invalidPath("Radius must be 1-10, got: \(radius)")
         }
 
@@ -135,7 +135,7 @@ struct TraceCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -166,15 +166,27 @@ struct TraceCommand: AsyncParsableCommand {
 
         var result: CIImage?
 
-#if DEBUG
-        let forceNilResult = ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RESULT_NIL"] == "1"
-        let forceRenderNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RENDER_NIL"] == "1"
-        if forceNilResult {
-            result = nil
-        } else {
-            if styleToUse == "edges" {
+        #if DEBUG
+            let forceNilResult = ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RESULT_NIL"] == "1"
+            let forceRenderNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RENDER_NIL"] == "1"
+            if forceNilResult {
+                result = nil
+            } else {
+                if styleToUse == "edges" {
+                    result = coreImage.edges(ciImage: ciImage, intensity: intensity)
+                } else if styleToUse == "sketch" {
+                    result = coreImage.lineOverlay(
+                        ciImage: ciImage,
+                        edgeIntensity: intensity
+                    )
+                } else {
+                    result = coreImage.edgeWork(ciImage: ciImage, radius: radius)
+                }
+            }
+        #else
+            if style == "edges" {
                 result = coreImage.edges(ciImage: ciImage, intensity: intensity)
-            } else if styleToUse == "sketch" {
+            } else if style == "sketch" {
                 result = coreImage.lineOverlay(
                     ciImage: ciImage,
                     edgeIntensity: intensity
@@ -182,19 +194,7 @@ struct TraceCommand: AsyncParsableCommand {
             } else {
                 result = coreImage.edgeWork(ciImage: ciImage, radius: radius)
             }
-        }
-#else
-        if style == "edges" {
-            result = coreImage.edges(ciImage: ciImage, intensity: intensity)
-        } else if style == "sketch" {
-            result = coreImage.lineOverlay(
-                ciImage: ciImage,
-                edgeIntensity: intensity
-            )
-        } else {
-            result = coreImage.edgeWork(ciImage: ciImage, radius: radius)
-        }
-#endif
+        #endif
 
         guard let tracedImage = result else {
             throw AirisError.imageEncodeFailed
@@ -202,12 +202,12 @@ struct TraceCommand: AsyncParsableCommand {
 
         // 渲染并保存
         #if DEBUG
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RENDER_FAIL"] == "1" {
-            throw AirisError.imageEncodeFailed
-        }
-        let renderedImage = forceRenderNil ? nil : coreImage.render(ciImage: tracedImage)
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_TRACE_RENDER_FAIL"] == "1" {
+                throw AirisError.imageEncodeFailed
+            }
+            let renderedImage = forceRenderNil ? nil : coreImage.render(ciImage: tracedImage)
         #else
-        let renderedImage = coreImage.render(ciImage: tracedImage)
+            let renderedImage = coreImage.render(ciImage: tracedImage)
         #endif
 
         guard let outputCGImage = renderedImage else {

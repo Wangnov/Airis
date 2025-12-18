@@ -1,7 +1,7 @@
-import Vision
 import Foundation
+import Vision
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Mock Vision 操作 - 用于测试错误路径

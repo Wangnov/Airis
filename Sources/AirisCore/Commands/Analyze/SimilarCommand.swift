@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct SimilarCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "similar",
-        abstract: HelpTextFactory.text(
-            en: "Compare similarity between two images",
-            cn: "比较两张图片的相似度"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "similar",
+            abstract: HelpTextFactory.text(
+                en: "Compare similarity between two images",
+                cn: "比较两张图片的相似度"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Calculate visual similarity between two images using Vision
                 framework's feature fingerprinting.
 
@@ -71,7 +71,7 @@ struct SimilarCommand: AsyncParsableCommand {
                   - Works well for detecting similar scenes/subjects
                   - All processing is done locally using Vision framework
                 """,
-            cn: """
+                cn: """
                 使用 Vision 的图像特征指纹（feature print）计算两张图片的视觉相似度。
 
                 QUICK START:
@@ -124,8 +124,8 @@ struct SimilarCommand: AsyncParsableCommand {
                   使用 VNGenerateImageFeaturePrintRequest 生成特征指纹，
                   再计算两者的欧氏距离（Euclidean distance）。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the first image file", cn: "第一张图片路径"))
@@ -166,14 +166,14 @@ struct SimilarCommand: AsyncParsableCommand {
             distance = override
         } else {
             #if DEBUG
-            // 调试构建默认走桩数据，避免 Vision 重度依赖
-            distance = customDistance ?? 0.42
+                // 调试构建默认走桩数据，避免 Vision 重度依赖
+                distance = customDistance ?? 0.42
             #else
-            let observation1 = try await generateFeaturePrint(for: url1)
-            let observation2 = try await generateFeaturePrint(for: url2)
-            var tempDistance: Float = 0
-            try observation1.computeDistance(&tempDistance, to: observation2)
-            distance = tempDistance
+                let observation1 = try await generateFeaturePrint(for: url1)
+                let observation2 = try await generateFeaturePrint(for: url2)
+                var tempDistance: Float = 0
+                try observation1.computeDistance(&tempDistance, to: observation2)
+                distance = tempDistance
             #endif
         }
 
@@ -202,27 +202,27 @@ struct SimilarCommand: AsyncParsableCommand {
     // MARK: - 特征提取
 
     #if !DEBUG
-    /// 生成图像特征指纹（Release 下执行，测试使用桩数据跳过）
-    private func generateFeaturePrint(for url: URL) async throws -> VNFeaturePrintObservation {
-        let requestHandler = VNImageRequestHandler(url: url, options: [:])
-        let request = VNGenerateImageFeaturePrintRequest()
-        request.revision = VNGenerateImageFeaturePrintRequest.currentRevision
+        /// 生成图像特征指纹（Release 下执行，测试使用桩数据跳过）
+        private func generateFeaturePrint(for url: URL) async throws -> VNFeaturePrintObservation {
+            let requestHandler = VNImageRequestHandler(url: url, options: [:])
+            let request = VNGenerateImageFeaturePrintRequest()
+            request.revision = VNGenerateImageFeaturePrintRequest.currentRevision
 
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            do {
-                try requestHandler.perform([request])
-                continuation.resume()
-            } catch {
-                continuation.resume(throwing: error)
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                do {
+                    try requestHandler.perform([request])
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
             }
-        }
 
-        guard let observation = request.results?.first as? VNFeaturePrintObservation else {
-            throw AirisError.visionRequestFailed("Failed to generate feature print")
-        }
+            guard let observation = request.results?.first as? VNFeaturePrintObservation else {
+                throw AirisError.visionRequestFailed("Failed to generate feature print")
+            }
 
-        return observation
-    }
+            return observation
+        }
     #endif
 
     // MARK: - 输出
@@ -251,17 +251,16 @@ struct SimilarCommand: AsyncParsableCommand {
 
         // 根据相似度选择颜色
         #if DEBUG
-        // 测试环境下避免颜色控制符影响快照
-        let color = ""
+            // 测试环境下避免颜色控制符影响快照
+            let color = ""
         #else
-        let color: String
-        if similarity >= 0.85 {
-            color = "\u{001B}[32m"  // 绿色
-        } else if similarity >= 0.6 {
-            color = "\u{001B}[33m"  // 黄色
-        } else {
-            color = "\u{001B}[31m"  // 红色
-        }
+            let color = if similarity >= 0.85 {
+                "\u{001B}[32m" // 绿色
+            } else if similarity >= 0.6 {
+                "\u{001B}[33m" // 黄色
+            } else {
+                "\u{001B}[31m" // 红色
+            }
         #endif
 
         print("[\(color)\(filled)\u{001B}[0m\(empty)]")
@@ -273,30 +272,31 @@ struct SimilarCommand: AsyncParsableCommand {
             "image2": result.image2,
             "similarity": Double(result.similarity),
             "distance": Double(result.distance),
-            "rating": getRatingEnglish(distance: result.distance)
+            "rating": getRatingEnglish(distance: result.distance),
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
 
     private func getRating(distance: Float) -> String {
         switch distance {
-        case ..<0.3: return "非常相似"
-        case 0.3..<0.8: return "相似"
-        case 0.8..<1.5: return "有些相似"
-        default: return "不同"
+        case ..<0.3: "非常相似"
+        case 0.3 ..< 0.8: "相似"
+        case 0.8 ..< 1.5: "有些相似"
+        default: "不同"
         }
     }
 
     private func getRatingEnglish(distance: Float) -> String {
         switch distance {
-        case ..<0.3: return "very_similar"
-        case 0.3..<0.8: return "similar"
-        case 0.8..<1.5: return "somewhat_similar"
-        default: return "different"
+        case ..<0.3: "very_similar"
+        case 0.3 ..< 0.8: "similar"
+        case 0.8 ..< 1.5: "somewhat_similar"
+        default: "different"
         }
     }
 

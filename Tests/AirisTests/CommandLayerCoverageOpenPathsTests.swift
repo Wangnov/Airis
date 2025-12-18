@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 覆盖各命令的 --open / 成功路径，借助 openForCLI 在测试模式跳过实际打开。
@@ -18,6 +18,7 @@ final class CommandLayerCoverageOpenPathsTests: XCTestCase {
     }
 
     // MARK: Adjust / Temperature / Rotate / Invert
+
     func testTemperatureCommandOpenPath() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
@@ -40,6 +41,7 @@ final class CommandLayerCoverageOpenPathsTests: XCTestCase {
     }
 
     // MARK: Filters success + open
+
     func testFilterChromeOpen() async throws {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
@@ -111,6 +113,7 @@ final class CommandLayerCoverageOpenPathsTests: XCTestCase {
     }
 
     // MARK: 基础编辑
+
     func testCutCommandOpen() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
@@ -154,6 +157,7 @@ final class CommandLayerCoverageOpenPathsTests: XCTestCase {
     }
 
     // MARK: Vision 输出保存 + openForCLI（仅跳过实际打开）
+
     func testAlignCommandOutputOpen() async throws {
         let img1 = CommandTestHarness.fixture("medium_512x512.jpg").path
         let img2 = CommandTestHarness.fixture("rectangle_512x512.png").path
@@ -178,6 +182,7 @@ final class CommandLayerCoverageOpenPathsTests: XCTestCase {
     }
 
     // MARK: Gen Config 补充
+
     func testGenConfigShowAllOpen() async throws {
         let out = CommandTestHarness.temporaryFile(ext: "txt")
         _ = out // 保持输出变量使用，避免未使用警告

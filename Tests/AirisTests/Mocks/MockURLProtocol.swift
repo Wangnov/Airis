@@ -5,13 +5,12 @@ import XCTest
 /// Mock URLProtocol 用于测试网络请求
 /// 支持 mock 各种 HTTP 响应和网络错误
 class MockURLProtocol: URLProtocol {
-
     /// Mock 响应配置
     struct MockResponse {
         let data: Data
         let statusCode: Int
         let headers: [String: String]
-        let shouldReturnInvalidResponse: Bool  // 用于测试 invalidResponse
+        let shouldReturnInvalidResponse: Bool // 用于测试 invalidResponse
 
         init(data: Data = Data(), statusCode: Int = 200, headers: [String: String] = [:], shouldReturnInvalidResponse: Bool = false) {
             self.data = data
@@ -91,13 +90,13 @@ class MockURLProtocol: URLProtocol {
             Self.sequenceIndices[url] = index + 1
 
             switch sequence[index] {
-            case .success(let mockResponse):
+            case let .success(mockResponse):
                 if mockResponse.shouldReturnInvalidResponse {
                     handleInvalidResponse()
                 } else {
                     handleSuccess(mockResponse: mockResponse)
                 }
-            case .failure(let error):
+            case let .failure(error):
                 client?.urlProtocol(self, didFailWithError: error)
             }
             client?.urlProtocolDidFinishLoading(self)

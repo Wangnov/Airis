@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第二十一批覆盖冲刺：Cut 渲染 nil 分支、Persons 默认质量分支。
@@ -21,7 +21,7 @@ final class CommandLayerCoverageSprint21Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try await CutCommand.parse([input, "-o", out.path]).run()
+            try CutCommand.parse([input, "-o", out.path]).run()
         )
 
         unsetenv("AIRIS_FORCE_CUT_RENDER_NIL")
@@ -56,5 +56,5 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }

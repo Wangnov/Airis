@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ColorCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,52 +11,52 @@ struct ColorCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Fine-tune image colors with precise control using CIColorControls filter.
+            Fine-tune image colors with precise control using CIColorControls filter.
 
-                PARAMETERS:
-                  Brightness: -1.0 to 1.0 (0 = unchanged)
-                  Contrast:   0.0 to 4.0 (1.0 = unchanged)
-                  Saturation: 0.0 to 2.0 (1.0 = unchanged, 0 = grayscale)
+            PARAMETERS:
+              Brightness: -1.0 to 1.0 (0 = unchanged)
+              Contrast:   0.0 to 4.0 (1.0 = unchanged)
+              Saturation: 0.0 to 2.0 (1.0 = unchanged, 0 = grayscale)
 
-                QUICK START:
-                  airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
+            QUICK START:
+              airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
 
-                EXAMPLES:
-                  # Increase brightness
-                  airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
+            EXAMPLES:
+              # Increase brightness
+              airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
 
-                  # Boost contrast and saturation
-                  airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
+              # Boost contrast and saturation
+              airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
 
-                  # Desaturate (grayscale effect)
-                  airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
+              # Desaturate (grayscale effect)
+              airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
 
-                  # All parameters at once
-                  airis edit adjust color dark.jpg \\
-                    --brightness 0.3 --contrast 1.2 --saturation 1.1 -o enhanced.jpg
+              # All parameters at once
+              airis edit adjust color dark.jpg \\
+                --brightness 0.3 --contrast 1.2 --saturation 1.1 -o enhanced.jpg
 
-                  # Lower contrast for flat look
-                  airis edit adjust color photo.jpg --contrast 0.7 -o flat.jpg
+              # Lower contrast for flat look
+              airis edit adjust color photo.jpg --contrast 0.7 -o flat.jpg
 
-                OUTPUT:
-                  Supports PNG, JPEG, HEIC, TIFF output formats.
-                  Format is determined by output file extension.
-                """,
+            OUTPUT:
+              Supports PNG, JPEG, HEIC, TIFF output formats.
+              Format is determined by output file extension.
+            """,
             cn: """
-                使用 CIColorControls 调整亮度/对比度/饱和度。
+            使用 CIColorControls 调整亮度/对比度/饱和度。
 
-                参数范围：
-                  brightness: -1.0 ~ 1.0（默认：0）
-                  contrast:   0.0 ~ 4.0（默认：1.0）
-                  saturation: 0.0 ~ 2.0（默认：1.0）
+            参数范围：
+              brightness: -1.0 ~ 1.0（默认：0）
+              contrast:   0.0 ~ 4.0（默认：1.0）
+              saturation: 0.0 ~ 2.0（默认：1.0）
 
-                QUICK START:
-                  airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
+            QUICK START:
+              airis edit adjust color photo.jpg --brightness 0.2 -o bright.jpg
 
-                EXAMPLES:
-                  airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
-                  airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
-                """
+            EXAMPLES:
+              airis edit adjust color photo.jpg --contrast 1.3 --saturation 1.2 -o vivid.jpg
+              airis edit adjust color photo.jpg --saturation 0 -o bw.jpg
+            """
         )
     )
 
@@ -86,13 +86,13 @@ struct ColorCommand: AsyncParsableCommand {
 
     func run() async throws {
         // 参数验证
-        guard brightness >= -1.0 && brightness <= 1.0 else {
+        guard brightness >= -1.0, brightness <= 1.0 else {
             throw AirisError.invalidPath("Brightness must be -1.0 to 1.0, got: \(brightness)")
         }
-        guard contrast >= 0 && contrast <= 4.0 else {
+        guard contrast >= 0, contrast <= 4.0 else {
             throw AirisError.invalidPath("Contrast must be 0.0 to 4.0, got: \(contrast)")
         }
-        guard saturation >= 0 && saturation <= 2.0 else {
+        guard saturation >= 0, saturation <= 2.0 else {
             throw AirisError.invalidPath("Saturation must be 0.0 to 2.0, got: \(saturation)")
         }
 
@@ -101,7 +101,7 @@ struct ColorCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

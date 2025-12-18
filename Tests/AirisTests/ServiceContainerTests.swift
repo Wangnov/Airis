@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class ServiceContainerTests: XCTestCase {
-
     // MARK: - Singleton Tests
 
     func testSharedInstance() throws {

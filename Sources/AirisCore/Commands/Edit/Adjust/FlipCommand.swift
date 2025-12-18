@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct FlipCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,47 +11,47 @@ struct FlipCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Flip (mirror) the image horizontally and/or vertically.
+            Flip (mirror) the image horizontally and/or vertically.
 
-                OPTIONS:
-                  --horizontal, -h   Flip horizontally (left-right mirror)
-                  --vertical, -v     Flip vertically (top-bottom mirror)
+            OPTIONS:
+              --horizontal, -h   Flip horizontally (left-right mirror)
+              --vertical, -v     Flip vertically (top-bottom mirror)
 
-                At least one flip direction must be specified.
-                Both can be specified for 180-degree rotation effect.
+            At least one flip direction must be specified.
+            Both can be specified for 180-degree rotation effect.
 
-                QUICK START:
-                  airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
+            QUICK START:
+              airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
 
-                EXAMPLES:
-                  # Horizontal flip (mirror)
-                  airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
+            EXAMPLES:
+              # Horizontal flip (mirror)
+              airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
 
-                  # Vertical flip
-                  airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
+              # Vertical flip
+              airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
 
-                  # Both horizontal and vertical (180 degree rotation)
-                  airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
+              # Both horizontal and vertical (180 degree rotation)
+              airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
 
-                  # Short form
-                  airis edit adjust flip photo.jpg -h -o mirror.jpg
-                """,
+              # Short form
+              airis edit adjust flip photo.jpg -h -o mirror.jpg
+            """,
             cn: """
-                水平/垂直镜像翻转图片。
+            水平/垂直镜像翻转图片。
 
-                QUICK START:
-                  airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
+            QUICK START:
+              airis edit adjust flip photo.jpg --horizontal -o flipped.jpg
 
-                EXAMPLES:
-                  # 水平翻转（镜像）
-                  airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
+            EXAMPLES:
+              # 水平翻转（镜像）
+              airis edit adjust flip selfie.jpg --horizontal -o mirrored.jpg
 
-                  # 垂直翻转
-                  airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
+              # 垂直翻转
+              airis edit adjust flip photo.jpg --vertical -o flipped_v.jpg
 
-                  # 同时水平+垂直（等价 180°）
-                  airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
-                """
+              # 同时水平+垂直（等价 180°）
+              airis edit adjust flip image.png --horizontal --vertical -o rotated180.png
+            """
         )
     )
 
@@ -87,7 +87,7 @@ struct FlipCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -95,13 +95,12 @@ struct FlipCommand: AsyncParsableCommand {
         try FileUtils.ensureDirectory(for: outputURL.path)
 
         // 确定翻转类型描述
-        let flipType: String
-        if horizontal && vertical {
-            flipType = Strings.get("edit.adjust.flip.both")
+        let flipType: String = if horizontal, vertical {
+            Strings.get("edit.adjust.flip.both")
         } else if horizontal {
-            flipType = Strings.get("edit.adjust.flip.horizontal")
+            Strings.get("edit.adjust.flip.horizontal")
         } else {
-            flipType = Strings.get("edit.adjust.flip.vertical")
+            Strings.get("edit.adjust.flip.vertical")
         }
 
         // 显示处理信息

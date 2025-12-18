@@ -1,6 +1,6 @@
-import ImageIO
-import Foundation
 import CoreGraphics
+import Foundation
+import ImageIO
 import UniformTypeIdentifiers
 
 /// ImageIO 服务层（图像元数据和加载）
@@ -44,16 +44,16 @@ final class ImageIOService: Sendable {
         }
 
         var options: [CFString: Any] = [
-            kCGImageSourceShouldCache: false,       // 延迟解码，减少内存峰值
-            kCGImageSourceShouldAllowFloat: true    // 支持 HDR 浮点图像
+            kCGImageSourceShouldCache: false, // 延迟解码，减少内存峰值
+            kCGImageSourceShouldAllowFloat: true, // 支持 HDR 浮点图像
         ]
 
         if let maxDim = maxDimension {
             // 创建缩略图（性能优化）
-            options[kCGImageSourceCreateThumbnailFromImageIfAbsent] = true  // 优先使用嵌入式缩略图
-            options[kCGImageSourceCreateThumbnailFromImageAlways] = true    // 否则生成缩略图
+            options[kCGImageSourceCreateThumbnailFromImageIfAbsent] = true // 优先使用嵌入式缩略图
+            options[kCGImageSourceCreateThumbnailFromImageAlways] = true // 否则生成缩略图
             options[kCGImageSourceThumbnailMaxPixelSize] = maxDim
-            options[kCGImageSourceCreateThumbnailWithTransform] = true      // 应用 EXIF 旋转
+            options[kCGImageSourceCreateThumbnailWithTransform] = true // 应用 EXIF 旋转
         }
 
         guard let image = operations.createImage(from: source, at: 0, options: options as CFDictionary) else {
@@ -92,8 +92,9 @@ final class ImageIOService: Sendable {
         // 读取 EXIF 方向（有效值范围 1-8）
         var orientation: CGImagePropertyOrientation = .up
         if let orientationNum = properties[kCGImagePropertyOrientation] as? UInt32,
-           (1...8).contains(orientationNum),
-           let validOrientation = CGImagePropertyOrientation(rawValue: orientationNum) {
+           (1 ... 8).contains(orientationNum),
+           let validOrientation = CGImagePropertyOrientation(rawValue: orientationNum)
+        {
             orientation = validOrientation
         }
 
@@ -119,18 +120,17 @@ final class ImageIOService: Sendable {
         quality: Float = 1.0
     ) throws {
         AirisLog.debug("ImageIO save image: \(url.path) format=\(format) quality=\(quality)")
-        let utType: UTType
-        switch format.lowercased() {
+        let utType: UTType = switch format.lowercased() {
         case "jpg", "jpeg":
-            utType = .jpeg
+            .jpeg
         case "png":
-            utType = .png
+            .png
         case "heic":
-            utType = .heic
+            .heic
         case "tiff", "tif":
-            utType = .tiff
+            .tiff
         default:
-            utType = .png
+            .png
         }
 
         guard let destination = operations.createImageDestination(at: url, type: utType) else {
@@ -138,7 +138,7 @@ final class ImageIOService: Sendable {
         }
 
         let options: [CFString: Any] = [
-            kCGImageDestinationLossyCompressionQuality: quality
+            kCGImageDestinationLossyCompressionQuality: quality,
         ]
 
         operations.addImage(to: destination, image: cgImage, properties: options as CFDictionary)

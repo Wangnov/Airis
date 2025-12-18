@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class LocalesTests: XCTestCase {
-
     override func setUp() {
         super.setUp()
         // 重置为默认语言

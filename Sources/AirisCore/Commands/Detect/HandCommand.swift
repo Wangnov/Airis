@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct HandCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "hand",
-        abstract: HelpTextFactory.text(
-            en: "Detect hand pose (21 keypoints per hand)",
-            cn: "检测手部关键点（每只手 21 点）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "hand",
+            abstract: HelpTextFactory.text(
+                en: "Detect hand pose (21 keypoints per hand)",
+                cn: "检测手部关键点（每只手 21 点）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect hand poses in images using Apple's Vision framework.
                 Returns 21 keypoints per hand with normalized coordinates.
 
@@ -83,7 +83,7 @@ struct HandCommand: AsyncParsableCommand {
                   --pixels            Show pixel coordinates instead of normalized
                   --format <fmt>      Output format: table (default), json
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架检测图片中的手部关键点（每只手 21 个点）。
                 默认输出归一化坐标（0.0-1.0），可用 --pixels 输出像素坐标。
 
@@ -112,8 +112,8 @@ struct HandCommand: AsyncParsableCommand {
                   --pixels            输出像素坐标（默认输出归一化）
                   --format <fmt>      输出格式：table（默认）或 json
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -140,8 +140,8 @@ struct HandCommand: AsyncParsableCommand {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
             // 获取图像尺寸（用于像素坐标转换）
-            var imageWidth: Int = 0
-            var imageHeight: Int = 0
+            var imageWidth = 0
+            var imageHeight = 0
             if pixels {
                 let imageIO = ServiceContainer.shared.imageIOService
                 if let info = try? imageIO.getImageInfo(at: url) {
@@ -186,61 +186,61 @@ struct HandCommand: AsyncParsableCommand {
     // 所有手部关键点名称（计算属性避免 Decodable 问题）
     private var allJointNames: [VNHumanHandPoseObservation.JointName] {
         [
-        .wrist,
-        .thumbCMC, .thumbMP, .thumbIP, .thumbTip,
-        .indexMCP, .indexPIP, .indexDIP, .indexTip,
-        .middleMCP, .middlePIP, .middleDIP, .middleTip,
-        .ringMCP, .ringPIP, .ringDIP, .ringTip,
-        .littleMCP, .littlePIP, .littleDIP, .littleTip
+            .wrist,
+            .thumbCMC, .thumbMP, .thumbIP, .thumbTip,
+            .indexMCP, .indexPIP, .indexDIP, .indexTip,
+            .middleMCP, .middlePIP, .middleDIP, .middleTip,
+            .ringMCP, .ringPIP, .ringDIP, .ringTip,
+            .littleMCP, .littlePIP, .littleDIP, .littleTip,
         ]
     }
 
     private func jointNameString(_ name: VNHumanHandPoseObservation.JointName) -> String {
         switch name {
-        case .wrist: return "wrist"
-        case .thumbCMC: return "thumbCMC"
-        case .thumbMP: return "thumbMP"
-        case .thumbIP: return "thumbIP"
-        case .thumbTip: return "thumbTip"
-        case .indexMCP: return "indexMCP"
-        case .indexPIP: return "indexPIP"
-        case .indexDIP: return "indexDIP"
-        case .indexTip: return "indexTip"
-        case .middleMCP: return "middleMCP"
-        case .middlePIP: return "middlePIP"
-        case .middleDIP: return "middleDIP"
-        case .middleTip: return "middleTip"
-        case .ringMCP: return "ringMCP"
-        case .ringPIP: return "ringPIP"
-        case .ringDIP: return "ringDIP"
-        case .ringTip: return "ringTip"
-        case .littleMCP: return "littleMCP"
-        case .littlePIP: return "littlePIP"
-        case .littleDIP: return "littleDIP"
-        case .littleTip: return "littleTip"
-        default: return "unknown"
+        case .wrist: "wrist"
+        case .thumbCMC: "thumbCMC"
+        case .thumbMP: "thumbMP"
+        case .thumbIP: "thumbIP"
+        case .thumbTip: "thumbTip"
+        case .indexMCP: "indexMCP"
+        case .indexPIP: "indexPIP"
+        case .indexDIP: "indexDIP"
+        case .indexTip: "indexTip"
+        case .middleMCP: "middleMCP"
+        case .middlePIP: "middlePIP"
+        case .middleDIP: "middleDIP"
+        case .middleTip: "middleTip"
+        case .ringMCP: "ringMCP"
+        case .ringPIP: "ringPIP"
+        case .ringDIP: "ringDIP"
+        case .ringTip: "ringTip"
+        case .littleMCP: "littleMCP"
+        case .littlePIP: "littlePIP"
+        case .littleDIP: "littleDIP"
+        case .littleTip: "littleTip"
+        default: "unknown"
         }
     }
 
     private func chiralityString(_ chirality: VNChirality) -> String {
         switch chirality {
-        case .left: return "Left Hand"
-        case .right: return "Right Hand"
-        default: return "Unknown Hand"
+        case .left: "Left Hand"
+        case .right: "Right Hand"
+        default: "Unknown Hand"
         }
     }
 
     #if DEBUG
-    /// 测试辅助：覆盖默认分支
-    static func testJointNameString(_ raw: String) -> String {
-        let key = VNRecognizedPointKey(rawValue: raw)
-        let name = VNHumanHandPoseObservation.JointName(rawValue: key)
-        return HandCommand().jointNameString(name)
-    }
+        /// 测试辅助：覆盖默认分支
+        static func testJointNameString(_ raw: String) -> String {
+            let key = VNRecognizedPointKey(rawValue: raw)
+            let name = VNHumanHandPoseObservation.JointName(rawValue: key)
+            return HandCommand().jointNameString(name)
+        }
 
-    static func testChiralityString(_ value: VNChirality) -> String {
-        HandCommand().chiralityString(value)
-    }
+        static func testChiralityString(_ value: VNChirality) -> String {
+            HandCommand().chiralityString(value)
+        }
     #endif
 
     private func printTable(results: [VNHumanHandPoseObservation], imageWidth: Int, imageHeight: Int) {
@@ -253,14 +253,15 @@ struct HandCommand: AsyncParsableCommand {
 
             for jointName in allJointNames {
                 guard let point = try? observation.recognizedPoint(jointName),
-                      point.confidence >= threshold else {
+                      point.confidence >= threshold
+                else {
                     continue
                 }
 
                 let name = jointNameString(jointName)
                 let paddedName = name.padding(toLength: 12, withPad: " ", startingAt: 0)
 
-                if pixels && imageWidth > 0 {
+                if pixels, imageWidth > 0 {
                     let px = Int(point.location.x * CGFloat(imageWidth))
                     let py = Int(point.location.y * CGFloat(imageHeight))
                     print("      \(paddedName): (\(px), \(py)) px - conf: \(String(format: "%.2f", point.confidence))")
@@ -277,22 +278,24 @@ struct HandCommand: AsyncParsableCommand {
     }
 
     private func printJSON(results: [VNHumanHandPoseObservation], file: String,
-                           imageWidth: Int, imageHeight: Int) {
+                           imageWidth: Int, imageHeight: Int)
+    {
         let items = results.map { observation -> [String: Any] in
             var keypoints: [[String: Any]] = []
 
             for jointName in allJointNames {
                 guard let point = try? observation.recognizedPoint(jointName),
-                      point.confidence >= threshold else {
+                      point.confidence >= threshold
+                else {
                     continue
                 }
 
                 var keypointDict: [String: Any] = [
                     "name": jointNameString(jointName),
-                    "confidence": Double(point.confidence)
+                    "confidence": Double(point.confidence),
                 ]
 
-                if pixels && imageWidth > 0 {
+                if pixels, imageWidth > 0 {
                     keypointDict["x"] = Int(point.location.x * CGFloat(imageWidth))
                     keypointDict["y"] = Int(point.location.y * CGFloat(imageHeight))
                     keypointDict["coordinate_type"] = "pixels"
@@ -312,7 +315,7 @@ struct HandCommand: AsyncParsableCommand {
             return [
                 "chirality": chiralityValue,
                 "keypoint_count": keypoints.count,
-                "keypoints": keypoints
+                "keypoints": keypoints,
             ]
         }
 
@@ -321,16 +324,17 @@ struct HandCommand: AsyncParsableCommand {
             "count": results.count,
             "threshold": Double(threshold),
             "max_hands": maxHands,
-            "hands": items
+            "hands": items,
         ]
 
-        if pixels && imageWidth > 0 {
+        if pixels, imageWidth > 0 {
             dict["image_width"] = imageWidth
             dict["image_height"] = imageHeight
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

@@ -3,13 +3,13 @@ import ArgumentParser
 struct FilterCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "filter",
-        abstract: HelpTextFactory.text(
-            en: "Apply artistic filters and effects",
-            cn: "应用滤镜与艺术效果"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "filter",
+            abstract: HelpTextFactory.text(
+                en: "Apply artistic filters and effects",
+                cn: "应用滤镜与艺术效果"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Apply various artistic filters powered by CoreImage.
 
                 QUICK START:
@@ -35,7 +35,7 @@ struct FilterCommand: AsyncParsableCommand {
 
                 All filters are optimized for GPU acceleration.
                 """,
-            cn: """
+                cn: """
                 使用 Core Image 应用滤镜与艺术效果（GPU 加速）。
 
                 QUICK START:
@@ -46,23 +46,23 @@ struct FilterCommand: AsyncParsableCommand {
                   comic / halftone
                   sepia / mono / chrome / noir / instant
                 """
-        ),
-        subcommands: [
-            // 基础滤镜
-            BlurCommand.self,
-            SharpenCommand.self,
-            PixelCommand.self,
-            NoiseCommand.self,
-            // 艺术效果
-            ComicCommand.self,
-            HalftoneCommand.self,
-            // 照片效果
-            SepiaCommand.self,
-            MonoCommand.self,
-            ChromeCommand.self,
-            NoirCommand.self,
-            InstantCommand.self,
-        ]
-    )
+            ),
+            subcommands: [
+                // 基础滤镜
+                BlurCommand.self,
+                SharpenCommand.self,
+                PixelCommand.self,
+                NoiseCommand.self,
+                // 艺术效果
+                ComicCommand.self,
+                HalftoneCommand.self,
+                // 照片效果
+                SepiaCommand.self,
+                MonoCommand.self,
+                ChromeCommand.self,
+                NoirCommand.self,
+                InstantCommand.self,
+            ]
+        )
     }
 }

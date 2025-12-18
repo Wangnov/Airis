@@ -1,7 +1,7 @@
 import Foundation
 import Security
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Mock Keychain 操作 - 用于测试错误路径
@@ -30,25 +30,25 @@ final class MockKeychainOperations: KeychainOperations {
         self.deleteErrorCode = deleteErrorCode
     }
 
-    func itemUpdate(query: CFDictionary, attributesToUpdate: CFDictionary) -> OSStatus {
+    func itemUpdate(query _: CFDictionary, attributesToUpdate _: CFDictionary) -> OSStatus {
         if shouldFailUpdate {
-            return errSecIO  // 模拟更新失败
+            return errSecIO // 模拟更新失败
         }
-        return errSecItemNotFound  // 默认返回不存在（触发 add 路径）
+        return errSecItemNotFound // 默认返回不存在（触发 add 路径）
     }
 
-    func itemAdd(attributes: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
+    func itemAdd(attributes _: CFDictionary, result _: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
         if shouldFailAdd {
             return addErrorCode
         }
         return errSecSuccess
     }
 
-    func itemCopyMatching(query: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
+    func itemCopyMatching(query _: CFDictionary, result _: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
         errSecItemNotFound
     }
 
-    func itemDelete(query: CFDictionary) -> OSStatus {
+    func itemDelete(query _: CFDictionary) -> OSStatus {
         if shouldFailDelete {
             return deleteErrorCode
         }
@@ -57,7 +57,7 @@ final class MockKeychainOperations: KeychainOperations {
 
     func stringToData(_ string: String) -> Data? {
         if shouldFailStringToData {
-            return nil  // 模拟编码失败
+            return nil // 模拟编码失败
         }
         return string.data(using: .utf8)
     }

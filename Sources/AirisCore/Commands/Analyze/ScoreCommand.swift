@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct ScoreCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "score",
-        abstract: HelpTextFactory.text(
-            en: "Calculate image aesthetic score",
-            cn: "计算图片美学评分"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "score",
+            abstract: HelpTextFactory.text(
+                en: "Calculate image aesthetic score",
+                cn: "计算图片美学评分"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Analyze image aesthetic quality using Apple's Vision framework.
                 Returns an overall score and utility classification.
 
@@ -64,7 +64,7 @@ struct ScoreCommand: AsyncParsableCommand {
                   - All processing is done locally on device
                   - Score range: -1.0 (worst) to 1.0 (best)
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 的美学评分能力给图片打分，并标注是否为“实用性图像”。
 
                 QUICK START:
@@ -96,8 +96,8 @@ struct ScoreCommand: AsyncParsableCommand {
                   - 全部本地执行（不上传图片）
                   - 分数范围：-1.0（最低）到 1.0（最高）
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -133,24 +133,24 @@ struct ScoreCommand: AsyncParsableCommand {
             )
         } else {
             #if DEBUG
-            // 测试/调试构建直接走降级提示，避免在较低系统调用不可用 API
-            if outputFormat == .json {
-                printUnsupportedJSON()
-            } else if showHumanOutput {
-                printUnsupportedHint()
-            }
-            return
-            #else
-            if #available(macOS 15.0, *) {
-                result = try await calculateAestheticsScore(url: url)
-            } else {
+                // 测试/调试构建直接走降级提示，避免在较低系统调用不可用 API
                 if outputFormat == .json {
                     printUnsupportedJSON()
                 } else if showHumanOutput {
                     printUnsupportedHint()
                 }
                 return
-            }
+            #else
+                if #available(macOS 15.0, *) {
+                    result = try await calculateAestheticsScore(url: url)
+                } else {
+                    if outputFormat == .json {
+                        printUnsupportedJSON()
+                    } else if showHumanOutput {
+                        printUnsupportedHint()
+                    }
+                    return
+                }
             #endif
         }
 
@@ -162,16 +162,16 @@ struct ScoreCommand: AsyncParsableCommand {
     }
 
     #if !DEBUG
-    @available(macOS 15.0, *)
-    private func calculateAestheticsScore(url: URL) async throws -> AestheticsResult {
-        let request = CalculateImageAestheticsScoresRequest()
-        let observation = try await request.perform(on: url)
+        @available(macOS 15.0, *)
+        private func calculateAestheticsScore(url: URL) async throws -> AestheticsResult {
+            let request = CalculateImageAestheticsScoresRequest()
+            let observation = try await request.perform(on: url)
 
-        return AestheticsResult(
-            overallScore: observation.overallScore,
-            isUtility: observation.isUtility
-        )
-    }
+            return AestheticsResult(
+                overallScore: observation.overallScore,
+                isUtility: observation.isUtility
+            )
+        }
     #endif
 
     private func printTable(result: AestheticsResult) {
@@ -193,30 +193,31 @@ struct ScoreCommand: AsyncParsableCommand {
         let dict: [String: Any] = [
             "overall_score": result.overallScore,
             "is_utility": result.isUtility,
-            "rating": getRatingEnglish(score: result.overallScore)
+            "rating": getRatingEnglish(score: result.overallScore),
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
 
     private func getRating(score: Float) -> String {
         switch score {
-        case 0.5...: return "优秀"
-        case 0.0..<0.5: return "良好"
-        case -0.5..<0.0: return "一般"
-        default: return "较差"
+        case 0.5...: "优秀"
+        case 0.0 ..< 0.5: "良好"
+        case -0.5 ..< 0.0: "一般"
+        default: "较差"
         }
     }
 
     private func getRatingEnglish(score: Float) -> String {
         switch score {
-        case 0.5...: return "excellent"
-        case 0.0..<0.5: return "good"
-        case -0.5..<0.0: return "fair"
-        default: return "poor"
+        case 0.5...: "excellent"
+        case 0.0 ..< 0.5: "good"
+        case -0.5 ..< 0.0: "fair"
+        default: "poor"
         }
     }
 
@@ -229,10 +230,11 @@ struct ScoreCommand: AsyncParsableCommand {
         let dict: [String: Any] = [
             "supported": false,
             "required_macos": "15.0",
-            "error": "unsupported_os_version"
+            "error": "unsupported_os_version",
         ]
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

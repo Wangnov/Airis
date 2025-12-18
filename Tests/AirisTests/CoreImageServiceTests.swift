@@ -1,7 +1,7 @@
-import XCTest
 import CoreImage
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class CoreImageServiceTests: XCTestCase {
@@ -50,7 +50,7 @@ final class CoreImageServiceTests: XCTestCase {
     func testMetalAccelerationAvailable() throws {
         // Metal 在 macOS 上应该可用
         #if os(macOS)
-        XCTAssertTrue(service.isUsingMetalAcceleration)
+            XCTAssertTrue(service.isUsingMetalAcceleration)
         #endif
     }
 
@@ -62,14 +62,14 @@ final class CoreImageServiceTests: XCTestCase {
         XCTAssertNotNil(resized)
         // Lanczos 缩放可能有微小误差，允许 1 像素误差
         XCTAssertEqual(resized.extent.width, 50, accuracy: 1)
-        XCTAssertEqual(resized.extent.height, 50, accuracy: 1)  // 保持宽高比
+        XCTAssertEqual(resized.extent.height, 50, accuracy: 1) // 保持宽高比
     }
 
     func testResizeImageByHeight() throws {
         let resized = service.resize(ciImage: testCIImage, height: 25)
 
         XCTAssertNotNil(resized)
-        XCTAssertEqual(resized.extent.width, 25, accuracy: 1)  // 保持宽高比
+        XCTAssertEqual(resized.extent.width, 25, accuracy: 1) // 保持宽高比
         XCTAssertEqual(resized.extent.height, 25, accuracy: 1)
     }
 
@@ -311,7 +311,7 @@ final class CoreImageServiceTests: XCTestCase {
         let ciRect = CoreImageService.convertVisionToCI(rect: visionRect, imageHeight: imageHeight)
 
         XCTAssertEqual(ciRect.origin.x, 0.1)
-        XCTAssertEqual(ciRect.origin.y, 100 - 0.2 - 0.3)  // 应该是 50
+        XCTAssertEqual(ciRect.origin.y, 100 - 0.2 - 0.3) // 应该是 50
         XCTAssertEqual(ciRect.width, 0.5)
         XCTAssertEqual(ciRect.height, 0.3)
     }
@@ -323,7 +323,7 @@ final class CoreImageServiceTests: XCTestCase {
         let visionRect = CoreImageService.convertCIToVision(rect: ciRect, imageHeight: imageHeight)
 
         XCTAssertEqual(visionRect.origin.x, 10)
-        XCTAssertEqual(visionRect.origin.y, 100 - 50 - 20)  // 应该是 30
+        XCTAssertEqual(visionRect.origin.y, 100 - 50 - 20) // 应该是 30
         XCTAssertEqual(visionRect.width, 30)
         XCTAssertEqual(visionRect.height, 20)
     }
@@ -346,9 +346,9 @@ final class CoreImageServiceTests: XCTestCase {
         // 极端值应该被裁剪到有效范围
         let adjusted = service.adjustColors(
             ciImage: testCIImage,
-            brightness: 10,  // 超出范围
-            contrast: -1,    // 超出范围
-            saturation: 100  // 超出范围
+            brightness: 10, // 超出范围
+            contrast: -1, // 超出范围
+            saturation: 100 // 超出范围
         )
         XCTAssertNotNil(adjusted)
     }
@@ -374,7 +374,7 @@ final class CoreImageServiceTests: XCTestCase {
 
         // 调用 createContext 的 else 分支（device 为 nil）
         let context = ops.createContext(with: nil, options: [
-            .useSoftwareRenderer: true
+            .useSoftwareRenderer: true,
         ])
 
         XCTAssertNotNil(context)
@@ -483,7 +483,7 @@ final class CoreImageServiceTests: XCTestCase {
         let svc = CoreImageService(
             operations: DefaultCoreImageOperations(),
             filterFactory: factory,
-            rendererOverride: { _ in nil }  // 强制渲染失败
+            rendererOverride: { _ in nil } // 强制渲染失败
         )
         let input = TestResources.image("assets/medium_512x512.jpg")
         let output = FileManager.default.temporaryDirectory
@@ -498,7 +498,8 @@ final class CoreImageServiceTests: XCTestCase {
             ) { _ in CIImage(color: .black).cropped(to: .zero) }
         ) { error in
             guard let airisError = error as? AirisError,
-                  case .imageEncodeFailed = airisError else {
+                  case .imageEncodeFailed = airisError
+            else {
                 XCTFail("Expected AirisError.imageEncodeFailed, got \(error)")
                 return
             }
@@ -529,7 +530,7 @@ final class CoreImageServiceTests: XCTestCase {
         let svc = CoreImageService(
             operations: DefaultCoreImageOperations(),
             filterFactory: factory,
-            rendererOverride: { _ in nil }  // 强制渲染失败
+            rendererOverride: { _ in nil } // 强制渲染失败
         )
         let input = TestResources.image("assets/medium_512x512.jpg")
         let output = FileManager.default.temporaryDirectory
@@ -545,7 +546,8 @@ final class CoreImageServiceTests: XCTestCase {
             )
         ) { error in
             guard let airisError = error as? AirisError,
-                  case .imageEncodeFailed = airisError else {
+                  case .imageEncodeFailed = airisError
+            else {
                 XCTFail("Expected AirisError.imageEncodeFailed, got \(error)")
                 return
             }
@@ -556,7 +558,7 @@ final class CoreImageServiceTests: XCTestCase {
         let factory = MockCoreImageFilterFactory()
         let svc = makeService(factory: factory, outputOverride: { _, _ in
             // 强制覆盖为 nil，走回退分支
-            return nil
+            nil
         })
 
         let result = svc.sepiaTone(ciImage: testCIImage)

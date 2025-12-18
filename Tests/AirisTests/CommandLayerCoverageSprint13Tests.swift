@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第十三批补测：覆盖剩余错误/分支（Cut/Defringe/Trace/Blur/Format/Straighten）。
@@ -18,10 +18,11 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
     }
 
     // MARK: Cut
+
     func testCutCommandOutputMustBePNGThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try await CutCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpg").path]).run()
+            try CutCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpg").path]).run()
         )
     }
 
@@ -31,24 +32,26 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await CutCommand.parse([input, "-o", out.path]).run()
+            try CutCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
 
     // MARK: Defringe
+
     func testDefringeAmountInvalidThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try await DefringeCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--amount", "1.5"]).run()
+            try DefringeCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--amount", "1.5"]).run()
         )
     }
 
     // MARK: Trace / Blur
+
     func testTraceInvalidStyleThrows() async {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         await XCTAssertThrowsErrorAsync(
-            try await TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "invalid"]).run()
+            try TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "invalid"]).run()
         )
     }
 
@@ -58,12 +61,13 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try await BlurCommand.parse([input, "-o", out.path]).run()
+            try BlurCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
 
     // MARK: Format 压缩/膨胀比
+
     func testFormatCompressionSmallerRatioBranch() async throws {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
@@ -79,6 +83,7 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
     }
 
     // MARK: Straighten 手动角度分支
+
     func testStraightenManualAngleBranch() async throws {
         let input = CommandTestHarness.fixture("horizon_clear_512x512.jpg").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
@@ -89,8 +94,8 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
 
 // MARK: - Helpers
 
-private func XCTAssertThrowsErrorAsync<T>(
-    _ expression: @autoclosure @escaping () async throws -> T,
+private func XCTAssertThrowsErrorAsync(
+    _ expression: @autoclosure @escaping () async throws -> some Any,
     _ message: String = "",
     file: StaticString = #filePath,
     line: UInt = #line
@@ -98,5 +103,5 @@ private func XCTAssertThrowsErrorAsync<T>(
     do {
         _ = try await expression()
         XCTFail(message, file: file, line: line)
-    } catch { }
+    } catch {}
 }

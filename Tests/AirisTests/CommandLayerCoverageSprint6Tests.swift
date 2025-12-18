@@ -1,7 +1,7 @@
-import XCTest
 @preconcurrency import Vision
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第六批覆盖补齐：专门命中默认/错误分支，推进 100%。
@@ -21,6 +21,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
     }
 
     // MARK: Analyze
+
     func testInfoDescribeOrientationUnknown() {
         let result = InfoCommand.testDescribeOrientation(CGImagePropertyOrientation(rawValue: 999) ?? .up)
         XCTAssertEqual(result, "未知")
@@ -50,7 +51,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
         setenv("AIRIS_FORCE_META_DEST_FAIL", "1", 1)
         await XCTAssertThrowsErrorAsync(
-            try await MetaCommand.parse([input, "--set-comment", "x", "-o", out.path]).run()
+            try MetaCommand.parse([input, "--set-comment", "x", "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -60,12 +61,13 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
         setenv("AIRIS_FORCE_META_FINALIZE_FAIL", "1", 1)
         await XCTAssertThrowsErrorAsync(
-            try await MetaCommand.parse([input, "--set-comment", "y", "-o", out.path]).run()
+            try MetaCommand.parse([input, "--set-comment", "y", "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
 
     // MARK: Detect
+
     func testBarcodeFormatSymbologyDefaultBranch() {
         setenv("AIRIS_FORCE_BARCODE_UNKNOWN", "1", 1)
         let custom = VNBarcodeSymbology(rawValue: "custom_unknown")
@@ -89,17 +91,19 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
     }
 
     // MARK: Edit
+
     func testTemperatureOutputExistsBranch() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try await TemperatureCommand.parse([input, "-o", out.path, "--temp", "100"]).run()
+            try TemperatureCommand.parse([input, "-o", out.path, "--temp", "100"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
 
     // MARK: Gen Config
+
     func testSetKeyInteractiveBranchWithEnvInput() async throws {
         setenv("AIRIS_TEST_KEY_INPUT", "ENV_KEY_VALUE", 1)
         try await SetKeyCommand.parse(["--provider", "interactive-env"]).run()
@@ -115,12 +119,13 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
         try await SetConfigCommand.parse([
             "--provider", "printable",
             "--base-url", "https://example.com",
-            "--model", "m1"
+            "--model", "m1",
         ]).run()
         try await ShowConfigCommand.parse(["--provider", "printable"]).run()
     }
 
     // MARK: Detect PetPose helper
+
     func testPetPoseJointNameUnknown() {
         let joint = PetPoseCommand.testJointNameString("custom_pet_joint")
         XCTAssertEqual(joint, "unknown")
@@ -137,5 +142,5 @@ private func XCTAssertThrowsErrorAsync(
     do {
         try await expression()
         XCTFail("预期抛出错误", file: file, line: line)
-    } catch { }
+    } catch {}
 }

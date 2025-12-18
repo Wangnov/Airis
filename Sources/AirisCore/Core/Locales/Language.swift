@@ -36,7 +36,7 @@ enum Language: String, ExpressibleByArgument, CaseIterable, Sendable {
 
     /// 按优先级解析语言设置: 参数 > 环境变量 > 系统语言
     static func resolve(explicit: Language?) -> Language {
-        if let explicit = explicit {
+        if let explicit {
             return explicit
         }
         if let fromEnv = fromEnvironment {

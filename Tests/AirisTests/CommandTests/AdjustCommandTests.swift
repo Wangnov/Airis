@@ -1,7 +1,7 @@
-import XCTest
 import CoreImage
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Task 8.1 Adjust Commands Tests

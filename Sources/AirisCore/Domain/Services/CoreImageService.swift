@@ -1,6 +1,6 @@
+import CoreGraphics
 import CoreImage
 import CoreImage.CIFilterBuiltins
-import CoreGraphics
 import Foundation
 import Metal
 
@@ -19,15 +19,14 @@ import Metal
 /// - 使用 Metal 硬件加速渲染
 /// - CIFilter 是可变对象，每次调用都会创建新实例
 final class CoreImageService: @unchecked Sendable {
-
     // MARK: - Factories
 
     /// 滤镜工厂（可注入，便于测试异常分支）
-    nonisolated(unsafe) private let filterFactory: any CoreImageFilterFactory
+    private nonisolated(unsafe) let filterFactory: any CoreImageFilterFactory
     /// 可选的渲染覆盖（测试注入，用于模拟渲染失败）
-    nonisolated(unsafe) private let rendererOverride: ((CIImage) -> CGImage?)?
+    private nonisolated(unsafe) let rendererOverride: ((CIImage) -> CGImage?)?
     /// 可选的滤镜输出覆盖（测试注入，用于强制返回特定输出或触发回退分支）
-    nonisolated(unsafe) private let outputOverride: ((CIFilter, CIImage) -> CIImage?)?
+    private nonisolated(unsafe) let outputOverride: ((CIFilter, CIImage) -> CIImage?)?
 
     // MARK: - Properties
 
@@ -38,7 +37,7 @@ final class CoreImageService: @unchecked Sendable {
     private let metalDevice: MTLDevice?
 
     /// 底层操作（用于依赖注入）
-    nonisolated(unsafe) private let operations: any CoreImageOperations
+    private nonisolated(unsafe) let operations: any CoreImageOperations
 
     // MARK: - Initialization
 
@@ -54,21 +53,21 @@ final class CoreImageService: @unchecked Sendable {
         self.outputOverride = outputOverride
 
         // 尝试获取 Metal 设备进行 GPU 加速
-        self.metalDevice = operations.getDefaultMetalDevice()
+        metalDevice = operations.getDefaultMetalDevice()
 
         if let device = metalDevice {
-            self.context = operations.createContext(with: device, options: [
+            context = operations.createContext(with: device, options: [
                 .workingColorSpace: CGColorSpaceCreateDeviceRGB(),
                 .cacheIntermediates: true,
                 .highQualityDownsample: true,
-                .name: "Airis.CoreImage" as NSString
+                .name: "Airis.CoreImage" as NSString,
             ])
         } else {
             // 回退到软件渲染（虚拟机或不支持 Metal 的情况）
-            self.context = operations.createContext(with: nil, options: [
+            context = operations.createContext(with: nil, options: [
                 .useSoftwareRenderer: true,
                 .workingColorSpace: CGColorSpaceCreateDeviceRGB(),
-                .name: "Airis.CoreImage.Software" as NSString
+                .name: "Airis.CoreImage.Software" as NSString,
             ])
         }
 
@@ -138,8 +137,8 @@ final class CoreImageService: @unchecked Sendable {
 
         let filter = CIFilter.lanczosScaleTransform()
         filter.inputImage = ciImage
-        filter.scale = Float(scaleY)  // Lanczos 使用 Y 轴缩放作为主缩放
-        filter.aspectRatio = Float(scaleX / scaleY)  // 宽高比调整
+        filter.scale = Float(scaleY) // Lanczos 使用 Y 轴缩放作为主缩放
+        filter.aspectRatio = Float(scaleX / scaleY) // 宽高比调整
 
         return output(from: filter, input: ciImage)
     }
@@ -362,7 +361,7 @@ final class CoreImageService: @unchecked Sendable {
     /// - Parameter ciImage: 输入图像
     /// - Returns: 灰度图像
     func grayscale(ciImage: CIImage) -> CIImage {
-        return adjustSaturation(ciImage: ciImage, saturation: 0)
+        adjustSaturation(ciImage: ciImage, saturation: 0)
     }
 
     /// 反色（负片效果）
@@ -716,10 +715,10 @@ final class CoreImageService: @unchecked Sendable {
     /// - Note: 在 macOS 上返回一个合理的默认值，iOS 上使用实际值
     func maxInputImageSize() -> CGSize {
         #if os(iOS) || os(tvOS) || os(visionOS)
-        return context.inputImageMaximumSize()
+            return context.inputImageMaximumSize()
         #else
-        // macOS 上该 API 不可用，返回合理默认值
-        return CGSize(width: 16384, height: 16384)
+            // macOS 上该 API 不可用，返回合理默认值
+            return CGSize(width: 16384, height: 16384)
         #endif
     }
 
@@ -727,10 +726,10 @@ final class CoreImageService: @unchecked Sendable {
     /// - Note: 在 macOS 上返回一个合理的默认值，iOS 上使用实际值
     func maxOutputImageSize() -> CGSize {
         #if os(iOS) || os(tvOS) || os(visionOS)
-        return context.outputImageMaximumSize()
+            return context.outputImageMaximumSize()
         #else
-        // macOS 上该 API 不可用，返回合理默认值
-        return CGSize(width: 16384, height: 16384)
+            // macOS 上该 API 不可用，返回合理默认值
+            return CGSize(width: 16384, height: 16384)
         #endif
     }
 
@@ -738,7 +737,6 @@ final class CoreImageService: @unchecked Sendable {
     func clearCaches() {
         context.clearCaches()
     }
-
 
     // MARK: - 从 Task 6.3 添加的方法
 
@@ -854,7 +852,7 @@ final class CoreImageService: @unchecked Sendable {
     }
 
     /// 自动增强图像
-    func autoEnhance(ciImage: CIImage, enableRedEye: Bool = true) -> CIImage {
+    func autoEnhance(ciImage: CIImage, enableRedEye _: Bool = true) -> CIImage {
         let filters = ciImage.autoAdjustmentFilters()
 
         var enhanced = ciImage
@@ -899,7 +897,7 @@ final class CoreImageService: @unchecked Sendable {
     /// 获取自动增强将应用的滤镜信息
     func getAutoEnhanceFilters(for ciImage: CIImage) -> [String] {
         let filters = ciImage.autoAdjustmentFilters()
-        return filters.map { $0.name }
+        return filters.map(\.name)
     }
 
     /// 检查是否使用 Metal 加速

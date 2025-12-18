@@ -1,7 +1,7 @@
-import XCTest
 import CoreImage
+import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// CoreImage 滤镜性能基准测试
@@ -14,7 +14,6 @@ final class CoreImagePerformanceTests: XCTestCase {
     var service: CoreImageService!
     var testCIImage: CIImage!
     var largeCIImage: CIImage!
-
 
     override func setUp() {
         super.setUp()
@@ -42,7 +41,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testGaussianBlurPerformance_StandardRadius() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTClockMetric()], options: options) {
             _ = service.gaussianBlur(ciImage: testCIImage, radius: 10)
         }
@@ -52,7 +51,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testGaussianBlurPerformance_LargeRadius() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             _ = service.gaussianBlur(ciImage: testCIImage, radius: 50)
         }
@@ -62,7 +61,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testMotionBlurPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.motionBlur(ciImage: testCIImage, radius: 20, angle: 45)
         }
@@ -72,7 +71,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testZoomBlurPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.zoomBlur(ciImage: testCIImage, amount: 20)
         }
@@ -84,7 +83,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testResizePerformance_4KTo1K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             _ = service.resize(ciImage: largeCIImage, width: 1024, height: 576)
         }
@@ -94,7 +93,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testResizePerformance_2KTo512() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.resize(ciImage: testCIImage, width: 512, height: 512)
         }
@@ -107,7 +106,7 @@ final class CoreImagePerformanceTests: XCTestCase {
 
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.resize(ciImage: smallImage, width: 1024, height: 1024)
         }
@@ -119,7 +118,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testRenderPerformance_2K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()], options: options) {
             _ = service.render(ciImage: testCIImage)
         }
@@ -129,7 +128,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testRenderPerformance_4K() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             _ = service.render(ciImage: largeCIImage)
         }
@@ -177,7 +176,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testColorAdjustmentPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.adjustColors(
                 ciImage: testCIImage,
@@ -192,7 +191,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testTemperatureAdjustmentPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.adjustTemperatureAndTint(
                 ciImage: testCIImage,
@@ -206,7 +205,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testExposureAdjustmentPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.adjustExposure(ciImage: testCIImage, ev: 1.0)
         }
@@ -218,7 +217,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testComicEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             _ = service.comicEffect(ciImage: testCIImage)
         }
@@ -228,7 +227,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testHalftoneEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.halftone(ciImage: testCIImage, width: 6)
         }
@@ -238,7 +237,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testPixellatePerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.pixellate(ciImage: testCIImage, scale: 10)
         }
@@ -250,7 +249,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testMonoEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.photoEffectMono(ciImage: testCIImage)
         }
@@ -260,7 +259,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testSepiaEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.sepiaTone(ciImage: testCIImage, intensity: 1.0)
         }
@@ -270,7 +269,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testNoirEffectPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.photoEffectNoir(ciImage: testCIImage)
         }
@@ -282,7 +281,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testRotationPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.rotateAroundCenter(ciImage: testCIImage, degrees: 45)
         }
@@ -292,7 +291,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testFlipPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.flip(ciImage: testCIImage, horizontal: true, vertical: true)
         }
@@ -302,7 +301,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testCropPerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric()], options: options) {
             _ = service.crop(ciImage: testCIImage, rect: CGRect(x: 100, y: 100, width: 1000, height: 1000))
         }
@@ -314,7 +313,7 @@ final class CoreImagePerformanceTests: XCTestCase {
     func testAutoEnhancePerformance() throws {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
-        
+
         measure(metrics: [XCTCPUMetric(), XCTMemoryMetric()], options: options) {
             _ = service.autoEnhance(ciImage: testCIImage, enableRedEye: false)
         }

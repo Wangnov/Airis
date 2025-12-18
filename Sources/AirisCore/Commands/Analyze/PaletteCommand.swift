@@ -1,19 +1,19 @@
+import AppKit
 import ArgumentParser
 import CoreImage
 import CoreImage.CIFilterBuiltins
 import Foundation
-import AppKit
 
 struct PaletteCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "palette",
-        abstract: HelpTextFactory.text(
-            en: "Extract color palette from images",
-            cn: "提取图片主色调调色板"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "palette",
+            abstract: HelpTextFactory.text(
+                en: "Extract color palette from images",
+                cn: "提取图片主色调调色板"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Extract dominant colors from an image using K-means clustering.
                 Returns a color palette with hex codes and RGB values.
 
@@ -66,7 +66,7 @@ struct PaletteCommand: AsyncParsableCommand {
                   - Count range: 1-16 (more colors = longer processing)
                   - All processing is done locally using CoreImage
                 """,
-            cn: """
+                cn: """
                 使用 K-means 聚类从图片中提取主色调，输出 hex 与 RGB 值。
 
                 QUICK START:
@@ -111,8 +111,8 @@ struct PaletteCommand: AsyncParsableCommand {
                   - count 范围：1-16（越大越慢）
                   - 全部本地计算（Core Image）
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -253,14 +253,14 @@ struct PaletteCommand: AsyncParsableCommand {
 
         // 解析颜色
         var colors: [ColorInfo] = []
-        for i in 0..<count {
+        for i in 0 ..< count {
             let offset = i * 4
             let r = Int(bitmap[offset])
             let g = Int(bitmap[offset + 1])
             let b = Int(bitmap[offset + 2])
 
             // 跳过无效颜色（全黑或全透明）
-            if r == 0 && g == 0 && b == 0 && i > 0 {
+            if r == 0, g == 0, b == 0, i > 0 {
                 continue
             }
 
@@ -300,7 +300,7 @@ struct PaletteCommand: AsyncParsableCommand {
     /// 生成 ANSI 颜色方块
     private func generateColorBlock(r: Int, g: Int, b: Int) -> String {
         // 使用 ANSI 24-bit 真彩色
-        return "\u{001B}[48;2;\(r);\(g);\(b)m    \u{001B}[0m"
+        "\u{001B}[48;2;\(r);\(g);\(b)m    \u{001B}[0m"
     }
 
     private func printJSON(result: PaletteResult) {
@@ -309,19 +309,20 @@ struct PaletteCommand: AsyncParsableCommand {
         if let avgColor = result.averageColor {
             dict["average_color"] = [
                 "hex": avgColor.hex,
-                "rgb": [avgColor.r, avgColor.g, avgColor.b]
+                "rgb": [avgColor.r, avgColor.g, avgColor.b],
             ]
         }
 
         dict["colors"] = result.colors.map { color in
             [
                 "hex": color.hex,
-                "rgb": [color.r, color.g, color.b]
+                "rgb": [color.r, color.g, color.b],
             ] as [String: Any]
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

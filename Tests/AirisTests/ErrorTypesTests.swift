@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class ErrorTypesTests: XCTestCase {
-
     override func setUp() {
         super.setUp()
         Language.current = .en

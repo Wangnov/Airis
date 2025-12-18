@@ -7,30 +7,28 @@ import Foundation
 enum TestResources {
     private static let bundle: Bundle = {
         #if SWIFT_PACKAGE
-        return Bundle.module
+            return Bundle.module
         #else
-        return Bundle(for: BundleToken.self)
+            return Bundle(for: BundleToken.self)
         #endif
     }()
 
-    private static let fallbackBase: URL = {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent() // Utils
-            .deletingLastPathComponent() // AirisTests
-            .appendingPathComponent("Resources")
-    }()
+    private static let fallbackBase: URL = .init(fileURLWithPath: #filePath)
+        .deletingLastPathComponent() // Utils
+        .deletingLastPathComponent() // AirisTests
+        .appendingPathComponent("Resources")
 
     /// 返回 Resources 根目录下的资源 URL（relativePath 形如 "images/assets/xxx.png"）。
     static func url(_ relativePath: String) -> URL {
         #if SWIFT_PACKAGE
-        if let base = bundle.resourceURL {
-            let candidate = base
-                .appendingPathComponent("Resources")
-                .appendingPathComponent(relativePath)
-            if FileManager.default.fileExists(atPath: candidate.path) {
-                return candidate
+            if let base = bundle.resourceURL {
+                let candidate = base
+                    .appendingPathComponent("Resources")
+                    .appendingPathComponent(relativePath)
+                if FileManager.default.fileExists(atPath: candidate.path) {
+                    return candidate
+                }
             }
-        }
         #endif
         return fallbackBase.appendingPathComponent(relativePath)
     }
@@ -42,5 +40,5 @@ enum TestResources {
 }
 
 #if !SWIFT_PACKAGE
-private final class BundleToken {}
+    private final class BundleToken {}
 #endif

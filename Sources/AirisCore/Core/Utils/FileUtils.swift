@@ -1,27 +1,27 @@
 import Foundation
 
 /// 文件工具类
-struct FileUtils {
+enum FileUtils {
     /// 支持的图像格式（包含 RAW 格式，由 macOS ImageIO 原生支持）
     static let supportedImageFormats = [
         // 常规格式
         "jpg", "jpeg", "png", "heic", "heif", "tiff", "tif", "webp", "gif", "bmp",
         // RAW 格式
-        "cr2", "cr3",       // Canon
-        "nef", "nrw",       // Nikon
+        "cr2", "cr3", // Canon
+        "nef", "nrw", // Nikon
         "arw", "srf", "sr2", // Sony
-        "dng",              // Adobe Digital Negative
-        "raf",              // Fujifilm
-        "orf",              // Olympus
-        "rw2",              // Panasonic
-        "pef",              // Pentax
-        "srw",              // Samsung
-        "raw", "rwl",       // Leica
-        "3fr", "fff",       // Hasselblad
-        "mrw",              // Minolta
-        "x3f",              // Sigma
-        "erf",              // Epson
-        "kdc", "dcr"        // Kodak
+        "dng", // Adobe Digital Negative
+        "raf", // Fujifilm
+        "orf", // Olympus
+        "rw2", // Panasonic
+        "pef", // Pentax
+        "srw", // Samsung
+        "raw", "rwl", // Leica
+        "3fr", "fff", // Hasselblad
+        "mrw", // Minolta
+        "x3f", // Sigma
+        "erf", // Epson
+        "kdc", "dcr", // Kodak
     ]
 
     /// 验证文件是否存在
@@ -91,7 +91,8 @@ struct FileUtils {
     /// 获取文件大小（格式化字符串）
     static func getFormattedFileSize(at path: String) -> String? {
         guard let attrs = try? FileManager.default.attributesOfItem(atPath: path),
-              let size = attrs[.size] as? Int64 else {
+              let size = attrs[.size] as? Int64
+        else {
             return nil
         }
         return ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
@@ -100,7 +101,8 @@ struct FileUtils {
     /// 获取文件大小（字节数）
     static func getFileSize(at path: String) -> Int64? {
         guard let attrs = try? FileManager.default.attributesOfItem(atPath: path),
-              let size = attrs[.size] as? Int64 else {
+              let size = attrs[.size] as? Int64
+        else {
             return nil
         }
         return size

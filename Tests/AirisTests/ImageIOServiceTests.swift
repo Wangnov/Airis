@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// ImageIOService 完整测试（100% 覆盖率）
@@ -466,11 +466,11 @@ final class ImageIOServiceTests: XCTestCase {
         let info = try mockService.getImageInfo(at: testImageURL)
 
         // 验证所有默认值
-        XCTAssertEqual(info.width, 0)       // ?? 0
-        XCTAssertEqual(info.height, 0)      // ?? 0
-        XCTAssertEqual(info.dpiWidth, 72)   // ?? 72
-        XCTAssertEqual(info.dpiHeight, 72)  // ?? 72
-        XCTAssertFalse(info.hasAlpha)       // ?? false
+        XCTAssertEqual(info.width, 0) // ?? 0
+        XCTAssertEqual(info.height, 0) // ?? 0
+        XCTAssertEqual(info.dpiWidth, 72) // ?? 72
+        XCTAssertEqual(info.dpiHeight, 72) // ?? 72
+        XCTAssertFalse(info.hasAlpha) // ?? false
         XCTAssertEqual(info.orientation, .up) // 没有进入 if 块
     }
 

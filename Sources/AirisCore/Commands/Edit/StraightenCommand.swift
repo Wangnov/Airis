@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct StraightenCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "straighten",
-        abstract: HelpTextFactory.text(
-            en: "Automatically straighten tilted images",
-            cn: "自动拉直倾斜的图片"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "straighten",
+            abstract: HelpTextFactory.text(
+                en: "Automatically straighten tilted images",
+                cn: "自动拉直倾斜的图片"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect and correct image tilt using horizon detection.
                 Automatically finds the horizon line and rotates to level.
 
@@ -38,7 +38,7 @@ struct StraightenCommand: AsyncParsableCommand {
                   Works best with images containing clear horizon lines or
                   strong horizontal/vertical features.
                 """,
-            cn: """
+                cn: """
                 通过地平线/水平线检测自动校正照片倾斜角度，并旋转到水平。
 
                 QUICK START:
@@ -63,8 +63,8 @@ struct StraightenCommand: AsyncParsableCommand {
                 NOTE:
                   对包含明显地平线，或有明显水平/垂直结构的图片效果更好。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -87,7 +87,7 @@ struct StraightenCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 
@@ -147,12 +147,12 @@ struct StraightenCommand: AsyncParsableCommand {
         let corrected = coreImage.rotateAroundCenter(ciImage: ciImage, degrees: -rotationAngle)
 
         // 渲染并保存
-#if DEBUG
-        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_STRAIGHTEN_RENDER_NIL"] == "1"
-        let rendered = forceNil ? nil : coreImage.render(ciImage: corrected)
-#else
-        let rendered = coreImage.render(ciImage: corrected)
-#endif
+        #if DEBUG
+            let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_STRAIGHTEN_RENDER_NIL"] == "1"
+            let rendered = forceNil ? nil : coreImage.render(ciImage: corrected)
+        #else
+            let rendered = coreImage.render(ciImage: corrected)
+        #endif
 
         guard let outputCGImage = rendered else {
             throw AirisError.imageEncodeFailed

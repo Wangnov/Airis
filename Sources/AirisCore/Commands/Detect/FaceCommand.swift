@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct FaceCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "face",
-        abstract: HelpTextFactory.text(
-            en: "Detect faces and facial landmarks in images",
-            cn: "检测图片中的人脸（可选关键点）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "face",
+            abstract: HelpTextFactory.text(
+                en: "Detect faces and facial landmarks in images",
+                cn: "检测图片中的人脸（可选关键点）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect faces in images with optional facial landmark detection.
 
                 QUICK START:
@@ -69,7 +69,7 @@ struct FaceCommand: AsyncParsableCommand {
                   --threshold <val>  Minimum confidence threshold (0.0-1.0, default: 0.0)
                   --format <fmt>     Output format: table (default), json
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架检测图片中的人脸，可选择输出人脸关键点。
 
                 QUICK START:
@@ -93,8 +93,8 @@ struct FaceCommand: AsyncParsableCommand {
                   --threshold <val>  置信度阈值（0.0-1.0，默认：0.0）
                   --format <fmt>     输出格式：table（默认）或 json
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -128,11 +128,10 @@ struct FaceCommand: AsyncParsableCommand {
             ], enabled: showHumanOutput)
 
             // 执行检测
-            let results: [VNFaceObservation]
-            if fast {
-                results = try await vision.detectFaceRectangles(at: url)
+            let results: [VNFaceObservation] = if fast {
+                try await vision.detectFaceRectangles(at: url)
             } else {
-                results = try await vision.detectFaceLandmarks(at: url)
+                try await vision.detectFaceLandmarks(at: url)
             }
 
             // 过滤低置信度结果
@@ -206,8 +205,6 @@ struct FaceCommand: AsyncParsableCommand {
         }
     }
 
-
-
     private func printJSON(results: [VNFaceObservation], file: String, hasLandmarks: Bool) {
         let items = results.map { face -> [String: Any] in
             var item: [String: Any] = [
@@ -216,8 +213,8 @@ struct FaceCommand: AsyncParsableCommand {
                     "x": face.boundingBox.origin.x,
                     "y": face.boundingBox.origin.y,
                     "width": face.boundingBox.width,
-                    "height": face.boundingBox.height
-                ]
+                    "height": face.boundingBox.height,
+                ],
             ]
 
             // 头部姿态
@@ -267,11 +264,12 @@ struct FaceCommand: AsyncParsableCommand {
         let dict: [String: Any] = [
             "file": file,
             "count": results.count,
-            "faces": items
+            "faces": items,
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

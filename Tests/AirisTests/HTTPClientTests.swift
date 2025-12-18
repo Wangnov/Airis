@@ -1,12 +1,11 @@
 // swiftlint:disable force_unwrapping
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// HTTPClient 单元测试（使用 Mock 达到 100% 覆盖率）
 final class HTTPClientTests: XCTestCase {
-
     var client: HTTPClient!
     var mockSession: URLSession!
 
@@ -21,7 +20,7 @@ final class HTTPClientTests: XCTestCase {
         let clientConfig = HTTPClientConfiguration(
             timeoutIntervalForRequest: 30,
             maxRetries: 3,
-            retryDelay: 0.01  // 快速重试
+            retryDelay: 0.01 // 快速重试
         )
 
         client = HTTPClient(configuration: clientConfig, session: mockSession)
@@ -110,13 +109,9 @@ final class HTTPClientTests: XCTestCase {
         let url = URL(string: "https://test.com/notfound")!
         MockURLProtocol.mockSuccess(url: url, data: Data(), statusCode: 404)
 
-        do {
-            _ = try await client.post(url: url, body: Data())
-            XCTFail("应该抛出错误")
-        } catch {
-            // 预期抛出 networkError
-            XCTAssertTrue(true)
-        }
+        // 4xx 错误现在返回响应数据（让调用者处理），而不是抛出错误
+        let (_, response) = try await client.post(url: url, body: Data())
+        XCTAssertEqual(response.statusCode, 404)
     }
 
     func testGET404Error() async throws {
@@ -157,13 +152,9 @@ final class HTTPClientTests: XCTestCase {
             .success(MockURLProtocol.MockResponse(statusCode: 500)),
         ])
 
-        do {
-            _ = try await client.post(url: url, body: Data())
-            XCTFail("应该抛出错误")
-        } catch {
-            // 预期在重试耗尽后抛出错误
-            XCTAssertTrue(true)
-        }
+        // 5xx 错误在重试耗尽后返回响应数据（让调用者处理），而不是抛出错误
+        let (_, response) = try await client.post(url: url, body: Data())
+        XCTAssertEqual(response.statusCode, 500)
     }
 
     func testNetworkErrorRetry() async throws {

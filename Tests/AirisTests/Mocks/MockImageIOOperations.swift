@@ -1,9 +1,9 @@
+import CoreGraphics
 import Foundation
 import ImageIO
-import CoreGraphics
 import UniformTypeIdentifiers
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// Mock ImageIO 操作实现（用于测试错误路径）
@@ -154,9 +154,9 @@ final class MockImageIOOperationsWithMissingProperties: ImageIOOperations, @unch
         realOperations.createImageSource(at: url)
     }
 
-    func getProperties(from source: CGImageSource, at index: Int) -> [CFString: Any]? {
+    func getProperties(from _: CGImageSource, at _: Int) -> [CFString: Any]? {
         // 返回只包含必要属性的字典，缺失可选属性以触发默认值
-        return [:]  // 空字典，所有默认值分支都会被触发
+        [:] // 空字典，所有默认值分支都会被触发
     }
 
     func createImage(from source: CGImageSource, at index: Int, options: CFDictionary?) -> CGImage? {
@@ -195,7 +195,7 @@ final class MockImageIOOperationsWithValidOrientation: ImageIOOperations, @unche
     func getProperties(from source: CGImageSource, at index: Int) -> [CFString: Any]? {
         // 返回带有有效 orientation 值的属性（范围 1-8）
         var properties = realOperations.getProperties(from: source, at: index) ?? [:]
-        properties[kCGImagePropertyOrientation] = UInt32(6)  // .right
+        properties[kCGImagePropertyOrientation] = UInt32(6) // .right
         return properties
     }
 

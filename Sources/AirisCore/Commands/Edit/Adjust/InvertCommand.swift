@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct InvertCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,47 +11,47 @@ struct InvertCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Invert all colors in the image using CIColorInvert filter.
-                Creates a negative/inverse effect where each color becomes its opposite.
+            Invert all colors in the image using CIColorInvert filter.
+            Creates a negative/inverse effect where each color becomes its opposite.
 
-                QUICK START:
-                  airis edit adjust invert photo.jpg -o inverted.jpg
+            QUICK START:
+              airis edit adjust invert photo.jpg -o inverted.jpg
 
-                EXAMPLES:
-                  # Basic color inversion
-                  airis edit adjust invert photo.jpg -o inverted.jpg
+            EXAMPLES:
+              # Basic color inversion
+              airis edit adjust invert photo.jpg -o inverted.jpg
 
-                  # Invert and open result
-                  airis edit adjust invert artwork.png -o negative.png --open
+              # Invert and open result
+              airis edit adjust invert artwork.png -o negative.png --open
 
-                  # Invert to HEIC format
-                  airis edit adjust invert image.jpg -o inverted.heic
+              # Invert to HEIC format
+              airis edit adjust invert image.jpg -o inverted.heic
 
-                EFFECT:
-                  - White becomes black, black becomes white
-                  - Red becomes cyan, green becomes magenta
-                  - Blue becomes yellow, and vice versa
-                  - Each RGB value becomes (255 - original)
+            EFFECT:
+              - White becomes black, black becomes white
+              - Red becomes cyan, green becomes magenta
+              - Blue becomes yellow, and vice versa
+              - Each RGB value becomes (255 - original)
 
-                USE CASES:
-                  - Creating negative film effects
-                  - Artistic image manipulation
-                  - Accessibility (some users prefer inverted colors)
-                  - X-ray style effects
+            USE CASES:
+              - Creating negative film effects
+              - Artistic image manipulation
+              - Accessibility (some users prefer inverted colors)
+              - X-ray style effects
 
-                OUTPUT:
-                  Supports PNG, JPEG, HEIC, TIFF output formats.
-                  Format is determined by output file extension.
-                """,
+            OUTPUT:
+              Supports PNG, JPEG, HEIC, TIFF output formats.
+              Format is determined by output file extension.
+            """,
             cn: """
-                使用 CIColorInvert 将图片颜色反相，生成负片效果。
+            使用 CIColorInvert 将图片颜色反相，生成负片效果。
 
-                QUICK START:
-                  airis edit adjust invert photo.jpg -o inverted.jpg
+            QUICK START:
+              airis edit adjust invert photo.jpg -o inverted.jpg
 
-                EXAMPLES:
-                  airis edit adjust invert artwork.png -o negative.png --open
-                """
+            EXAMPLES:
+              airis edit adjust invert artwork.png -o negative.png --open
+            """
         )
     )
 
@@ -76,7 +76,7 @@ struct InvertCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

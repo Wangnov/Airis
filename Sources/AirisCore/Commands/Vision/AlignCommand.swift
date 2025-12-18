@@ -1,7 +1,7 @@
 import ArgumentParser
-@preconcurrency import Vision
 import CoreImage
 import Foundation
+@preconcurrency import Vision
 
 struct AlignCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -12,66 +12,66 @@ struct AlignCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Calculate the transformation needed to align two images.
-                This is useful for image stitching, panorama creation, and motion tracking.
+            Calculate the transformation needed to align two images.
+            This is useful for image stitching, panorama creation, and motion tracking.
 
-                QUICK START:
-                  airis vision align reference.jpg floating.jpg
+            QUICK START:
+              airis vision align reference.jpg floating.jpg
 
-                HOW IT WORKS:
-                  Image registration finds the best alignment transform between two images.
-                  The reference image is the target, and the floating image is transformed to match it.
-                  Returns the affine transform (translation, rotation, scale) needed to align them.
+            HOW IT WORKS:
+              Image registration finds the best alignment transform between two images.
+              The reference image is the target, and the floating image is transformed to match it.
+              Returns the affine transform (translation, rotation, scale) needed to align them.
 
-                EXAMPLES:
-                  # Basic alignment
-                  airis vision align reference.png floating.png
+            EXAMPLES:
+              # Basic alignment
+              airis vision align reference.png floating.png
 
-                  # Save aligned image
-                  airis vision align ref.jpg target.jpg -o aligned.png
+              # Save aligned image
+              airis vision align ref.jpg target.jpg -o aligned.png
 
-                  # JSON output for scripting
-                  airis vision align ref.jpg target.jpg --format json
+              # JSON output for scripting
+              airis vision align ref.jpg target.jpg --format json
 
-                OUTPUT EXAMPLE:
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  Image Alignment
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  Reference: reference.jpg
-                  Floating:  floating.jpg
-                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            OUTPUT EXAMPLE:
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              Image Alignment
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              Reference: reference.jpg
+              Floating:  floating.jpg
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-                  Alignment Transform:
-                    Translation X: 12.5 px
-                    Translation Y: -8.3 px
+              Alignment Transform:
+                Translation X: 12.5 px
+                Translation Y: -8.3 px
 
-                REQUIREMENTS:
-                  Both images should have the same dimensions for best results.
-                  Works best with images that have overlapping content.
+            REQUIREMENTS:
+              Both images should have the same dimensions for best results.
+              Works best with images that have overlapping content.
 
-                NOTE:
-                  This uses translational registration (shifts only).
-                  For perspective transforms, consider homographic registration.
-                """,
+            NOTE:
+              This uses translational registration (shifts only).
+              For perspective transforms, consider homographic registration.
+            """,
             cn: """
-                计算将“floating”图片对齐到“reference”图片所需的变换参数（当前实现为平移对齐）。
+            计算将“floating”图片对齐到“reference”图片所需的变换参数（当前实现为平移对齐）。
 
-                QUICK START:
-                  airis vision align reference.jpg floating.jpg
+            QUICK START:
+              airis vision align reference.jpg floating.jpg
 
-                EXAMPLES:
-                  # 基础对齐
-                  airis vision align reference.png floating.png
+            EXAMPLES:
+              # 基础对齐
+              airis vision align reference.png floating.png
 
-                  # 保存对齐后的图片
-                  airis vision align ref.jpg target.jpg -o aligned.png
+              # 保存对齐后的图片
+              airis vision align ref.jpg target.jpg -o aligned.png
 
-                  # JSON 输出（便于脚本解析）
-                  airis vision align ref.jpg target.jpg --format json
+              # JSON 输出（便于脚本解析）
+              airis vision align ref.jpg target.jpg --format json
 
-                说明：
-                  - 两张图尺寸一致、且内容有重叠时效果最佳
-                """
+            说明：
+              - 两张图尺寸一致、且内容有重叠时效果最佳
+            """
         )
     )
 
@@ -99,7 +99,7 @@ struct AlignCommand: AsyncParsableCommand {
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print("📁 Reference: \(referenceURL.lastPathComponent)")
             print("📁 Floating:  \(floatingURL.lastPathComponent)")
-            if let output = output {
+            if let output {
                 print("💾 Output: \(output)")
             }
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -109,21 +109,21 @@ struct AlignCommand: AsyncParsableCommand {
 
         let result: VisionService.ImageAlignmentResult
         #if DEBUG
-        if ProcessInfo.processInfo.environment["AIRIS_TEST_ALIGN_FAKE_RESULT"] == "1" {
-            result = Self.testAlignmentResult()
-        } else {
+            if ProcessInfo.processInfo.environment["AIRIS_TEST_ALIGN_FAKE_RESULT"] == "1" {
+                result = Self.testAlignmentResult()
+            } else {
+                let vision = ServiceContainer.shared.visionService
+                result = try await vision.computeImageAlignment(
+                    referenceURL: referenceURL,
+                    floatingURL: floatingURL
+                )
+            }
+        #else
             let vision = ServiceContainer.shared.visionService
             result = try await vision.computeImageAlignment(
                 referenceURL: referenceURL,
                 floatingURL: floatingURL
             )
-        }
-        #else
-        let vision = ServiceContainer.shared.visionService
-        result = try await vision.computeImageAlignment(
-            referenceURL: referenceURL,
-            floatingURL: floatingURL
-        )
         #endif
 
         if outputFormat == .json {
@@ -179,13 +179,14 @@ struct AlignCommand: AsyncParsableCommand {
                     "c": result.transform.c,
                     "d": result.transform.d,
                     "tx": result.transform.tx,
-                    "ty": result.transform.ty
-                ]
-            ]
+                    "ty": result.transform.ty,
+                ],
+            ],
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
@@ -203,10 +204,10 @@ struct AlignCommand: AsyncParsableCommand {
 
         // Render
         #if DEBUG
-        let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_ALIGN_RENDER_NIL"] == "1"
-        let renderedImage = forceNil ? nil : coreImage.render(ciImage: alignedImage)
+            let forceNil = ProcessInfo.processInfo.environment["AIRIS_FORCE_ALIGN_RENDER_NIL"] == "1"
+            let renderedImage = forceNil ? nil : coreImage.render(ciImage: alignedImage)
         #else
-        let renderedImage = coreImage.render(ciImage: alignedImage)
+            let renderedImage = coreImage.render(ciImage: alignedImage)
         #endif
 
         guard let outputCGImage = renderedImage else {
@@ -222,14 +223,14 @@ struct AlignCommand: AsyncParsableCommand {
     }
 
     #if DEBUG
-    /// 测试桩：固定的平移矩阵，避免依赖 Vision 实际计算
-    private static func testAlignmentResult() -> VisionService.ImageAlignmentResult {
-        let transform = CGAffineTransform(translationX: 3, y: -2)
-        return VisionService.ImageAlignmentResult(
-            transform: transform,
-            translationX: transform.tx,
-            translationY: transform.ty
-        )
-    }
+        /// 测试桩：固定的平移矩阵，避免依赖 Vision 实际计算
+        private static func testAlignmentResult() -> VisionService.ImageAlignmentResult {
+            let transform = CGAffineTransform(translationX: 3, y: -2)
+            return VisionService.ImageAlignmentResult(
+                transform: transform,
+                translationX: transform.tx,
+                translationY: transform.ty
+            )
+        }
     #endif
 }

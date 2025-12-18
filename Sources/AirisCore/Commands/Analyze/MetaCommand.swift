@@ -1,18 +1,18 @@
 import ArgumentParser
-import ImageIO
 import Foundation
+import ImageIO
 import UniformTypeIdentifiers
 
 struct MetaCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "meta",
-        abstract: HelpTextFactory.text(
-            en: "Read and write image EXIF metadata",
-            cn: "读取与写入图片 EXIF 元数据"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "meta",
+            abstract: HelpTextFactory.text(
+                en: "Read and write image EXIF metadata",
+                cn: "读取与写入图片 EXIF 元数据"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Read, display, and modify EXIF metadata in image files.
                 Supports reading all standard metadata and writing common fields.
 
@@ -75,7 +75,7 @@ struct MetaCommand: AsyncParsableCommand {
                   - Some metadata is read-only (embedded by camera)
                   - JPEG supports most metadata; PNG has limited support
                 """,
-            cn: """
+                cn: """
                 读取、展示并修改图片中的 EXIF/GPS/TIFF/IPTC 元数据。
 
                 QUICK START:
@@ -115,8 +115,8 @@ struct MetaCommand: AsyncParsableCommand {
                   - 部分元数据为只读（相机写入）
                   - JPEG 支持较完整；PNG 支持有限
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -188,7 +188,7 @@ struct MetaCommand: AsyncParsableCommand {
                     kCGImagePropertyExifFocalLength as String: 35.0,
                     kCGImagePropertyExifLensModel as String: "Test Lens",
                     kCGImagePropertyExifFlash as String: flashValue,
-                    kCGImagePropertyExifUserComment as String: "Test Comment"
+                    kCGImagePropertyExifUserComment as String: "Test Comment",
                 ],
                 kCGImagePropertyGPSDictionary as String: [
                     kCGImagePropertyGPSLatitude as String: 31.2304,
@@ -197,40 +197,40 @@ struct MetaCommand: AsyncParsableCommand {
                     kCGImagePropertyGPSLongitudeRef as String: "E",
                     kCGImagePropertyGPSAltitude as String: 4.0,
                     kCGImagePropertyGPSTimeStamp as String: "12:00:00",
-                    kCGImagePropertyGPSDateStamp as String: "2025:01:01"
+                    kCGImagePropertyGPSDateStamp as String: "2025:01:01",
                 ],
                 kCGImagePropertyTIFFDictionary as String: [
                     kCGImagePropertyTIFFMake as String: "Airis",
                     kCGImagePropertyTIFFModel as String: "TestCam",
                     kCGImagePropertyTIFFSoftware as String: "AirisTests",
                     kCGImagePropertyTIFFDateTime as String: "2025:01:01 12:00:00",
-                    kCGImagePropertyTIFFOrientation as String: 1
+                    kCGImagePropertyTIFFOrientation as String: 1,
                 ],
                 kCGImagePropertyIPTCDictionary as String: [
                     kCGImagePropertyIPTCCaptionAbstract as String: "Test Caption",
                     kCGImagePropertyIPTCKeywords as String: ["airis", "test"],
                     kCGImagePropertyIPTCCopyrightNotice as String: "Test Corp",
-                    kCGImagePropertyIPTCCreatorContactInfo as String: "tester"
+                    kCGImagePropertyIPTCCreatorContactInfo as String: "tester",
                 ],
                 kCGImagePropertyPixelWidth as String: 100,
                 kCGImagePropertyPixelHeight as String: 200,
                 kCGImagePropertyDPIWidth as String: 72,
                 kCGImagePropertyColorModel as String: "RGB",
                 kCGImagePropertyDepth as String: 8,
-                kCGImagePropertyHasAlpha as String: hasAlphaValue
+                kCGImagePropertyHasAlpha as String: hasAlphaValue,
             ]
         } else {
             guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
-                  let props = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any] else {
+                  let props = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any]
+            else {
                 throw AirisError.invalidPath(url.path)
             }
             properties = props
         }
-        let finalProperties: [String: Any]
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_META_EMPTY_PROPS"] == "1" {
-            finalProperties = [:]
+        let finalProperties: [String: Any] = if ProcessInfo.processInfo.environment["AIRIS_FORCE_META_EMPTY_PROPS"] == "1" {
+            [:]
         } else {
-            finalProperties = properties
+            properties
         }
 
         if outputFormat == .json {
@@ -283,7 +283,8 @@ struct MetaCommand: AsyncParsableCommand {
         if showAll {
             print("[基本信息]")
             if let width = properties[kCGImagePropertyPixelWidth as String] as? Int,
-               let height = properties[kCGImagePropertyPixelHeight as String] as? Int {
+               let height = properties[kCGImagePropertyPixelHeight as String] as? Int
+            {
                 print("  尺寸: \(width) × \(height)")
             }
             if let dpiWidth = properties[kCGImagePropertyDPIWidth as String] as? Int {
@@ -309,7 +310,7 @@ struct MetaCommand: AsyncParsableCommand {
                 .contains(key)
         }
 
-        if !hasData && category != "all" {
+        if !hasData, category != "all" {
             print("⚠️ 未找到 \(category.uppercased()) 元数据")
         }
     }
@@ -344,11 +345,13 @@ struct MetaCommand: AsyncParsableCommand {
 
     private func printGpsData(_ gps: [String: Any]) {
         if let lat = gps[kCGImagePropertyGPSLatitude as String] as? Double,
-           let latRef = gps[kCGImagePropertyGPSLatitudeRef as String] as? String {
+           let latRef = gps[kCGImagePropertyGPSLatitudeRef as String] as? String
+        {
             print("  纬度: \(lat)° \(latRef)")
         }
         if let lon = gps[kCGImagePropertyGPSLongitude as String] as? Double,
-           let lonRef = gps[kCGImagePropertyGPSLongitudeRef as String] as? String {
+           let lonRef = gps[kCGImagePropertyGPSLongitudeRef as String] as? String
+        {
             print("  经度: \(lon)° \(lonRef)")
         }
         if let alt = gps[kCGImagePropertyGPSAltitude as String] as? Double {
@@ -394,8 +397,6 @@ struct MetaCommand: AsyncParsableCommand {
             print("  创作者: \(creator)")
         }
     }
-
-
 
     private func printMetadataJSON(properties: [String: Any]) {
         var output: [String: Any] = [:]
@@ -445,7 +446,8 @@ struct MetaCommand: AsyncParsableCommand {
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: output, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
@@ -464,7 +466,8 @@ struct MetaCommand: AsyncParsableCommand {
         // 读取原始图像和元数据
         guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
               var properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any],
-              let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) else {
+              let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
+        else {
             throw AirisError.invalidPath(url.path)
         }
 
@@ -474,7 +477,7 @@ struct MetaCommand: AsyncParsableCommand {
         }
 
         // 修改元数据
-        var operation: String = "none"
+        var operation = "none"
         if clearAll {
             // 清除所有可编辑的元数据
             properties.removeValue(forKey: kCGImagePropertyExifDictionary as String)
@@ -515,7 +518,8 @@ struct MetaCommand: AsyncParsableCommand {
                   uti,
                   1,
                   nil
-              ) else {
+              )
+        else {
             throw AirisError.invalidPath(outputPath)
         }
 
@@ -534,10 +538,11 @@ struct MetaCommand: AsyncParsableCommand {
                 "file": url.lastPathComponent,
                 "operation": operation,
                 "output": outputPath,
-                "success": true
+                "success": true,
             ]
             if let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
+               let jsonString = String(data: jsonData, encoding: .utf8)
+            {
                 print(jsonString)
             }
         } else if showHumanOutput {
@@ -563,10 +568,10 @@ struct MetaCommand: AsyncParsableCommand {
         }
     }
 
-#if DEBUG
-    /// 测试辅助：直接调用格式解析逻辑，便于覆盖默认分支
-    static func testGetImageFormat(for path: String) -> CFString {
-        MetaCommand().getImageFormat(for: URL(fileURLWithPath: path))
-    }
-#endif
+    #if DEBUG
+        /// 测试辅助：直接调用格式解析逻辑，便于覆盖默认分支
+        static func testGetImageFormat(for path: String) -> CFString {
+            MetaCommand().getImageFormat(for: URL(fileURLWithPath: path))
+        }
+    #endif
 }

@@ -1,6 +1,6 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct MonoCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -11,39 +11,39 @@ struct MonoCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Convert images to black and white using CoreImage's Photo Effect Mono.
+            Convert images to black and white using CoreImage's Photo Effect Mono.
 
-                Creates a clean, classic monochrome look with balanced tones.
-                This is a one-click effect with no adjustable parameters.
+            Creates a clean, classic monochrome look with balanced tones.
+            This is a one-click effect with no adjustable parameters.
 
-                QUICK START:
-                  airis edit filter mono photo.jpg -o bw.png
+            QUICK START:
+              airis edit filter mono photo.jpg -o bw.png
 
-                EXAMPLES:
-                  # Convert to black and white
-                  airis edit filter mono photo.jpg -o mono.png
+            EXAMPLES:
+              # Convert to black and white
+              airis edit filter mono photo.jpg -o mono.png
 
-                  # Process and open result
-                  airis edit filter mono portrait.jpg -o bw_portrait.png --open
+              # Process and open result
+              airis edit filter mono portrait.jpg -o bw_portrait.png --open
 
-                OUTPUT:
-                  Black and white image in the specified format
+            OUTPUT:
+              Black and white image in the specified format
 
-                SEE ALSO:
-                  Use 'airis edit filter noir' for high-contrast B&W
-                """,
+            SEE ALSO:
+              Use 'airis edit filter noir' for high-contrast B&W
+            """,
             cn: """
-                使用 Photo Effect Mono 一键将图片转换为黑白效果（更柔和、均衡）。
+            使用 Photo Effect Mono 一键将图片转换为黑白效果（更柔和、均衡）。
 
-                QUICK START:
-                  airis edit filter mono photo.jpg -o bw.png
+            QUICK START:
+              airis edit filter mono photo.jpg -o bw.png
 
-                EXAMPLES:
-                  airis edit filter mono portrait.jpg -o bw_portrait.png --open
+            EXAMPLES:
+              airis edit filter mono portrait.jpg -o bw_portrait.png --open
 
-                SEE ALSO:
-                  想要更强对比可用：airis edit filter noir
-                """
+            SEE ALSO:
+              想要更强对比可用：airis edit filter noir
+            """
         )
     )
 
@@ -64,7 +64,7 @@ struct MonoCommand: AsyncParsableCommand {
         let outputURL = URL(fileURLWithPath: FileUtils.absolutePath(output))
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

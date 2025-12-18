@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class GenCommandTests: XCTestCase {
-
     let keychain = KeychainManager(operations: InMemoryKeychainOperations())
     let testProvider = "test-gen-provider"
 

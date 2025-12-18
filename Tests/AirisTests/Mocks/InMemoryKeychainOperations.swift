@@ -1,7 +1,7 @@
 import Foundation
 import Security
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 内存版 KeychainOperations，用于命令/配置类测试，避免依赖系统 Keychain。
@@ -22,7 +22,7 @@ final class InMemoryKeychainOperations: KeychainOperations {
         return errSecSuccess
     }
 
-    func itemAdd(attributes: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
+    func itemAdd(attributes: CFDictionary, result _: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
         let attrs = attributes as NSDictionary
         guard
             let account = attrs[kSecAttrAccount] as? String,
@@ -37,7 +37,8 @@ final class InMemoryKeychainOperations: KeychainOperations {
     func itemCopyMatching(query: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
         let queryDict = query as NSDictionary
         guard let account = queryDict[kSecAttrAccount] as? String,
-              let data = store[account] else {
+              let data = store[account]
+        else {
             return errSecItemNotFound
         }
         result?.pointee = data as CFData

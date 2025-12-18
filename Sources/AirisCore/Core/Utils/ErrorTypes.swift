@@ -15,6 +15,7 @@ enum AirisError: LocalizedError {
 
     // ============ API 相关错误 ============
     case apiKeyNotFound(provider: String)
+    case apiError(provider: String, message: String)
     case networkError(Error)
     case invalidResponse
 
@@ -29,56 +30,58 @@ enum AirisError: LocalizedError {
     /// 本地化错误描述
     var errorDescription: String? {
         switch self {
-        case .fileNotFound(let path):
-            return Strings.get("error.file_not_found", path)
-        case .invalidPath(let path):
-            return Strings.get("error.invalid_path", path)
-        case .unsupportedFormat(let format):
-            return Strings.get("error.unsupported_format", format)
-        case .fileReadError(let path, _):
-            return Strings.get("error.file_read", path)
-        case .fileWriteError(let path, _):
-            return Strings.get("error.file_write", path)
-        case .visionRequestFailed(let message):
-            return Strings.get("error.vision_failed", message)
+        case let .fileNotFound(path):
+            Strings.get("error.file_not_found", path)
+        case let .invalidPath(path):
+            Strings.get("error.invalid_path", path)
+        case let .unsupportedFormat(format):
+            Strings.get("error.unsupported_format", format)
+        case let .fileReadError(path, _):
+            Strings.get("error.file_read", path)
+        case let .fileWriteError(path, _):
+            Strings.get("error.file_write", path)
+        case let .visionRequestFailed(message):
+            Strings.get("error.vision_failed", message)
         case .noResultsFound:
-            return Strings.get("error.no_results")
-        case .apiKeyNotFound(let provider):
-            return Strings.get("error.api_key_not_found", provider)
-        case .networkError(let error):
-            return Strings.get("error.network", error.localizedDescription)
+            Strings.get("error.no_results")
+        case let .apiKeyNotFound(provider):
+            Strings.get("error.api_key_not_found", provider)
+        case let .apiError(provider, message):
+            "[\(provider)] \(message)"
+        case let .networkError(error):
+            Strings.get("error.network", error.localizedDescription)
         case .invalidResponse:
-            return Strings.get("error.invalid_response")
-        case .invalidImageDimension(let width, let height, let max):
-            return Strings.get("error.invalid_dimension", width, height, max)
+            Strings.get("error.invalid_response")
+        case let .invalidImageDimension(width, height, max):
+            Strings.get("error.invalid_dimension", width, height, max)
         case .imageDecodeFailed:
-            return Strings.get("error.image_decode")
+            Strings.get("error.image_decode")
         case .imageEncodeFailed:
-            return Strings.get("error.image_encode")
-        case .keychainError(let status):
-            return Strings.get("error.keychain", Int(status))
+            Strings.get("error.image_encode")
+        case let .keychainError(status):
+            Strings.get("error.keychain", Int(status))
         }
     }
 
     /// 恢复建议
     var recoverySuggestion: String? {
         switch self {
-        case .apiKeyNotFound(let provider):
-            return Strings.get("error.api_key_recovery", provider)
+        case let .apiKeyNotFound(provider):
+            Strings.get("error.api_key_recovery", provider)
         default:
-            return nil
+            nil
         }
     }
 
     /// 底层错误（用于错误链）
     var underlyingError: Error? {
         switch self {
-        case .fileReadError(_, let error),
-             .fileWriteError(_, let error),
-             .networkError(let error):
-            return error
+        case let .fileReadError(_, error),
+             let .fileWriteError(_, error),
+             let .networkError(error):
+            error
         default:
-            return nil
+            nil
         }
     }
 }

@@ -1,8 +1,9 @@
+import Security
+
 // swiftlint:disable force_unwrapping
 import XCTest
-import Security
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 // MARK: - URLProtocol Stub
@@ -11,7 +12,7 @@ final class GeminiMockURLProtocol: URLProtocol {
     typealias Handler = (URLRequest) throws -> (HTTPURLResponse, Data)
     nonisolated(unsafe) static var handler: Handler?
 
-    override static func canInit(with request: URLRequest) -> Bool { true }
+    override static func canInit(with _: URLRequest) -> Bool { true }
     override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
 
     override func startLoading() {
@@ -43,9 +44,9 @@ struct MockKeychainOperationsWithKey: KeychainOperations, Sendable {
         self.shouldThrow = shouldThrow
     }
 
-    func itemUpdate(query: CFDictionary, attributesToUpdate: CFDictionary) -> OSStatus { errSecSuccess }
-    func itemAdd(attributes: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus { errSecSuccess }
-    func itemCopyMatching(query: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
+    func itemUpdate(query _: CFDictionary, attributesToUpdate _: CFDictionary) -> OSStatus { errSecSuccess }
+    func itemAdd(attributes _: CFDictionary, result _: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus { errSecSuccess }
+    func itemCopyMatching(query _: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
         if shouldThrow { return errSecItemNotFound }
         if let key = storedKey {
             let data = key.data(using: .utf8)! as CFData
@@ -54,7 +55,8 @@ struct MockKeychainOperationsWithKey: KeychainOperations, Sendable {
         }
         return errSecItemNotFound
     }
-    func itemDelete(query: CFDictionary) -> OSStatus { errSecSuccess }
+
+    func itemDelete(query _: CFDictionary) -> OSStatus { errSecSuccess }
     func stringToData(_ string: String) -> Data? { string.data(using: .utf8) }
     func dataToString(_ data: Data) -> String? { String(data: data, encoding: .utf8) }
 }
@@ -86,7 +88,7 @@ final class GeminiProviderTests: XCTestCase {
 
         var appConfig = AppConfig()
         appConfig.providers = [
-            providerName: ProviderConfig(baseURL: baseURL, model: model, customHeaders: nil)
+            providerName: ProviderConfig(baseURL: baseURL, model: model, customHeaders: nil),
         ]
         appConfig.defaultProvider = providerName
 
@@ -159,8 +161,8 @@ final class GeminiProviderTests: XCTestCase {
             let response = GeminiGenerateResponse(
                 candidates: [
                     .init(content: .init(parts: [
-                        .init(text: "ok", inlineData: .init(mimeType: "image/png", data: base64))
-                    ]))
+                        .init(text: "ok", inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
+                    ])),
                 ]
             )
             let data = try JSONEncoder().encode(response)
@@ -221,8 +223,8 @@ final class GeminiProviderTests: XCTestCase {
             let response = GeminiGenerateResponse(
                 candidates: [
                     .init(content: .init(parts: [
-                        .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64))
-                    ]))
+                        .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
+                    ])),
                 ]
             )
             let data = try JSONEncoder().encode(response)
@@ -319,8 +321,8 @@ final class GeminiProviderTests: XCTestCase {
             let response = GeminiGenerateResponse(
                 candidates: [
                     .init(content: .init(parts: [
-                        .init(text: "Only text", inlineData: nil)
-                    ]))
+                        .init(text: "Only text", inlineData: nil, thoughtSignature: nil),
+                    ])),
                 ]
             )
             let data = try JSONEncoder().encode(response)
@@ -364,8 +366,8 @@ final class GeminiProviderTests: XCTestCase {
             let response = GeminiGenerateResponse(
                 candidates: [
                     .init(content: .init(parts: [
-                        .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64))
-                    ]))
+                        .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
+                    ])),
                 ]
             )
             let data = try JSONEncoder().encode(response)
@@ -406,7 +408,7 @@ final class GeminiProviderTests: XCTestCase {
             let base64 = try GeminiProviderTests.sampleBase64Image()
             let response = GeminiGenerateResponse(
                 candidates: [.init(content: .init(parts: [
-                    .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64))
+                    .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
                 ]))]
             )
             let data = try JSONEncoder().encode(response)
@@ -457,7 +459,7 @@ final class GeminiProviderTests: XCTestCase {
             let base64 = try GeminiProviderTests.sampleBase64Image()
             let response = GeminiGenerateResponse(
                 candidates: [.init(content: .init(parts: [
-                    .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64))
+                    .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
                 ]))]
             )
             let data = try JSONEncoder().encode(response)
@@ -480,7 +482,7 @@ final class GeminiProviderTests: XCTestCase {
             prompt: "flash unknown aspect",
             references: [],
             model: nil,
-            aspectRatio: "5:7",  // 未在表中，触发 getResolutionForFlash 默认
+            aspectRatio: "5:7", // 未在表中，触发 getResolutionForFlash 默认
             imageSize: "2k",
             outputPath: outputURL.path,
             enableSearch: false
@@ -499,7 +501,7 @@ final class GeminiProviderTests: XCTestCase {
         let configFile = customConfigDir.appendingPathComponent("config.json")
         var minimalConfig = AppConfig()
         minimalConfig.providers = [
-            providerName: ProviderConfig(baseURL: "https://api.example.com", model: nil, customHeaders: nil)
+            providerName: ProviderConfig(baseURL: "https://api.example.com", model: nil, customHeaders: nil),
         ]
         minimalConfig.defaultProvider = providerName
         let data = try JSONEncoder().encode(minimalConfig)
@@ -512,7 +514,7 @@ final class GeminiProviderTests: XCTestCase {
             let base64 = try GeminiProviderTests.sampleBase64Image()
             let response = GeminiGenerateResponse(
                 candidates: [.init(content: .init(parts: [
-                    .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64))
+                    .init(text: nil, inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
                 ]))]
             )
             let data = try JSONEncoder().encode(response)
@@ -572,6 +574,45 @@ final class GeminiProviderTests: XCTestCase {
                 XCTFail("期待 noResultsFound，实际 \(error)")
                 return
             }
+        }
+    }
+
+    func testGenerateImage_APIErrorResponseShowsMessage() async throws {
+        let keychain = KeychainManager(operations: MockKeychainOperationsWithKey(storedKey: "test-api-key"))
+        let configManager = try makeConfigManager(baseURL: "https://api.example.com", model: nil)
+
+        let httpClient = makeHTTPClient { request in
+            // 模拟 API 返回错误响应
+            let errorResponse = GeminiErrorResponse(
+                error: .init(
+                    code: 503,
+                    message: "The model is overloaded. Please try again later.",
+                    status: "UNAVAILABLE"
+                )
+            )
+            let data = try JSONEncoder().encode(errorResponse)
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: request.url!, statusCode: 503, httpVersion: nil, headerFields: headers)!
+            return (httpResponse, data)
+        }
+
+        let provider = GeminiProvider(
+            providerName: providerName,
+            httpClient: httpClient,
+            keychainManager: keychain,
+            configManager: configManager
+        )
+
+        do {
+            _ = try await provider.generateImage(prompt: "test")
+            XCTFail("应抛出 apiError")
+        } catch {
+            guard case let AirisError.apiError(provider, message) = error else {
+                XCTFail("期待 apiError，实际 \(error)")
+                return
+            }
+            XCTAssertEqual(provider, "gemini")
+            XCTAssertEqual(message, "The model is overloaded. Please try again later.")
         }
     }
 }

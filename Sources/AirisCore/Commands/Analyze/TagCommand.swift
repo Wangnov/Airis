@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct TagCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "tag",
-        abstract: HelpTextFactory.text(
-            en: "Classify image scenes and objects",
-            cn: "识别图片场景/对象标签"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "tag",
+            abstract: HelpTextFactory.text(
+                en: "Classify image scenes and objects",
+                cn: "识别图片场景/对象标签"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Identify scenes, objects, and concepts in images using Apple's \
                 Vision framework.
 
@@ -59,7 +59,7 @@ struct TagCommand: AsyncParsableCommand {
                   - All processing is done locally on device
                   - Results are sorted by confidence (highest first)
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架对图片进行场景/对象分类（标签识别）。
 
                 QUICK START:
@@ -87,8 +87,8 @@ struct TagCommand: AsyncParsableCommand {
                   - 结果按置信度从高到低排序
                   - 全部本地执行（不上传图片）
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -121,13 +121,13 @@ struct TagCommand: AsyncParsableCommand {
         ], enabled: showHumanOutput)
 
         // 执行分类
-#if DEBUG
-        if ProcessInfo.processInfo.environment["AIRIS_FORCE_TAG_STUB"] == "1" {
-            let stub = Self.testObservations(count: 5)
-            handleResults(stub, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
-            return
-        }
-#endif
+        #if DEBUG
+            if ProcessInfo.processInfo.environment["AIRIS_FORCE_TAG_STUB"] == "1" {
+                let stub = Self.testObservations(count: 5)
+                handleResults(stub, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
+                return
+            }
+        #endif
         let results = try await vision.classifyImage(at: url, threshold: threshold)
 
         handleResults(results, outputFormat: outputFormat, showHumanOutput: showHumanOutput)
@@ -178,27 +178,28 @@ struct TagCommand: AsyncParsableCommand {
         let items = results.map { obs in
             [
                 "identifier": obs.identifier,
-                "confidence": obs.confidence
+                "confidence": obs.confidence,
             ] as [String: Any]
         }
 
         let dict: [String: Any] = [
             "total_count": total,
             "displayed_count": results.count,
-            "tags": items
+            "tags": items,
         ]
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }
 
     #if DEBUG
-    /// 测试辅助：构造可控的标签列表，便于覆盖总数>显示数的分支
-    static func testObservations(count: Int) -> [VNClassificationObservation] {
-        // Vision 的 VNClassificationObservation 无公开 setter，测试仅需可控数量。
-        (0..<count).map { _ in VNClassificationObservation() }
-    }
+        /// 测试辅助：构造可控的标签列表，便于覆盖总数>显示数的分支
+        static func testObservations(count: Int) -> [VNClassificationObservation] {
+            // Vision 的 VNClassificationObservation 无公开 setter，测试仅需可控数量。
+            (0 ..< count).map { _ in VNClassificationObservation() }
+        }
     #endif
 }

@@ -1,6 +1,6 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 /// 第二轮命令层覆盖冲刺：补齐 Palette/Format/Resize 及 Face/Hand/PetPose 等分支。
@@ -40,7 +40,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             image,
             "--count", "20",
             "--format", "json",
-            "--include-average"
+            "--include-average",
         ]).run()
     }
 
@@ -48,7 +48,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let image = CommandTestHarness.fixture("small_100x100.png").path
         try await PaletteCommand.parse([
             image,
-            "--count", "3"
+            "--count", "3",
         ]).run()
     }
 
@@ -57,7 +57,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let temp = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: temp.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try await PaletteCommand.parse([temp.path]).run()
+            try PaletteCommand.parse([temp.path]).run()
         )
         CommandTestHarness.cleanup(temp)
     }
@@ -69,11 +69,11 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg").path
 
         await XCTAssertThrowsErrorAsync(
-            try await FormatCommand.parse([input, "-o", out, "--format", "bmpx"]).run()
+            try FormatCommand.parse([input, "-o", out, "--format", "bmpx"]).run()
         )
 
         await XCTAssertThrowsErrorAsync(
-            try await FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.5"]).run()
+            try FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.5"]).run()
         )
     }
 
@@ -84,7 +84,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data([0x00]))
 
         await XCTAssertThrowsErrorAsync(
-            try await FormatCommand.parse([input, "-o", out.path, "--format", "png"]).run()
+            try FormatCommand.parse([input, "-o", out.path, "--format", "png"]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -99,7 +99,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             "-o", out.path,
             "--format", "jpg",
             "--quality", "0.8",
-            "--force"
+            "--force",
         ]).run()
 
         CommandTestHarness.cleanup(out)
@@ -113,7 +113,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             input,
             "-o", out.path,
             "--format", "tiff",
-            "--force"
+            "--force",
         ]).run()
 
         CommandTestHarness.cleanup(out)
@@ -126,7 +126,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png").path
 
         await XCTAssertThrowsErrorAsync(
-            try await ResizeCommand.parse([input, "-o", out]).run()
+            try ResizeCommand.parse([input, "-o", out]).run()
         )
     }
 
@@ -138,7 +138,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             input,
             "-o", out.path,
             "--scale", "0.5",
-            "--force"
+            "--force",
         ]).run()
 
         CommandTestHarness.cleanup(out)
@@ -154,7 +154,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             "--width", "200",
             "--height", "150",
             "--stretch",
-            "--force"
+            "--force",
         ]).run()
 
         CommandTestHarness.cleanup(out)
@@ -166,10 +166,10 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data([0x00]))
 
         await XCTAssertThrowsErrorAsync(
-            try await ResizeCommand.parse([
+            try ResizeCommand.parse([
                 input,
                 "-o", out.path,
-                "--width", "50"
+                "--width", "50",
             ]).run()
         )
 
@@ -184,7 +184,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             face,
             "--fast",
             "--format", "json",
-            "--threshold", "0.2"
+            "--threshold", "0.2",
         ]).run()
     }
 
@@ -205,7 +205,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             "--format", "json",
             "--pixels",
             "--max-hands", "1",
-            "--threshold", "0.0"
+            "--threshold", "0.0",
         ]).run()
     }
 
@@ -220,7 +220,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
             cat,
             "--pixels",
             "--format", "json",
-            "--threshold", "0.0"
+            "--threshold", "0.0",
         ]).run()
     }
 

@@ -1,10 +1,9 @@
 import XCTest
 #if !XCODE_BUILD
-@testable import AirisCore
+    @testable import AirisCore
 #endif
 
 final class FileUtilsTests: XCTestCase {
-
     var tempDirectory: URL!
 
     override func setUp() {

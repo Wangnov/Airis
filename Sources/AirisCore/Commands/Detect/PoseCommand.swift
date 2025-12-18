@@ -1,17 +1,17 @@
 import ArgumentParser
-@preconcurrency import Vision
 import Foundation
+@preconcurrency import Vision
 
 struct PoseCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "pose",
-        abstract: HelpTextFactory.text(
-            en: "Detect human body pose (2D, 19 keypoints)",
-            cn: "检测人体 2D 姿态（19 个关键点）"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "pose",
+            abstract: HelpTextFactory.text(
+                en: "Detect human body pose (2D, 19 keypoints)",
+                cn: "检测人体 2D 姿态（19 个关键点）"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Detect human body poses in images using Apple's Vision framework.
                 Returns 19 body keypoints with normalized coordinates and confidence.
 
@@ -66,7 +66,7 @@ struct PoseCommand: AsyncParsableCommand {
                   --pixels           Show pixel coordinates instead of normalized
                   --format <fmt>     Output format: table (default), json
                 """,
-            cn: """
+                cn: """
                 使用 Apple Vision 框架检测人体 2D 姿态（19 个关键点）。
                 默认输出归一化坐标（0.0-1.0），可用 --pixels 输出像素坐标。
 
@@ -91,8 +91,8 @@ struct PoseCommand: AsyncParsableCommand {
                   --pixels           输出像素坐标（默认输出归一化）
                   --format <fmt>     输出格式：table（默认）或 json
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file(s)", cn: "输入图片路径（可多个）"))
@@ -116,8 +116,8 @@ struct PoseCommand: AsyncParsableCommand {
             let url = try FileUtils.validateImageFile(at: imagePath)
 
             // 获取图像尺寸（用于像素坐标转换）
-            var imageWidth: Int = 0
-            var imageHeight: Int = 0
+            var imageWidth = 0
+            var imageHeight = 0
             if pixels {
                 let imageIO = ServiceContainer.shared.imageIOService
                 if let info = try? imageIO.getImageInfo(at: url) {
@@ -161,48 +161,48 @@ struct PoseCommand: AsyncParsableCommand {
     // 所有关键点名称（计算属性避免 Decodable 问题）
     private var allJointNames: [VNHumanBodyPoseObservation.JointName] {
         [
-        .nose, .leftEye, .rightEye, .leftEar, .rightEar, .neck,
-        .leftShoulder, .leftElbow, .leftWrist,
-        .rightShoulder, .rightElbow, .rightWrist,
-        .root,
-        .leftHip, .leftKnee, .leftAnkle,
-        .rightHip, .rightKnee, .rightAnkle
+            .nose, .leftEye, .rightEye, .leftEar, .rightEar, .neck,
+            .leftShoulder, .leftElbow, .leftWrist,
+            .rightShoulder, .rightElbow, .rightWrist,
+            .root,
+            .leftHip, .leftKnee, .leftAnkle,
+            .rightHip, .rightKnee, .rightAnkle,
         ]
     }
 
     private func jointNameString(_ name: VNHumanBodyPoseObservation.JointName) -> String {
         switch name {
-        case .nose: return "nose"
-        case .leftEye: return "leftEye"
-        case .rightEye: return "rightEye"
-        case .leftEar: return "leftEar"
-        case .rightEar: return "rightEar"
-        case .neck: return "neck"
-        case .leftShoulder: return "leftShoulder"
-        case .leftElbow: return "leftElbow"
-        case .leftWrist: return "leftWrist"
-        case .rightShoulder: return "rightShoulder"
-        case .rightElbow: return "rightElbow"
-        case .rightWrist: return "rightWrist"
-        case .root: return "root"
-        case .leftHip: return "leftHip"
-        case .leftKnee: return "leftKnee"
-        case .leftAnkle: return "leftAnkle"
-        case .rightHip: return "rightHip"
-        case .rightKnee: return "rightKnee"
-        case .rightAnkle: return "rightAnkle"
-        default: return "unknown"
+        case .nose: "nose"
+        case .leftEye: "leftEye"
+        case .rightEye: "rightEye"
+        case .leftEar: "leftEar"
+        case .rightEar: "rightEar"
+        case .neck: "neck"
+        case .leftShoulder: "leftShoulder"
+        case .leftElbow: "leftElbow"
+        case .leftWrist: "leftWrist"
+        case .rightShoulder: "rightShoulder"
+        case .rightElbow: "rightElbow"
+        case .rightWrist: "rightWrist"
+        case .root: "root"
+        case .leftHip: "leftHip"
+        case .leftKnee: "leftKnee"
+        case .leftAnkle: "leftAnkle"
+        case .rightHip: "rightHip"
+        case .rightKnee: "rightKnee"
+        case .rightAnkle: "rightAnkle"
+        default: "unknown"
         }
     }
 
-#if DEBUG
-    /// 测试辅助：覆盖未知关节点名称分支
-    static func testJointNameString(_ raw: String) -> String {
-        let key = VNRecognizedPointKey(rawValue: raw)
-        let joint = VNHumanBodyPoseObservation.JointName(rawValue: key)
-        return PoseCommand().jointNameString(joint)
-    }
-#endif
+    #if DEBUG
+        /// 测试辅助：覆盖未知关节点名称分支
+        static func testJointNameString(_ raw: String) -> String {
+            let key = VNRecognizedPointKey(rawValue: raw)
+            let joint = VNHumanBodyPoseObservation.JointName(rawValue: key)
+            return PoseCommand().jointNameString(joint)
+        }
+    #endif
 
     private func printTable(results: [VNHumanBodyPoseObservation], imageWidth: Int, imageHeight: Int) {
         print("Detected \(results.count) person(s)")
@@ -214,14 +214,15 @@ struct PoseCommand: AsyncParsableCommand {
 
             for jointName in allJointNames {
                 guard let point = try? observation.recognizedPoint(jointName),
-                      point.confidence >= threshold else {
+                      point.confidence >= threshold
+                else {
                     continue
                 }
 
                 let name = jointNameString(jointName)
                 let paddedName = name.padding(toLength: 14, withPad: " ", startingAt: 0)
 
-                if pixels && imageWidth > 0 {
+                if pixels, imageWidth > 0 {
                     let px = Int(point.location.x * CGFloat(imageWidth))
                     let py = Int(point.location.y * CGFloat(imageHeight))
                     print("      \(paddedName): (\(px), \(py)) px - conf: \(String(format: "%.2f", point.confidence))")
@@ -238,22 +239,24 @@ struct PoseCommand: AsyncParsableCommand {
     }
 
     private func printJSON(results: [VNHumanBodyPoseObservation], file: String,
-                           imageWidth: Int, imageHeight: Int) {
+                           imageWidth: Int, imageHeight: Int)
+    {
         let items = results.map { observation -> [String: Any] in
             var keypoints: [[String: Any]] = []
 
             for jointName in allJointNames {
                 guard let point = try? observation.recognizedPoint(jointName),
-                      point.confidence >= threshold else {
+                      point.confidence >= threshold
+                else {
                     continue
                 }
 
                 var keypointDict: [String: Any] = [
                     "name": jointNameString(jointName),
-                    "confidence": Double(point.confidence)
+                    "confidence": Double(point.confidence),
                 ]
 
-                if pixels && imageWidth > 0 {
+                if pixels, imageWidth > 0 {
                     keypointDict["x"] = Int(point.location.x * CGFloat(imageWidth))
                     keypointDict["y"] = Int(point.location.y * CGFloat(imageHeight))
                     keypointDict["coordinate_type"] = "pixels"
@@ -268,7 +271,7 @@ struct PoseCommand: AsyncParsableCommand {
 
             return [
                 "keypoint_count": keypoints.count,
-                "keypoints": keypoints
+                "keypoints": keypoints,
             ]
         }
 
@@ -276,16 +279,17 @@ struct PoseCommand: AsyncParsableCommand {
             "file": file,
             "count": results.count,
             "threshold": Double(threshold),
-            "persons": items
+            "persons": items,
         ]
 
-        if pixels && imageWidth > 0 {
+        if pixels, imageWidth > 0 {
             dict["image_width"] = imageWidth
             dict["image_height"] = imageHeight
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

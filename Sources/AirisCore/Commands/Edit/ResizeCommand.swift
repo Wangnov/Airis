@@ -1,17 +1,17 @@
+import AppKit
 import ArgumentParser
 import Foundation
-import AppKit
 
 struct ResizeCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "resize",
-        abstract: HelpTextFactory.text(
-            en: "Resize images with high-quality scaling",
-            cn: "高质量缩放图片尺寸"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "resize",
+            abstract: HelpTextFactory.text(
+                en: "Resize images with high-quality scaling",
+                cn: "高质量缩放图片尺寸"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Resize images using Lanczos algorithm for high-quality results.
                 Supports maintaining aspect ratio automatically.
 
@@ -46,7 +46,7 @@ struct ResizeCommand: AsyncParsableCommand {
                   Supports PNG, JPEG, HEIC, TIFF output formats.
                   Format is determined by output file extension.
                 """,
-            cn: """
+                cn: """
                 使用 Lanczos 算法进行高质量缩放，并支持自动保持宽高比。
 
                 QUICK START:
@@ -79,8 +79,8 @@ struct ResizeCommand: AsyncParsableCommand {
                 OUTPUT:
                   支持 PNG/JPEG/HEIC/TIFF 输出格式，格式由输出文件后缀决定。
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Input image path", cn: "输入图片路径"))
@@ -122,7 +122,7 @@ struct ResizeCommand: AsyncParsableCommand {
         let outputFormat = FileUtils.getExtension(from: output).lowercased()
 
         // 检查输出文件是否已存在
-        if FileManager.default.fileExists(atPath: outputURL.path) && !force {
+        if FileManager.default.fileExists(atPath: outputURL.path), !force {
             throw AirisError.invalidPath("Output file already exists. Use --force to overwrite: \(output)")
         }
 

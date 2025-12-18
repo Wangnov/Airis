@@ -18,57 +18,57 @@ struct ConfigCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Configure API keys and settings for AI providers.
+            Configure API keys and settings for AI providers.
 
-                QUICK START:
-                  1. Set API key:
-                     airis gen config set-key --provider gemini --key "YOUR_API_KEY"
+            QUICK START:
+              1. Set API key:
+                 airis gen config set-key --provider gemini --key "YOUR_API_KEY"
 
-                  2. (Optional) Configure base URL:
-                     airis gen config set --provider gemini --base-url "https://api.example.com"
+              2. (Optional) Configure base URL:
+                 airis gen config set --provider gemini --base-url "https://api.example.com"
 
-                  3. (Optional) Configure default model:
-                     airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
+              3. (Optional) Configure default model:
+                 airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
 
-                  4. View configuration:
-                     airis gen config show --provider gemini
+              4. View configuration:
+                 airis gen config show --provider gemini
 
-                STORAGE:
-                  - API keys: Stored securely in macOS Keychain
-                  - Settings: Stored in ~/.config/airis/config.json
+            STORAGE:
+              - API keys: Stored securely in macOS Keychain
+              - Settings: Stored in ~/.config/airis/config.json
 
-                SUPPORTED PROVIDERS:
-                  - gemini: Google Gemini Image Generation API
-                            Get API key from: https://aistudio.google.com/apikey
+            SUPPORTED PROVIDERS:
+              - gemini: Google Gemini Image Generation API
+                        Get API key from: https://aistudio.google.com/apikey
 
-                CONFIGURABLE SETTINGS (via 'set' command):
-                  - base-url: API endpoint (default: https://generativelanguage.googleapis.com)
-                  - model: Default model name (default: gemini-3-pro-image-preview)
-                """,
+            CONFIGURABLE SETTINGS (via 'set' command):
+              - base-url: API endpoint (default: https://generativelanguage.googleapis.com)
+              - model: Default model name (default: gemini-3-pro-image-preview)
+            """,
             cn: """
-                配置 AI Provider 的 API Key 与默认参数。
+            配置 AI Provider 的 API Key 与默认参数。
 
-                QUICK START:
-                  1) 设置 API key：
-                     airis gen config set-key --provider gemini --key "YOUR_API_KEY"
+            QUICK START:
+              1) 设置 API key：
+                 airis gen config set-key --provider gemini --key "YOUR_API_KEY"
 
-                  2)（可选）设置 base URL：
-                     airis gen config set --provider gemini --base-url "https://api.example.com"
+              2)（可选）设置 base URL：
+                 airis gen config set --provider gemini --base-url "https://api.example.com"
 
-                  3)（可选）设置默认模型：
-                     airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
+              3)（可选）设置默认模型：
+                 airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
 
-                  4) 查看配置：
-                     airis gen config show --provider gemini
+              4) 查看配置：
+                 airis gen config show --provider gemini
 
-                STORAGE:
-                  - API key：安全存储在 macOS Keychain
-                  - 配置：~/.config/airis/config.json
+            STORAGE:
+              - API key：安全存储在 macOS Keychain
+              - 配置：~/.config/airis/config.json
 
-                SUPPORTED PROVIDERS:
-                  - gemini：Google Gemini Image API
-                            获取 API key：https://aistudio.google.com/apikey
-                """
+            SUPPORTED PROVIDERS:
+              - gemini：Google Gemini Image API
+                        获取 API key：https://aistudio.google.com/apikey
+            """
         ),
         subcommands: [
             SetKeyCommand.self,
@@ -77,7 +77,7 @@ struct ConfigCommand: AsyncParsableCommand {
             SetConfigCommand.self,
             ShowConfigCommand.self,
             ResetConfigCommand.self,
-            SetDefaultCommand.self
+            SetDefaultCommand.self,
         ]
     )
 }
@@ -93,19 +93,19 @@ struct SetKeyCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Store an API key securely in macOS Keychain.
+            Store an API key securely in macOS Keychain.
 
-                Examples:
-                  airis gen config set-key --provider gemini --key "your-api-key"
-                  airis gen config set-key --provider gemini  # prompts for key
-                """,
+            Examples:
+              airis gen config set-key --provider gemini --key "your-api-key"
+              airis gen config set-key --provider gemini  # prompts for key
+            """,
             cn: """
-                将 API Key 安全写入 macOS Keychain（钥匙串）。
+            将 API Key 安全写入 macOS Keychain（钥匙串）。
 
-                EXAMPLES:
-                  airis gen config set-key --provider gemini --key "your-api-key"
-                  airis gen config set-key --provider gemini  # 交互式输入
-                """
+            EXAMPLES:
+              airis gen config set-key --provider gemini --key "your-api-key"
+              airis gen config set-key --provider gemini  # 交互式输入
+            """
         )
     )
 
@@ -121,9 +121,9 @@ struct SetKeyCommand: AsyncParsableCommand {
             apiKey = providedKey
         } else {
             #if DEBUG
-            let testInput = ProcessInfo.processInfo.environment["AIRIS_TEST_KEY_INPUT"]
+                let testInput = ProcessInfo.processInfo.environment["AIRIS_TEST_KEY_INPUT"]
             #else
-            let testInput: String? = nil
+                let testInput: String? = nil
             #endif
 
             if let forced = testInput, !forced.isEmpty {
@@ -134,13 +134,13 @@ struct SetKeyCommand: AsyncParsableCommand {
                 // 可替换的输入提供者（测试环境用环境变量返回，生产用 readLine）
                 let inputProvider: () -> String? = {
                     #if DEBUG
-                    if let stub = ProcessInfo.processInfo.environment["AIRIS_TEST_KEY_STDIN"] {
-                        return stub
-                    }
-                    // 避免测试阻塞 stdin，未提供桩时返回空字符串以触发错误分支
-                    return ""
+                        if let stub = ProcessInfo.processInfo.environment["AIRIS_TEST_KEY_STDIN"] {
+                            return stub
+                        }
+                        // 避免测试阻塞 stdin，未提供桩时返回空字符串以触发错误分支
+                        return ""
                     #else
-                    return readLine(strippingNewline: true)
+                        return readLine(strippingNewline: true)
                     #endif
                 }
 
@@ -169,17 +169,17 @@ struct GetKeyCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Retrieve and display an API key (partially masked for security).
+            Retrieve and display an API key (partially masked for security).
 
-                Example:
-                  airis gen config get-key --provider gemini
-                """,
+            Example:
+              airis gen config get-key --provider gemini
+            """,
             cn: """
-                从 macOS Keychain 读取 API Key，并以脱敏方式显示（仅显示首尾部分）。
+            从 macOS Keychain 读取 API Key，并以脱敏方式显示（仅显示首尾部分）。
 
-                EXAMPLES:
-                  airis gen config get-key --provider gemini
-                """
+            EXAMPLES:
+              airis gen config get-key --provider gemini
+            """
         )
     )
 
@@ -216,17 +216,17 @@ struct DeleteKeyCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Remove an API key from macOS Keychain.
+            Remove an API key from macOS Keychain.
 
-                Example:
-                  airis gen config delete-key --provider gemini
-                """,
+            Example:
+              airis gen config delete-key --provider gemini
+            """,
             cn: """
-                从 macOS Keychain 删除指定 Provider 的 API Key。
+            从 macOS Keychain 删除指定 Provider 的 API Key。
 
-                EXAMPLES:
-                  airis gen config delete-key --provider gemini
-                """
+            EXAMPLES:
+              airis gen config delete-key --provider gemini
+            """
         )
     )
 
@@ -251,45 +251,45 @@ struct SetConfigCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Configure provider settings (stored in ~/.config/airis/config.json).
+            Configure provider settings (stored in ~/.config/airis/config.json).
 
-                AVAILABLE SETTINGS:
-                  --base-url <url>     Custom API endpoint (default: https://generativelanguage.googleapis.com)
-                  --model <name>       Default model name (default: gemini-3-pro-image-preview)
+            AVAILABLE SETTINGS:
+              --base-url <url>     Custom API endpoint (default: https://generativelanguage.googleapis.com)
+              --model <name>       Default model name (default: gemini-3-pro-image-preview)
 
-                EXAMPLES:
-                  # Set custom API endpoint (e.g., proxy server)
-                  airis gen config set --provider gemini --base-url "https://proxy.example.com"
+            EXAMPLES:
+              # Set custom API endpoint (e.g., proxy server)
+              airis gen config set --provider gemini --base-url "https://proxy.example.com"
 
-                  # Set default model
-                  airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
+              # Set default model
+              airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
 
-                  # Set both at once
-                  airis gen config set --provider gemini \\
-                    --base-url "https://api.example.com" \\
-                    --model "custom-model"
+              # Set both at once
+              airis gen config set --provider gemini \\
+                --base-url "https://api.example.com" \\
+                --model "custom-model"
 
-                NOTE: You can omit --provider if only one provider is configured.
-                """,
+            NOTE: You can omit --provider if only one provider is configured.
+            """,
             cn: """
-                设置 Provider 的默认参数（写入 ~/.config/airis/config.json）。
+            设置 Provider 的默认参数（写入 ~/.config/airis/config.json）。
 
-                可配置项：
-                  --base-url <url>   API Endpoint（默认：https://generativelanguage.googleapis.com）
-                  --model <name>     默认模型名（默认：gemini-3-pro-image-preview）
+            可配置项：
+              --base-url <url>   API Endpoint（默认：https://generativelanguage.googleapis.com）
+              --model <name>     默认模型名（默认：gemini-3-pro-image-preview）
 
-                EXAMPLES:
-                  # 设置自定义 API Endpoint（例如代理）
-                  airis gen config set --provider gemini --base-url "https://proxy.example.com"
+            EXAMPLES:
+              # 设置自定义 API Endpoint（例如代理）
+              airis gen config set --provider gemini --base-url "https://proxy.example.com"
 
-                  # 设置默认模型
-                  airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
+              # 设置默认模型
+              airis gen config set --provider gemini --model "gemini-3-pro-image-preview"
 
-                  # 同时设置
-                  airis gen config set --provider gemini \\
-                    --base-url "https://api.example.com" \\
-                    --model "custom-model"
-                """
+              # 同时设置
+              airis gen config set --provider gemini \\
+                --base-url "https://api.example.com" \\
+                --model "custom-model"
+            """
         )
     )
 
@@ -345,47 +345,47 @@ struct ShowConfigCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Display current configuration for a provider.
+            Display current configuration for a provider.
 
-                OUTPUT FORMAT:
-                  Config file: ~/.config/airis/config.json
+            OUTPUT FORMAT:
+              Config file: ~/.config/airis/config.json
 
-                  [provider_name]
-                    api_key: ✓ Configured / ✗ Not configured
-                    base_url: https://...
-                    model: model-name
+              [provider_name]
+                api_key: ✓ Configured / ✗ Not configured
+                base_url: https://...
+                model: model-name
 
-                EXAMPLES:
-                  # Show specific provider
-                  airis gen config show --provider gemini
+            EXAMPLES:
+              # Show specific provider
+              airis gen config show --provider gemini
 
-                  # Show all configured providers
-                  airis gen config show
+              # Show all configured providers
+              airis gen config show
 
-                SAMPLE OUTPUT:
-                  [gemini]
-                    api_key: ✓ Configured
-                    base_url: https://generativelanguage.googleapis.com
-                    model: gemini-3-pro-image-preview
-                """,
+            SAMPLE OUTPUT:
+              [gemini]
+                api_key: ✓ Configured
+                base_url: https://generativelanguage.googleapis.com
+                model: gemini-3-pro-image-preview
+            """,
             cn: """
-                输出当前 Provider 配置与 API Key 配置状态。
+            输出当前 Provider 配置与 API Key 配置状态。
 
-                OUTPUT FORMAT:
-                  配置文件：~/.config/airis/config.json
+            OUTPUT FORMAT:
+              配置文件：~/.config/airis/config.json
 
-                  [provider_name]
-                    api_key: ✓ 已配置 / ✗ 未配置
-                    base_url: https://...
-                    model: model-name
+              [provider_name]
+                api_key: ✓ 已配置 / ✗ 未配置
+                base_url: https://...
+                model: model-name
 
-                EXAMPLES:
-                  # 查看指定 provider
-                  airis gen config show --provider gemini
+            EXAMPLES:
+              # 查看指定 provider
+              airis gen config show --provider gemini
 
-                  # 查看全部 provider
-                  airis gen config show
-                """
+              # 查看全部 provider
+              airis gen config show
+            """
         )
     )
 
@@ -404,7 +404,7 @@ struct ShowConfigCommand: AsyncParsableCommand {
         print("\(Strings.get("config.default_provider")): \(defaultProvider)")
         print("")
 
-        if let provider = provider {
+        if let provider {
             // 显示单个 provider
             try showProvider(provider, config: appConfig.providers[provider], keychain: keychain)
         } else {
@@ -425,7 +425,7 @@ struct ShowConfigCommand: AsyncParsableCommand {
         print("  api_key: \(keyStatus)")
 
         // 配置信息
-        if let config = config {
+        if let config {
             if let baseURL = config.baseURL {
                 print("  base_url: \(baseURL)")
             }
@@ -447,19 +447,19 @@ struct ResetConfigCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Reset provider settings to default values.
-                Note: This does NOT delete the API key.
+            Reset provider settings to default values.
+            Note: This does NOT delete the API key.
 
-                Example:
-                  airis gen config reset --provider gemini
-                """,
+            Example:
+              airis gen config reset --provider gemini
+            """,
             cn: """
-                将 Provider 的 base_url / model 等配置恢复为默认值。
-                注意：不会删除 API Key。
+            将 Provider 的 base_url / model 等配置恢复为默认值。
+            注意：不会删除 API Key。
 
-                EXAMPLES:
-                  airis gen config reset --provider gemini
-                """
+            EXAMPLES:
+              airis gen config reset --provider gemini
+            """
         )
     )
 
@@ -496,27 +496,27 @@ struct SetDefaultCommand: AsyncParsableCommand {
         ),
         discussion: helpDiscussion(
             en: """
-                Set the default provider for image generation.
-                When using 'airis gen draw', this provider will be used if --provider is not specified.
+            Set the default provider for image generation.
+            When using 'airis gen draw', this provider will be used if --provider is not specified.
 
-                EXAMPLES:
-                  airis gen config set-default --provider gemini
-                  airis gen config set-default --provider openai
+            EXAMPLES:
+              airis gen config set-default --provider gemini
+              airis gen config set-default --provider openai
 
-                AVAILABLE PROVIDERS:
-                  - gemini: Google Gemini (default)
-                """,
+            AVAILABLE PROVIDERS:
+              - gemini: Google Gemini (default)
+            """,
             cn: """
-                设置图像生成的默认 Provider。
-                使用 'airis gen draw' 时，如果未指定 --provider，将使用此默认值。
+            设置图像生成的默认 Provider。
+            使用 'airis gen draw' 时，如果未指定 --provider，将使用此默认值。
 
-                EXAMPLES:
-                  airis gen config set-default --provider gemini
-                  airis gen config set-default --provider openai
+            EXAMPLES:
+              airis gen config set-default --provider gemini
+              airis gen config set-default --provider openai
 
-                可用 PROVIDERS:
-                  - gemini: Google Gemini（默认）
-                """
+            可用 PROVIDERS:
+              - gemini: Google Gemini（默认）
+            """
         )
     )
 

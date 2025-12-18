@@ -3,7 +3,7 @@ import Foundation
 /// HTTP 客户端配置
 struct HTTPClientConfiguration: Sendable {
     var timeoutIntervalForRequest: TimeInterval = 60
-    var timeoutIntervalForResource: TimeInterval = 600  // 增加到 10 分钟
+    var timeoutIntervalForResource: TimeInterval = 600 // 增加到 10 分钟
     var waitsForConnectivity: Bool = true
     var maxRetries: Int = 3
     var retryDelay: TimeInterval = 1.0
@@ -76,11 +76,16 @@ final class HTTPClient: Sendable {
 
             // 处理 HTTP 状态码
             switch httpResponse.statusCode {
-            case 200...299:
+            case 200 ... 299:
                 AirisLog.debug("HTTP POST response \(httpResponse.statusCode) bytes=\(data.count)")
                 return (data, httpResponse)
 
-            case 500...599:
+            case 400 ... 499:
+                // 4xx 客户端错误 - 返回响应数据让调用者处理（可能包含有用的错误信息）
+                AirisLog.debug("HTTP POST client error \(httpResponse.statusCode) bytes=\(data.count)")
+                return (data, httpResponse)
+
+            case 500 ... 599:
                 // 5xx 服务器错误 - 可重试
                 if retryCount < configuration.maxRetries {
                     let delay = configuration.retryDelay * Double(retryCount + 1)
@@ -92,23 +97,14 @@ final class HTTPClient: Sendable {
                         retryCount: retryCount + 1
                     )
                 }
-                throw AirisError.networkError(
-                    NSError(
-                        domain: "HTTPClient",
-                        code: httpResponse.statusCode,
-                        userInfo: [NSLocalizedDescriptionKey: "Server error: \(httpResponse.statusCode)"]
-                    )
-                )
+                // 重试失败后返回响应数据让调用者处理（可能包含有用的错误信息）
+                AirisLog.debug("HTTP POST server error \(httpResponse.statusCode) bytes=\(data.count)")
+                return (data, httpResponse)
 
             default:
-                // 4xx 客户端错误 - 不重试
-                throw AirisError.networkError(
-                    NSError(
-                        domain: "HTTPClient",
-                        code: httpResponse.statusCode,
-                        userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode)"]
-                    )
-                )
+                // 其他状态码 - 返回让调用者处理
+                AirisLog.debug("HTTP POST unexpected status \(httpResponse.statusCode) bytes=\(data.count)")
+                return (data, httpResponse)
             }
 
         } catch let error as AirisError {
@@ -120,10 +116,10 @@ final class HTTPClient: Sendable {
                 NSURLErrorTimedOut,
                 NSURLErrorNetworkConnectionLost,
                 NSURLErrorNotConnectedToInternet,
-                NSURLErrorDNSLookupFailed
+                NSURLErrorDNSLookupFailed,
             ]
 
-            if retryableCodes.contains(nsError.code) && retryCount < configuration.maxRetries {
+            if retryableCodes.contains(nsError.code), retryCount < configuration.maxRetries {
                 let delay = configuration.retryDelay * Double(retryCount + 1)
                 try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                 return try await post(
@@ -162,7 +158,7 @@ final class HTTPClient: Sendable {
             throw AirisError.invalidResponse
         }
 
-        guard (200...299).contains(httpResponse.statusCode) else {
+        guard (200 ... 299).contains(httpResponse.statusCode) else {
             throw AirisError.networkError(
                 NSError(
                     domain: "HTTPClient",
@@ -177,10 +173,10 @@ final class HTTPClient: Sendable {
     }
 
     /// 发送 JSON POST 请求
-    func postJSON<T: Encodable>(
+    func postJSON(
         url: URL,
         headers: [String: String] = [:],
-        body: T
+        body: some Encodable
     ) async throws -> (Data, HTTPURLResponse) {
         var allHeaders = headers
         allHeaders["Content-Type"] = "application/json"
