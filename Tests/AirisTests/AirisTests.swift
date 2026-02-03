@@ -5,7 +5,7 @@ import XCTest
 
 final class AirisTests: XCTestCase {
     func testAirisVersionExists() throws {
-        XCTAssertEqual(AirisCommand.configuration.version, "1.0.0")
+        XCTAssertEqual(AirisCommand.configuration.version, "1.0.1")
     }
 
     func testAirisCommandName() throws {

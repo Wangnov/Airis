@@ -581,10 +581,10 @@ codesign --force --sign "YOUR_DEVELOPER_ID_SHA1" \
   --options runtime --timestamp .build/release/airis
 
 # 3. 打包
-zip airis-1.0.0.zip .build/release/airis
+zip airis-1.0.1.zip .build/release/airis
 
 # 4. 公证
-xcrun notarytool submit airis-1.0.0.zip \
+xcrun notarytool submit airis-1.0.1.zip \
   --apple-id "YOUR_APPLE_ID" \
   --team-id "YOUR_TEAM_ID" \
   --password "APP_SPECIFIC_PASSWORD" \

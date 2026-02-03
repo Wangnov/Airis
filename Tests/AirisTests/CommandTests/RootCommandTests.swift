@@ -31,7 +31,7 @@ final class RootCommandTests: XCTestCase {
 
     func testRootCommandConfiguration() throws {
         XCTAssertEqual(AirisCommand.configuration.commandName, "airis")
-        XCTAssertEqual(AirisCommand.configuration.version, "1.0.0")
+        XCTAssertEqual(AirisCommand.configuration.version, "1.0.1")
         XCTAssertEqual(AirisCommand.configuration.subcommands.count, 5)
     }
 
