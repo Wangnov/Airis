@@ -4,6 +4,10 @@
 --swiftversion 5.10
 --exclude **/.build,**/DerivedData,**/.swiftpm
 
+# 关闭会破坏 async autoclosure 和触发编译器崩溃的规则
+--disable hoistAwait
+--disable preferKeyPath
+
 # 基础格式化
 --indent 4
 --linebreaks lf
