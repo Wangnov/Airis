@@ -122,6 +122,8 @@ struct DrawCommand: AsyncParsableCommand {
         let configManager = ConfigManager()
         let config = try configManager.loadConfig()
         let actualProvider = provider ?? config.defaultProvider ?? "gemini"
+        let providerConfig = try configManager.getProviderConfig(for: actualProvider)
+        let providerType = (providerConfig.type ?? "gemini").lowercased()
 
         // 验证参考图片
         let refURLs = try ref.map { path in
@@ -147,17 +149,26 @@ struct DrawCommand: AsyncParsableCommand {
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print("")
 
-        // 使用通用的 Gemini 兼容 API
-        let imageProvider = GeminiProvider(providerName: actualProvider)
-        let outputURL = try await imageProvider.generateImage(
-            prompt: prompt,
-            references: refURLs,
-            model: model,
-            aspectRatio: aspectRatio,
-            imageSize: imageSize,
-            outputPath: output,
-            enableSearch: enableSearch
-        )
+        let outputURL: URL
+        switch providerType {
+        case "gemini":
+            // 使用 Gemini 兼容 API
+            let imageProvider = GeminiProvider(providerName: actualProvider)
+            outputURL = try await imageProvider.generateImage(
+                prompt: prompt,
+                references: refURLs,
+                model: model,
+                aspectRatio: aspectRatio,
+                imageSize: imageSize,
+                outputPath: output,
+                enableSearch: enableSearch
+            )
+        default:
+            throw AirisError.apiError(
+                provider: actualProvider,
+                message: "Unsupported provider type: \(providerType)"
+            )
+        }
 
         // 打开图片或在 Finder 中显示
         if reveal {

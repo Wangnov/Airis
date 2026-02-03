@@ -43,7 +43,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try FlipCommand.parse([input, "-o", out.path, "-h"]).run()
+            try await FlipCommand.parse([input, "-o", out.path, "-h"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -61,7 +61,7 @@ final class CommandLayerCoverageSprint12Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out, "--x", "-1", "--y", "0", "--width", "10", "--height", "10"]).run()
+            try await CropCommand.parse([input, "-o", out, "--x", "-1", "--y", "0", "--width", "10", "--height", "10"]).run()
         )
     }
 

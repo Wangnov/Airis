@@ -51,7 +51,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
         setenv("AIRIS_FORCE_META_DEST_FAIL", "1", 1)
         await XCTAssertThrowsErrorAsync(
-            try MetaCommand.parse([input, "--set-comment", "x", "-o", out.path]).run()
+            try await MetaCommand.parse([input, "--set-comment", "x", "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -61,7 +61,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
         setenv("AIRIS_FORCE_META_FINALIZE_FAIL", "1", 1)
         await XCTAssertThrowsErrorAsync(
-            try MetaCommand.parse([input, "--set-comment", "y", "-o", out.path]).run()
+            try await MetaCommand.parse([input, "--set-comment", "y", "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -97,7 +97,7 @@ final class CommandLayerCoverageSprint6Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try TemperatureCommand.parse([input, "-o", out.path, "--temp", "100"]).run()
+            try await TemperatureCommand.parse([input, "-o", out.path, "--temp", "100"]).run()
         )
         CommandTestHarness.cleanup(out)
     }

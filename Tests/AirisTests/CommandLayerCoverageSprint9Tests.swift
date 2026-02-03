@@ -54,7 +54,7 @@ final class CommandLayerCoverageSprint9Tests: XCTestCase {
         setenv("AIRIS_FORCE_PERSONS_CGIMAGE_NIL", "1", 1)
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try PersonsCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path]).run()
+            try await PersonsCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path]).run()
         )
     }
 }

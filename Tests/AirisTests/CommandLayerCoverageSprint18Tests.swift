@@ -13,7 +13,7 @@ final class CommandLayerCoverageSprint18Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", out.path]).run()
+            try await CutCommand.parse([input, "-o", out.path]).run()
         )
 
         unsetenv("AIRIS_FORCE_CUT_RENDER_FAIL")
@@ -27,7 +27,7 @@ final class CommandLayerCoverageSprint18Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
 
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out.path, "--format", "jpg", "--quality", "1.5"]).run()
+            try await FormatCommand.parse([input, "-o", out.path, "--format", "jpg", "--quality", "1.5"]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -38,7 +38,7 @@ final class CommandLayerCoverageSprint18Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "webp")
 
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out.path, "--format", "bmp"]).run()
+            try await FormatCommand.parse([input, "-o", out.path, "--format", "bmp"]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -51,7 +51,7 @@ final class CommandLayerCoverageSprint18Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path, "--level", "-0.1"]).run()
+            try await NoiseCommand.parse([input, "-o", out.path, "--level", "-0.1"]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -62,7 +62,7 @@ final class CommandLayerCoverageSprint18Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path, "--sharpness", "3.1"]).run()
+            try await NoiseCommand.parse([input, "-o", out.path, "--sharpness", "3.1"]).run()
         )
 
         CommandTestHarness.cleanup(out)

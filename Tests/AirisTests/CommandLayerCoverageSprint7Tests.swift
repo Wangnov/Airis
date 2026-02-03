@@ -67,7 +67,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try FlowCommand.parse([input1, input2, "-o", out.path]).run()
+            try await FlowCommand.parse([input1, input2, "-o", out.path]).run()
         )
     }
 
@@ -101,7 +101,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try AlignCommand.parse([ref, floating, "-o", out.path]).run()
+            try await AlignCommand.parse([ref, floating, "-o", out.path]).run()
         )
     }
 
@@ -148,7 +148,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try SaliencyCommand.parse([input, "-o", out.path]).run()
+            try await SaliencyCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -190,7 +190,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ScanCommand.parse([input, "-o", out.path]).run()
+            try await ScanCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -201,7 +201,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ScanCommand.parse([input, "-o", out.path]).run()
+            try await ScanCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -212,7 +212,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ScanCommand.parse([input, "-o", out.path]).run()
+            try await ScanCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -224,7 +224,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ThumbCommand.parse([input, "-o", out.path, "--size", "0"]).run()
+            try await ThumbCommand.parse([input, "-o", out.path, "--size", "0"]).run()
         )
     }
 
@@ -234,7 +234,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ThumbCommand.parse([input, "-o", out.path, "--quality", "1.5"]).run()
+            try await ThumbCommand.parse([input, "-o", out.path, "--quality", "1.5"]).run()
         )
     }
 
@@ -245,7 +245,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ThumbCommand.parse([input, "-o", out.path]).run()
+            try await ThumbCommand.parse([input, "-o", out.path]).run()
         )
     }
 
@@ -256,7 +256,7 @@ final class CommandLayerCoverageSprint7Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try ThumbCommand.parse([input, "-o", out.path]).run()
+            try await ThumbCommand.parse([input, "-o", out.path]).run()
         )
     }
 

@@ -48,7 +48,7 @@ final class CommandLayerCoverageSprint3Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try StraightenCommand.parse([input, "-o", out.path]).run()
+            try await StraightenCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }

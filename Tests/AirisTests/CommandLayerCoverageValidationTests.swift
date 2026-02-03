@@ -37,19 +37,19 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try ColorCommand.parse([input, "-o", out.path, "--brightness", "2"]).run()
+            try await ColorCommand.parse([input, "-o", out.path, "--brightness", "2"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try ColorCommand.parse([input, "-o", out.path, "--contrast", "5"]).run()
+            try await ColorCommand.parse([input, "-o", out.path, "--contrast", "5"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try ColorCommand.parse([input, "-o", out.path, "--saturation", "3"]).run()
+            try await ColorCommand.parse([input, "-o", out.path, "--saturation", "3"]).run()
         )
 
         // 输出已存在且未 --force
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try ColorCommand.parse([input, "-o", out.path]).run()
+            try await ColorCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -59,12 +59,12 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg")
 
         await XCTAssertThrowsErrorAsync(
-            try ExposureCommand.parse([input, "-o", out.path, "--ev", "20"]).run()
+            try await ExposureCommand.parse([input, "-o", out.path, "--ev", "20"]).run()
         )
 
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try ExposureCommand.parse([input, "-o", out.path]).run()
+            try await ExposureCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -74,11 +74,11 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg").path
 
         await XCTAssertThrowsErrorAsync(
-            try TemperatureCommand.parse([input, "-o", out, "--temp", "6000"]).run()
+            try await TemperatureCommand.parse([input, "-o", out, "--temp", "6000"]).run()
         )
 
         await XCTAssertThrowsErrorAsync(
-            try TemperatureCommand.parse([input, "-o", out, "--tint", "200"]).run()
+            try await TemperatureCommand.parse([input, "-o", out, "--tint", "200"]).run()
         )
     }
 
@@ -89,17 +89,17 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png").path
 
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out, "--type", "weird"]).run()
+            try await BlurCommand.parse([input, "-o", out, "--type", "weird"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out, "--radius", "120"]).run()
+            try await BlurCommand.parse([input, "-o", out, "--radius", "120"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out, "--type", "motion", "--angle", "400"]).run()
+            try await BlurCommand.parse([input, "-o", out, "--type", "motion", "--angle", "400"]).run()
         )
         // 不支持的输出格式
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out + ".webp"]).run()
+            try await BlurCommand.parse([input, "-o", out + ".webp"]).run()
         )
     }
 
@@ -108,16 +108,16 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png").path
 
         await XCTAssertThrowsErrorAsync(
-            try SharpenCommand.parse([input, "-o", out, "--method", "soft"]).run()
+            try await SharpenCommand.parse([input, "-o", out, "--method", "soft"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try SharpenCommand.parse([input, "-o", out, "--intensity", "3"]).run()
+            try await SharpenCommand.parse([input, "-o", out, "--intensity", "3"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try SharpenCommand.parse([input, "-o", out, "--method", "unsharp", "--radius", "20"]).run()
+            try await SharpenCommand.parse([input, "-o", out, "--method", "unsharp", "--radius", "20"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try SharpenCommand.parse([input, "-o", out + ".webp"]).run()
+            try await SharpenCommand.parse([input, "-o", out + ".webp"]).run()
         )
     }
 
@@ -126,18 +126,18 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path, "--level", "0.5"]).run()
+            try await NoiseCommand.parse([input, "-o", out.path, "--level", "0.5"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path, "--sharpness", "5"]).run()
+            try await NoiseCommand.parse([input, "-o", out.path, "--sharpness", "5"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path + ".webp"]).run()
+            try await NoiseCommand.parse([input, "-o", out.path + ".webp"]).run()
         )
 
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path]).run()
+            try await NoiseCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -149,7 +149,7 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try FlipCommand.parse([input, "-o", out.path]).run()
+            try await FlipCommand.parse([input, "-o", out.path]).run()
         )
 
         try? FileManager.default.removeItem(atPath: out.path)
@@ -163,12 +163,12 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try PosterizeCommand.parse([input, "-o", out.path, "--levels", "40"]).run()
+            try await PosterizeCommand.parse([input, "-o", out.path, "--levels", "40"]).run()
         )
 
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try PosterizeCommand.parse([input, "-o", out.path]).run()
+            try await PosterizeCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -178,12 +178,12 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try ThresholdCommand.parse([input, "-o", out.path, "--threshold", "2"]).run()
+            try await ThresholdCommand.parse([input, "-o", out.path, "--threshold", "2"]).run()
         )
 
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try ThresholdCommand.parse([input, "-o", out.path]).run()
+            try await ThresholdCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -193,15 +193,15 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try VignetteCommand.parse([input, "-o", out.path, "--intensity", "3"]).run()
+            try await VignetteCommand.parse([input, "-o", out.path, "--intensity", "3"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try VignetteCommand.parse([input, "-o", out.path, "--radius", "3"]).run()
+            try await VignetteCommand.parse([input, "-o", out.path, "--radius", "3"]).run()
         )
 
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try VignetteCommand.parse([input, "-o", out.path]).run()
+            try await VignetteCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -213,20 +213,20 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out.path, "--x", "-1", "--y", "0", "--width", "100", "--height", "100"]).run()
+            try await CropCommand.parse([input, "-o", out.path, "--x", "-1", "--y", "0", "--width", "100", "--height", "100"]).run()
         )
 
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out.path, "--x", "0", "--y", "0", "--width", "-10", "--height", "100"]).run()
+            try await CropCommand.parse([input, "-o", out.path, "--x", "0", "--y", "0", "--width", "-10", "--height", "100"]).run()
         )
 
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out.path, "--x", "500", "--y", "500", "--width", "100", "--height", "100"]).run()
+            try await CropCommand.parse([input, "-o", out.path, "--x", "500", "--y", "500", "--width", "100", "--height", "100"]).run()
         )
 
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out.path, "--x", "0", "--y", "0", "--width", "100", "--height", "100"]).run()
+            try await CropCommand.parse([input, "-o", out.path, "--x", "0", "--y", "0", "--width", "100", "--height", "100"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -237,13 +237,13 @@ final class CommandLayerCoverageValidationTests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let outNonPng = CommandTestHarness.temporaryFile(ext: "jpg").path
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", outNonPng]).run()
+            try await CutCommand.parse([input, "-o", outNonPng]).run()
         )
 
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", out.path]).run()
+            try await CutCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }

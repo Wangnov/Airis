@@ -45,7 +45,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try MetaCommand.parse([empty.path, "--set-comment", "x", "-o", out.path]).run()
+            try await MetaCommand.parse([empty.path, "--set-comment", "x", "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(empty)
         CommandTestHarness.cleanup(out)
@@ -58,7 +58,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
         let empty = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: empty.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try PaletteCommand.parse([empty.path, "--count", "5"]).run()
+            try await PaletteCommand.parse([empty.path, "--count", "5"]).run()
         )
         CommandTestHarness.cleanup(empty)
     }
@@ -148,7 +148,7 @@ final class CommandLayerCoverageSprint5Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try RotateCommand.parse([input, "-o", out.path, "--angle", "15"]).run()
+            try await RotateCommand.parse([input, "-o", out.path, "--angle", "15"]).run()
         )
         CommandTestHarness.cleanup(out)
     }

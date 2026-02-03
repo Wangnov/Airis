@@ -25,7 +25,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try TemperatureCommand.parse([input, "-o", out.path, "--temp", "-200"]).run()
+            try await TemperatureCommand.parse([input, "-o", out.path, "--temp", "-200"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -45,7 +45,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try ScanCommand.parse([input, "-o", out.path]).run()
+            try await ScanCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -58,7 +58,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try HalftoneCommand.parse([input, "-o", out.path, "--width", "6", "--angle", "10"]).run()
+            try await HalftoneCommand.parse([input, "-o", out.path, "--width", "6", "--angle", "10"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -69,7 +69,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try PixelCommand.parse([input, "-o", out.path, "--scale", "12"]).run()
+            try await PixelCommand.parse([input, "-o", out.path, "--scale", "12"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -80,7 +80,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try ChromeCommand.parse([input, "-o", out.path]).run()
+            try await ChromeCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -91,7 +91,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try ComicCommand.parse([input, "-o", out.path]).run()
+            try await ComicCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -102,7 +102,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try InstantCommand.parse([input, "-o", out.path]).run()
+            try await InstantCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -113,7 +113,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try MonoCommand.parse([input, "-o", out.path]).run()
+            try await MonoCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -124,7 +124,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try NoirCommand.parse([input, "-o", out.path]).run()
+            try await NoirCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -135,7 +135,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try SepiaCommand.parse([input, "-o", out.path]).run()
+            try await SepiaCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -146,7 +146,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out.path, "--radius", "4"]).run()
+            try await BlurCommand.parse([input, "-o", out.path, "--radius", "4"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -157,7 +157,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try SharpenCommand.parse([input, "-o", out.path, "--intensity", "0.8"]).run()
+            try await SharpenCommand.parse([input, "-o", out.path, "--intensity", "0.8"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -170,7 +170,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try ThumbCommand.parse([input, "-o", out.path, "--size", "256"]).run()
+            try await ThumbCommand.parse([input, "-o", out.path, "--size", "256"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -181,7 +181,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try DefringeCommand.parse([input, "-o", out.path, "--amount", "0.5"]).run()
+            try await DefringeCommand.parse([input, "-o", out.path, "--amount", "0.5"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -192,7 +192,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try RotateCommand.parse([input, "-o", out.path, "--angle", "-30"]).run()
+            try await RotateCommand.parse([input, "-o", out.path, "--angle", "-30"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -203,7 +203,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try InvertCommand.parse([input, "-o", out.path]).run()
+            try await InvertCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -214,7 +214,7 @@ final class CommandLayerOutputExistsTests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try EnhanceCommand.parse([input, "-o", out.path]).run()
+            try await EnhanceCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }

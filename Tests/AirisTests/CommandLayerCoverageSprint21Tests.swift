@@ -21,7 +21,7 @@ final class CommandLayerCoverageSprint21Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", out.path]).run()
+            try await CutCommand.parse([input, "-o", out.path]).run()
         )
 
         unsetenv("AIRIS_FORCE_CUT_RENDER_NIL")

@@ -1,17 +1,17 @@
 import ArgumentParser
-import SensitiveContentAnalysis
 import Foundation
+import SensitiveContentAnalysis
 
 struct SafeCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         CommandConfiguration(
-        commandName: "safe",
-        abstract: HelpTextFactory.text(
-            en: "Detect sensitive content in images",
-            cn: "检测图片是否包含敏感内容"
-        ),
-        discussion: helpDiscussion(
-            en: """
+            commandName: "safe",
+            abstract: HelpTextFactory.text(
+                en: "Detect sensitive content in images",
+                cn: "检测图片是否包含敏感内容"
+            ),
+            discussion: helpDiscussion(
+                en: """
                 Analyze images for sensitive content (nudity) using Apple's
                 SensitiveContentAnalysis framework.
 
@@ -51,7 +51,7 @@ struct SafeCommand: AsyncParsableCommand {
                   - All analysis is performed locally on device
                   - Results are never transmitted off-device
                 """,
-            cn: """
+                cn: """
                 使用 Apple SensitiveContentAnalysis 框架检测图片敏感内容。
 
                 ⚠️  可用性说明：
@@ -84,8 +84,8 @@ struct SafeCommand: AsyncParsableCommand {
                   - 全部本地执行，不上传图片
                   - 结果不会离开设备
                 """
+            )
         )
-    )
     }
 
     @Argument(help: HelpTextFactory.help(en: "Path to the image file", cn: "输入图片路径"))
@@ -121,22 +121,22 @@ struct SafeCommand: AsyncParsableCommand {
             isSensitive = forceSensitive
         } else {
             #if DEBUG
-            // 测试/调试构建走轻量桩，避免依赖真实敏感内容分析（需签名 & 系统设置）
-            policy = .simpleInterventions
-            isSensitive = false
+                // 测试/调试构建走轻量桩，避免依赖真实敏感内容分析（需签名 & 系统设置）
+                policy = .simpleInterventions
+                isSensitive = false
             #else
-            let analyzer = SCSensitivityAnalyzer()
-            policy = analyzer.analysisPolicy
-            if policy == .disabled {
-                if outputFormat == .json {
-                    printDisabledJSON(filename: filename)
-                } else if showHumanOutput {
-                    print(Strings.get("safe.disabled_hint"))
+                let analyzer = SCSensitivityAnalyzer()
+                policy = analyzer.analysisPolicy
+                if policy == .disabled {
+                    if outputFormat == .json {
+                        printDisabledJSON(filename: filename)
+                    } else if showHumanOutput {
+                        print(Strings.get("safe.disabled_hint"))
+                    }
+                    return
                 }
-                return
-            }
-            let result = try await analyzer.analyzeImage(at: url)
-            isSensitive = result.isSensitive
+                let result = try await analyzer.analyzeImage(at: url)
+                isSensitive = result.isSensitive
             #endif
         }
 
@@ -157,11 +157,12 @@ struct SafeCommand: AsyncParsableCommand {
         if outputFormat == .json {
             let dict: [String: Any] = [
                 "file": filename,
-                "is_sensitive": isSensitive
+                "is_sensitive": isSensitive,
             ]
 
             if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
+               let jsonString = String(data: jsonData, encoding: .utf8)
+            {
                 print(jsonString)
             }
             return
@@ -181,10 +182,11 @@ struct SafeCommand: AsyncParsableCommand {
         let dict: [String: Any] = [
             "file": filename,
             "supported": false,
-            "error": "policy_disabled"
+            "error": "policy_disabled",
         ]
         if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+           let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             print(jsonString)
         }
     }

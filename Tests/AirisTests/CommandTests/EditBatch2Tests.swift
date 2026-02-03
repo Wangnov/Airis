@@ -187,7 +187,7 @@ final class EditBatch2Tests: XCTestCase {
         let config = EditCommand.configuration
         let subcommands = config.subcommands
 
-        let subcommandNames = subcommands.map(\.configuration.commandName)
+        let subcommandNames = subcommands.map { $0.configuration.commandName }
 
         // Task 6.3 的新命令
         XCTAssertTrue(subcommandNames.contains("scan"))

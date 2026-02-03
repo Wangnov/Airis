@@ -64,16 +64,16 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try HalftoneCommand.parse([input, "-o", out.path, "--width", "0"]).run()
+            try await HalftoneCommand.parse([input, "-o", out.path, "--width", "0"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try HalftoneCommand.parse([input, "-o", out.path, "--angle", "400"]).run()
+            try await HalftoneCommand.parse([input, "-o", out.path, "--angle", "400"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try HalftoneCommand.parse([input, "-o", out.path, "--sharpness", "2"]).run()
+            try await HalftoneCommand.parse([input, "-o", out.path, "--sharpness", "2"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try HalftoneCommand.parse([input, "-o", "out.bmp"]).run()
+            try await HalftoneCommand.parse([input, "-o", "out.bmp"]).run()
         )
     }
 
@@ -83,10 +83,10 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try PixelCommand.parse([input, "-o", out.path, "--scale", "0"]).run()
+            try await PixelCommand.parse([input, "-o", out.path, "--scale", "0"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try PixelCommand.parse([input, "-o", "pix.bmp"]).run()
+            try await PixelCommand.parse([input, "-o", "pix.bmp"]).run()
         )
     }
 
@@ -96,10 +96,10 @@ final class CommandLayerCoverageSprint8Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(out) }
 
         await XCTAssertThrowsErrorAsync(
-            try SepiaCommand.parse([input, "-o", out.path, "--intensity", "2"]).run()
+            try await SepiaCommand.parse([input, "-o", out.path, "--intensity", "2"]).run()
         )
         await XCTAssertThrowsErrorAsync(
-            try SepiaCommand.parse([input, "-o", "sepia.bmp"]).run()
+            try await SepiaCommand.parse([input, "-o", "sepia.bmp"]).run()
         )
     }
 

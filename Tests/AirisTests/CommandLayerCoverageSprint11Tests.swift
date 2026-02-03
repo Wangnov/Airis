@@ -50,7 +50,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
         unsetenv("AIRIS_TEST_MODE")
 
         await XCTAssertThrowsErrorAsync(
-            try MetaCommand.parse([tmp.path]).run()
+            try await MetaCommand.parse([tmp.path]).run()
         )
 
         CommandTestHarness.cleanup(tmp)
@@ -81,7 +81,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out.path, "--type", "unknown"]).run()
+            try await BlurCommand.parse([input, "-o", out.path, "--type", "unknown"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -90,7 +90,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png")
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out.path, "--type", "motion", "--angle", "361"]).run()
+            try await BlurCommand.parse([input, "-o", out.path, "--type", "motion", "--angle", "361"]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -109,7 +109,7 @@ final class CommandLayerCoverageSprint11Tests: XCTestCase {
         ]
 
         for command in commands {
-            await XCTAssertThrowsErrorAsync(try command())
+            await XCTAssertThrowsErrorAsync(try await command())
         }
     }
 

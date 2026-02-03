@@ -257,7 +257,7 @@ final class RealWorldUseCaseTests: XCTestCase {
 
         // 4. 分类
         let classifications = try await visionService.classifyImage(at: imageURL, threshold: 0.5)
-        let topCategories = classifications.prefix(3).map(\.identifier)
+        let topCategories = classifications.prefix(3).map { $0.identifier }
 
         // 生成审核结果
         let result = ModerationResult(

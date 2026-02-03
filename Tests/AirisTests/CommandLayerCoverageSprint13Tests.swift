@@ -22,7 +22,7 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
     func testCutCommandOutputMustBePNGThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpg").path]).run()
+            try await CutCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "jpg").path]).run()
         )
     }
 
@@ -32,7 +32,7 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", out.path]).run()
+            try await CutCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }
@@ -42,7 +42,7 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
     func testDefringeAmountInvalidThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try DefringeCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--amount", "1.5"]).run()
+            try await DefringeCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--amount", "1.5"]).run()
         )
     }
 
@@ -51,7 +51,7 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
     func testTraceInvalidStyleThrows() async {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         await XCTAssertThrowsErrorAsync(
-            try TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "invalid"]).run()
+            try await TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "invalid"]).run()
         )
     }
 
@@ -61,7 +61,7 @@ final class CommandLayerCoverageSprint13Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try BlurCommand.parse([input, "-o", out.path]).run()
+            try await BlurCommand.parse([input, "-o", out.path]).run()
         )
         CommandTestHarness.cleanup(out)
     }

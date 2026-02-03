@@ -26,29 +26,15 @@ struct GeminiGenerateRequest: Codable {
     struct Part: Codable {
         let text: String?
         let inlineData: InlineData?
-
-        enum CodingKeys: String, CodingKey {
-            case text
-            case inlineData = "inline_data"
-        }
     }
 
     struct InlineData: Codable {
         let mimeType: String
         let data: String // Base64 encoded
-
-        enum CodingKeys: String, CodingKey {
-            case mimeType = "mime_type"
-            case data
-        }
     }
 
     struct Tool: Codable {
         let googleSearch: GoogleSearch
-
-        enum CodingKeys: String, CodingKey {
-            case googleSearch = "google_search"
-        }
 
         struct GoogleSearch: Codable {
             // 空对象即可
@@ -58,21 +44,11 @@ struct GeminiGenerateRequest: Codable {
     struct GenerationConfig: Codable {
         let responseModalities: [String]
         let imageConfig: ImageConfig?
-
-        enum CodingKeys: String, CodingKey {
-            case responseModalities = "response_modalities"
-            case imageConfig = "image_config"
-        }
     }
 
     struct ImageConfig: Codable {
         let aspectRatio: String?
         let imageSize: String?
-
-        enum CodingKeys: String, CodingKey {
-            case aspectRatio = "aspect_ratio"
-            case imageSize = "image_size"
-        }
     }
 }
 

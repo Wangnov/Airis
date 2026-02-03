@@ -301,7 +301,7 @@ extension EditBatch1Tests {
         let subcommands = config.subcommands
 
         // 应该包含我们添加的四个命令
-        let subcommandNames = subcommands.map(\.configuration.commandName)
+        let subcommandNames = subcommands.map { $0.configuration.commandName }
 
         XCTAssertTrue(subcommandNames.contains("cut"))
         XCTAssertTrue(subcommandNames.contains("resize"))

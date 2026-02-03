@@ -254,6 +254,7 @@ struct SetConfigCommand: AsyncParsableCommand {
             Configure provider settings (stored in ~/.config/airis/config.json).
 
             AVAILABLE SETTINGS:
+              --type <type>        Provider type (default: gemini)
               --base-url <url>     Custom API endpoint (default: https://generativelanguage.googleapis.com)
               --model <name>       Default model name (default: gemini-3-pro-image-preview)
 
@@ -275,6 +276,7 @@ struct SetConfigCommand: AsyncParsableCommand {
             设置 Provider 的默认参数（写入 ~/.config/airis/config.json）。
 
             可配置项：
+              --type <type>     Provider 类型（默认：gemini）
               --base-url <url>   API Endpoint（默认：https://generativelanguage.googleapis.com）
               --model <name>     默认模型名（默认：gemini-3-pro-image-preview）
 
@@ -296,6 +298,9 @@ struct SetConfigCommand: AsyncParsableCommand {
     @Option(name: .long, help: HelpTextFactory.help(en: "Provider name (e.g., gemini)", cn: "Provider 名称（例如：gemini）"))
     var provider: String
 
+    @Option(name: .long, help: HelpTextFactory.help(en: "Provider type (e.g., gemini)", cn: "Provider 类型（例如：gemini）"))
+    var type: String?
+
     @Option(name: .long, help: HelpTextFactory.help(en: "API base URL", cn: "API Base URL"))
     var baseUrl: String?
 
@@ -303,7 +308,7 @@ struct SetConfigCommand: AsyncParsableCommand {
     var model: String?
 
     func run() async throws {
-        guard baseUrl != nil || model != nil else {
+        guard baseUrl != nil || model != nil || type != nil else {
             print(Strings.get("config.no_changes"))
             return
         }
@@ -311,6 +316,7 @@ struct SetConfigCommand: AsyncParsableCommand {
         let configManager = makeConfigManagerFromEnv()
         try configManager.updateProviderConfig(
             for: provider,
+            type: type,
             baseURL: baseUrl,
             model: model
         )
@@ -325,6 +331,9 @@ struct SetConfigCommand: AsyncParsableCommand {
     private func printProviderConfig(provider: String, config: ProviderConfig) {
         print("")
         print("[\(provider)]")
+        if let type = config.type {
+            print("  type: \(type)")
+        }
         if let baseURL = config.baseURL {
             print("  base_url: \(baseURL)")
         }
@@ -426,6 +435,9 @@ struct ShowConfigCommand: AsyncParsableCommand {
 
         // 配置信息
         if let config {
+            if let type = config.type {
+                print("  type: \(type)")
+            }
             if let baseURL = config.baseURL {
                 print("  base_url: \(baseURL)")
             }
@@ -481,6 +493,9 @@ struct ResetConfigCommand: AsyncParsableCommand {
         }
         if let model = config.model ?? (forcePrint ? "forced-model" : nil) {
             print("  model: \(model)")
+        }
+        if let type = config.type ?? (forcePrint ? "forced-type" : nil) {
+            print("  type: \(type)")
         }
     }
 }

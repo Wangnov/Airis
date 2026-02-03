@@ -13,7 +13,7 @@ final class CommandLayerCoverageSprint19Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", out.path]).run()
+            try await NoiseCommand.parse([input, "-o", out.path]).run()
         )
 
         unsetenv("AIRIS_FORCE_NOISE_RENDER_FAIL")
@@ -28,7 +28,7 @@ final class CommandLayerCoverageSprint19Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try TraceCommand.parse([input, "-o", out.path, "--style", "edges"]).run()
+            try await TraceCommand.parse([input, "-o", out.path, "--style", "edges"]).run()
         )
 
         unsetenv("AIRIS_FORCE_TRACE_RENDER_FAIL")
@@ -41,7 +41,7 @@ final class CommandLayerCoverageSprint19Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try TraceCommand.parse([input, "-o", out.path]).run()
+            try await TraceCommand.parse([input, "-o", out.path]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -55,7 +55,7 @@ final class CommandLayerCoverageSprint19Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data())
 
         await XCTAssertThrowsErrorAsync(
-            try CutCommand.parse([input, "-o", out.path]).run()
+            try await CutCommand.parse([input, "-o", out.path]).run()
         )
 
         CommandTestHarness.cleanup(out)

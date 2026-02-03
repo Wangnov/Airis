@@ -23,7 +23,7 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out, "--x", "0", "--y", "0", "--width", "0", "--height", "10"]).run()
+            try await CropCommand.parse([input, "-o", out, "--x", "0", "--y", "0", "--width", "0", "--height", "10"]).run()
         )
     }
 
@@ -31,7 +31,7 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([input, "-o", out, "--x", "90", "--y", "90", "--width", "20", "--height", "20"]).run()
+            try await CropCommand.parse([input, "-o", out, "--x", "90", "--y", "90", "--width", "20", "--height", "20"]).run()
         )
     }
 
@@ -41,14 +41,14 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         let out = CommandTestHarness.temporaryFile(ext: "png").path
         await XCTAssertThrowsErrorAsync(
-            try TraceCommand.parse([input, "-o", out, "--style", "edges", "--intensity", "6"]).run()
+            try await TraceCommand.parse([input, "-o", out, "--style", "edges", "--intensity", "6"]).run()
         )
     }
 
     func testTraceRadiusOutOfRangeThrows() async {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         await XCTAssertThrowsErrorAsync(
-            try TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "work", "--radius", "0.5"]).run()
+            try await TraceCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--style", "work", "--radius", "0.5"]).run()
         )
     }
 
@@ -57,7 +57,7 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
     func testNoiseStrengthOutOfRangeThrows() async {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         await XCTAssertThrowsErrorAsync(
-            try NoiseCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--strength", "1.5"]).run()
+            try await NoiseCommand.parse([input, "-o", CommandTestHarness.temporaryFile(ext: "png").path, "--strength", "1.5"]).run()
         )
     }
 
@@ -67,7 +67,7 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
         let input = CommandTestHarness.fixture("small_100x100.png").path
         let out = CommandTestHarness.temporaryFile(ext: "jpg").path
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.2"]).run()
+            try await FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.2"]).run()
         )
     }
 
@@ -76,7 +76,7 @@ final class CommandLayerCoverageSprint14Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: out.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out.path, "--format", "png"]).run()
+            try await FormatCommand.parse([input, "-o", out.path, "--format", "png"]).run()
         )
         CommandTestHarness.cleanup(out)
     }

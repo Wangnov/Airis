@@ -2,11 +2,13 @@ import Foundation
 
 /// Provider 配置模型
 struct ProviderConfig: Codable, Sendable {
+    var type: String?
     var baseURL: String?
     var model: String?
     var customHeaders: [String: String]?
 
     enum CodingKeys: String, CodingKey {
+        case type
         case baseURL = "base_url"
         case model
         case customHeaders = "custom_headers"
@@ -63,6 +65,7 @@ final class ConfigManager: Sendable {
     /// 默认 Provider 配置
     static let defaultConfigs: [String: ProviderConfig] = [
         "gemini": ProviderConfig(
+            type: "gemini",
             baseURL: "https://generativelanguage.googleapis.com",
             model: "gemini-3-pro-image-preview",
             customHeaders: nil
@@ -135,12 +138,16 @@ final class ConfigManager: Sendable {
     /// 更新 Provider 配置
     func updateProviderConfig(
         for provider: String,
+        type: String? = nil,
         baseURL: String? = nil,
         model: String? = nil
     ) throws {
         var config = try loadConfig()
         var providerConfig = config.providers[provider] ?? Self.defaultConfigs[provider] ?? ProviderConfig()
 
+        if let type {
+            providerConfig.type = type
+        }
         if let baseURL {
             providerConfig.baseURL = baseURL
         }

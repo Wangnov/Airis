@@ -26,7 +26,7 @@ final class CommandLayerCoverageSprint15Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
+            try await MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -39,7 +39,7 @@ final class CommandLayerCoverageSprint15Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png")
 
         await XCTAssertThrowsErrorAsync(
-            try MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
+            try await MetaCommand.parse([input, "--set-comment", "stub", "-o", out.path]).run()
         )
 
         CommandTestHarness.cleanup(out)

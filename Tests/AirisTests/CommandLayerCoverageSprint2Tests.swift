@@ -57,7 +57,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let temp = CommandTestHarness.temporaryFile(ext: "png")
         FileManager.default.createFile(atPath: temp.path, contents: Data())
         await XCTAssertThrowsErrorAsync(
-            try PaletteCommand.parse([temp.path]).run()
+            try await PaletteCommand.parse([temp.path]).run()
         )
         CommandTestHarness.cleanup(temp)
     }
@@ -69,11 +69,11 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "jpg").path
 
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out, "--format", "bmpx"]).run()
+            try await FormatCommand.parse([input, "-o", out, "--format", "bmpx"]).run()
         )
 
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.5"]).run()
+            try await FormatCommand.parse([input, "-o", out, "--format", "jpg", "--quality", "1.5"]).run()
         )
     }
 
@@ -84,7 +84,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data([0x00]))
 
         await XCTAssertThrowsErrorAsync(
-            try FormatCommand.parse([input, "-o", out.path, "--format", "png"]).run()
+            try await FormatCommand.parse([input, "-o", out.path, "--format", "png"]).run()
         )
 
         CommandTestHarness.cleanup(out)
@@ -126,7 +126,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         let out = CommandTestHarness.temporaryFile(ext: "png").path
 
         await XCTAssertThrowsErrorAsync(
-            try ResizeCommand.parse([input, "-o", out]).run()
+            try await ResizeCommand.parse([input, "-o", out]).run()
         )
     }
 
@@ -166,7 +166,7 @@ final class CommandLayerCoverageSprint2Tests: XCTestCase {
         FileManager.default.createFile(atPath: out.path, contents: Data([0x00]))
 
         await XCTAssertThrowsErrorAsync(
-            try ResizeCommand.parse([
+            try await ResizeCommand.parse([
                 input,
                 "-o", out.path,
                 "--width", "50",

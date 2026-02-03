@@ -75,9 +75,9 @@ final class CommandLayerAdditionalBranchTests: XCTestCase {
     func testTraceInvalidArgumentsThrow() async throws {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
 
-        await XCTAssertThrowsErrorAsync(try TraceCommand.parse([input, "--style", "bad", "-o", "out.png"]).run())
-        await XCTAssertThrowsErrorAsync(try TraceCommand.parse([input, "--intensity", "9.9", "-o", "out.png"]).run())
-        await XCTAssertThrowsErrorAsync(try TraceCommand.parse([input, "--radius", "20", "-o", "out.png"]).run())
+        await XCTAssertThrowsErrorAsync(try await TraceCommand.parse([input, "--style", "bad", "-o", "out.png"]).run())
+        await XCTAssertThrowsErrorAsync(try await TraceCommand.parse([input, "--intensity", "9.9", "-o", "out.png"]).run())
+        await XCTAssertThrowsErrorAsync(try await TraceCommand.parse([input, "--radius", "20", "-o", "out.png"]).run())
     }
 
     /// 输出已存在且未强制，应抛错
@@ -85,7 +85,7 @@ final class CommandLayerAdditionalBranchTests: XCTestCase {
         let input = CommandTestHarness.fixture("medium_512x512.jpg").path
         let output = CommandTestHarness.temporaryFile(ext: "png")
         try Data().write(to: output) // 创建空文件
-        await XCTAssertThrowsErrorAsync(try TraceCommand.parse([input, "-o", output.path]).run())
+        await XCTAssertThrowsErrorAsync(try await TraceCommand.parse([input, "-o", output.path]).run())
         CommandTestHarness.cleanup(output)
     }
 

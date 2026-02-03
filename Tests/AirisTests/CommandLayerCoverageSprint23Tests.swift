@@ -114,7 +114,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
 
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([
+            try await CropCommand.parse([
                 input, "-o", output.path, "--width", "0", "--height", "10",
             ]).run()
         )
@@ -126,7 +126,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
 
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([
+            try await CropCommand.parse([
                 input, "-o", output.path, "--x", "90", "--y", "90", "--width", "20", "--height", "20",
             ]).run()
         )
@@ -138,7 +138,7 @@ final class CommandLayerCoverageSprint23Tests: XCTestCase {
         defer { CommandTestHarness.cleanup(output) }
 
         await XCTAssertThrowsErrorAsync(
-            try CropCommand.parse([
+            try await CropCommand.parse([
                 input, "-o", output.path, "--x", "-5", "--y", "0", "--width", "10", "--height", "10",
             ]).run()
         )
