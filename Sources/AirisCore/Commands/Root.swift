@@ -157,7 +157,7 @@ public struct AirisCommand: AsyncParsableCommand {
                 进一步信息请查看各子命令的帮助页。
                 """
             ),
-            version: "1.0.1",
+            version: "1.0.2",
             subcommands: [
                 // 顶级命令组
                 GenCommand.self,
