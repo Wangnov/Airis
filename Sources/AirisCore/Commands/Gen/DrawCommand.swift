@@ -33,7 +33,7 @@ struct DrawCommand: AsyncParsableCommand {
 
             OPTIONS:
               --ref <path>            Reference image path (repeatable)
-              --aspect-ratio <ratio>  1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
+              --aspect-ratio <ratio>  auto, 1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
               --image-size <size>     1K, 2K (default), 4K
               --open                  Open result after generation
               --reveal                Reveal result in Finder after generation
@@ -67,7 +67,7 @@ struct DrawCommand: AsyncParsableCommand {
 
             OPTIONS:
               --ref <path>            参考图路径（可重复传多个）
-              --aspect-ratio <ratio>  1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
+              --aspect-ratio <ratio>  auto, 1:1, 3:4, 4:3, 16:9, 9:16, 21:9, ...
               --image-size <size>     1K, 2K（默认）, 4K
               --open                  生成后自动打开
               --reveal                生成后在 Finder 中显示
@@ -95,8 +95,8 @@ struct DrawCommand: AsyncParsableCommand {
     @Option(name: [.short, .long], help: HelpTextFactory.help(en: "Output file path", cn: "输出文件路径"))
     var output: String?
 
-    @Option(name: .long, help: HelpTextFactory.help(en: "Aspect ratio (1:1, 16:9, 3:4, etc.)", cn: "画面比例（1:1、16:9、3:4 等）"))
-    var aspectRatio: String = "1:1"
+    @Option(name: .long, help: HelpTextFactory.help(en: "Aspect ratio (auto, 1:1, 16:9, 3:4, etc.)", cn: "画面比例（auto、1:1、16:9、3:4 等）"))
+    var aspectRatio: String = "auto"
 
     @Option(name: .long, help: HelpTextFactory.help(en: "Image size (1K, 2K, 4K)", cn: "图片尺寸等级（1K / 2K / 4K）"))
     var imageSize: String = "2K"

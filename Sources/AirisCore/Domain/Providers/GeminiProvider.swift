@@ -26,7 +26,7 @@ final class GeminiProvider: Sendable {
         prompt: String,
         references: [URL] = [],
         model: String? = nil,
-        aspectRatio: String = "1:1",
+        aspectRatio: String = "auto",
         imageSize: String = "2K",
         outputPath: String? = nil,
         enableSearch: Bool = false
@@ -74,6 +74,10 @@ final class GeminiProvider: Sendable {
         // 标准化 imageSize（支持 1k/2k/4k 等小写输入）
         let normalizedImageSize = imageSize.uppercased()
 
+        // aspectRatio: 支持 "auto"（不在请求中发送 aspectRatio 字段，让模型按默认行为决定）
+        let normalizedAspectRatio = aspectRatio.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveAspectRatio: String? = normalizedAspectRatio.lowercased() == "auto" ? nil : normalizedAspectRatio
+
         // 构建 API 端点（v1beta 固定在代码中）
         let baseURL = providerConfig.baseURL ?? "https://generativelanguage.googleapis.com"
         let endpoint = "\(baseURL)/v1beta/models/\(actualModel):generateContent"
@@ -83,7 +87,7 @@ final class GeminiProvider: Sendable {
         }
 
         AirisLog.debug("GeminiProvider endpoint: \(endpoint)")
-        AirisLog.debug("GeminiProvider model: \(actualModel), aspectRatio=\(aspectRatio), imageSize=\(normalizedImageSize)")
+        AirisLog.debug("GeminiProvider model: \(actualModel), aspectRatio=\(effectiveAspectRatio ?? "auto"), imageSize=\(normalizedImageSize)")
         AirisLog.debug("GeminiProvider refs=\(references.count), search=\(enableSearch)")
 
         // 打印进度和参数信息
@@ -92,16 +96,24 @@ final class GeminiProvider: Sendable {
         print("🔑 模型: \(actualModel)")
         print("📝 提示词: \(prompt)")
         print("")
-        print("📐 纵横比: \(aspectRatio)")
+        print("📐 纵横比: \(effectiveAspectRatio ?? "auto")")
 
         if actualModel.contains("2.5-flash") {
             // Flash 模型固定 1024px
-            let resolution = getResolutionForFlash(aspectRatio: aspectRatio)
-            print("📏 分辨率: 1024px 级别 (\(resolution))")
+            if let effectiveAspectRatio {
+                let resolution = getResolutionForFlash(aspectRatio: effectiveAspectRatio)
+                print("📏 分辨率: 1024px 级别 (\(resolution))")
+            } else {
+                print("📏 分辨率: 1024px 级别 (auto)")
+            }
         } else {
             // Pro 模型可变分辨率
-            let resolution = getResolutionForPro(aspectRatio: aspectRatio, size: normalizedImageSize)
-            print("📏 分辨率: \(normalizedImageSize) (\(resolution))")
+            if let effectiveAspectRatio {
+                let resolution = getResolutionForPro(aspectRatio: effectiveAspectRatio, size: normalizedImageSize)
+                print("📏 分辨率: \(normalizedImageSize) (\(resolution))")
+            } else {
+                print("📏 分辨率: \(normalizedImageSize) (auto)")
+            }
         }
 
         if !references.isEmpty {
@@ -151,13 +163,13 @@ final class GeminiProvider: Sendable {
         let imageConfig: GeminiGenerateRequest.ImageConfig? = if actualModel.contains("2.5-flash") {
             // Flash 模型只支持 aspectRatio
             GeminiGenerateRequest.ImageConfig(
-                aspectRatio: aspectRatio,
+                aspectRatio: effectiveAspectRatio,
                 imageSize: nil
             )
         } else {
             // Pro 模型支持 aspectRatio 和 imageSize（使用标准化后的值）
             GeminiGenerateRequest.ImageConfig(
-                aspectRatio: aspectRatio,
+                aspectRatio: effectiveAspectRatio,
                 imageSize: normalizedImageSize
             )
         }

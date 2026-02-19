@@ -388,6 +388,69 @@ final class GeminiProviderTests: XCTestCase {
         try? FileManager.default.removeItem(at: resultURL)
     }
 
+    func testGenerateImage_AutoAspectRatioOmitsAspectRatioField() async throws {
+        let keychain = KeychainManager(operations: MockKeychainOperationsWithKey(storedKey: "test-api-key"))
+        let configManager = try makeConfigManager(
+            baseURL: "https://api.example.com",
+            model: "gemini-3-pro-image-preview"
+        )
+
+        let expectationCall = expectation(description: "postJSON called")
+
+        let httpClient = makeHTTPClient { request in
+            guard let body = GeminiProviderTests.extractBody(from: request) else {
+                XCTFail("Missing body")
+                let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (resp, Data())
+            }
+
+            let decoded = try JSONDecoder().decode(GeminiGenerateRequest.self, from: body)
+            XCTAssertNil(decoded.generationConfig.imageConfig?.aspectRatio)
+            XCTAssertEqual(decoded.generationConfig.imageConfig?.imageSize, "2K")
+
+            let base64 = try GeminiProviderTests.sampleBase64Image()
+            let response = GeminiGenerateResponse(
+                candidates: [
+                    .init(content: .init(parts: [
+                        .init(text: "ok", inlineData: .init(mimeType: "image/png", data: base64), thoughtSignature: nil),
+                    ])),
+                ]
+            )
+            let data = try JSONEncoder().encode(response)
+            let responseURL = request.url ?? URL(string: "https://api.example.com")!
+            let headers = ["Content-Type": "application/json"]
+            let httpResponse = HTTPURLResponse(url: responseURL, statusCode: 200, httpVersion: nil, headerFields: headers)!
+            expectationCall.fulfill()
+            return (httpResponse, data)
+        }
+
+        let provider = GeminiProvider(
+            providerName: providerName,
+            httpClient: httpClient,
+            keychainManager: keychain,
+            configManager: configManager
+        )
+
+        let reference = TestResources.image("assets/small_100x100.png")
+        let outputURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("gemini_auto_aspect_\(UUID().uuidString).png")
+
+        let resultURL = try await provider.generateImage(
+            prompt: "auto aspect",
+            references: [reference],
+            model: nil,
+            aspectRatio: "auto",
+            imageSize: "2k",
+            outputPath: outputURL.path,
+            enableSearch: false
+        )
+
+        XCTAssertEqual(resultURL, outputURL)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: outputURL.path))
+        try? FileManager.default.removeItem(at: outputURL)
+        await fulfillment(of: [expectationCall], timeout: 2)
+    }
+
     func testGenerateImage_UnknownResolutionFallback() async throws {
         let keychain = KeychainManager(operations: MockKeychainOperationsWithKey(storedKey: "test-api-key"))
         // baseURL 为默认值，model 为空 -> 使用 defaultModel

@@ -95,6 +95,11 @@ final class CommandLayerSmokeTests: XCTestCase {
         try await cmd.run()
     }
 
+    func testGenDrawCommandDefaultAspectRatioIsAuto() throws {
+        let cmd = try DrawCommand.parse(["test prompt"])
+        XCTAssertEqual(cmd.aspectRatio.lowercased(), "auto")
+    }
+
     func testAnalyzeSimilarCommandJSON() async throws {
         let image1 = CommandTestHarness.fixture("small_100x100.png").path
         let image2 = CommandTestHarness.fixture("medium_512x512.jpg").path
